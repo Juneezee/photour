@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/mobile_navigation"
+  app:startDestination="@+id/navigation_home">
+
+  <fragment
+    android:id="@+id/navigation_home"
+    android:name="com.android.photour.ui.visit.VisitFragment"
+    android:label="@string/title_visit"
+    tools:layout="@layout/fragment_visit" />
+
+  <fragment
+    android:id="@+id/navigation_dashboard"
+    android:name="com.android.photour.ui.photos.PhotosFragment"
+    android:label="@string/title_photos"
+    tools:layout="@layout/fragment_photos" />
+
+  <fragment
+    android:id="@+id/navigation_notifications"
+    android:name="com.android.photour.ui.paths.PathsFragment"
+    android:label="@string/title_paths"
+    tools:layout="@layout/fragment_paths" />
+</navigation>
