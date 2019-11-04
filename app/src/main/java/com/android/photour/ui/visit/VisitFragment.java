@@ -5,8 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -16,18 +16,20 @@ public class VisitFragment extends Fragment {
 
   private VisitViewModel visitViewModel;
 
-  public View onCreateView(@NonNull LayoutInflater inflater,
-      ViewGroup container, Bundle savedInstanceState) {
-    visitViewModel =
-        ViewModelProviders.of(this).get(VisitViewModel.class);
+  public View onCreateView(
+      @NonNull LayoutInflater inflater,
+      ViewGroup container,
+      Bundle savedInstanceState) {
+
+    visitViewModel = ViewModelProviders.of(this).get(VisitViewModel.class);
     View root = inflater.inflate(R.layout.fragment_visit, container, false);
-    final TextView textView = root.findViewById(R.id.text_home);
-    visitViewModel.getText().observe(this, new Observer<String>() {
-      @Override
-      public void onChanged(@Nullable String s) {
-        textView.setText(s);
-      }
-    });
+
+    final TextView textViewTitle = root.findViewById(R.id.text_visit);
+    final TextView textViewDate = root.findViewById(R.id.text_date);
+
+    visitViewModel.getTextTitle().observe(this, textViewTitle::setText);
+    visitViewModel.getTextDate().observe(this, textViewDate::setText);
+
     return root;
   }
 }

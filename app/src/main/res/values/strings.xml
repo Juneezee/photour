@@ -1,6 +1,8 @@
 <resources>
   <string name="app_name">Photour</string>
-  <string name="title_visit">New Visit</string>
-  <string name="title_photos">Photos</string>
-  <string name="title_paths">Paths</string>
+  <string name="new_visit">New Visit</string>
+  <string name="photos">Photos</string>
+  <string name="paths">Paths</string>
+  <string name="start">Start</string>
+  <string name="add_a_title">Add a title</string>
 </resources>
