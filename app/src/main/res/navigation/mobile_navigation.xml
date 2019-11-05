@@ -22,4 +22,23 @@
     android:name="com.android.photour.ui.paths.PathsFragment"
     android:label="@string/paths"
     tools:layout="@layout/fragment_paths" />
+
+  <fragment
+      android:id="@+id/navigation_activities"
+      android:name="com.android.photour.ui.activities.ActivitiesFragment"
+      android:label="@string/activities"
+      tools:layout="@layout/fragment_activities" />
+
+  <fragment
+      android:id="@+id/navigation_help"
+      android:name="com.android.photour.ui.help.HelpFragment"
+      android:label="@string/help_amp_feedback"
+      tools:layout="@layout/fragment_help" />
+
+  <fragment
+      android:id="@+id/navigation_settings"
+      android:name="com.android.photour.ui.settings.SettingsFragment"
+      android:label="@string/settings"
+      tools:layout="@layout/fragment_settings" />
+
 </navigation>

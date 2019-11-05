@@ -8,10 +8,14 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -20,20 +24,38 @@ import com.google.android.material.textfield.TextInputLayout;
  */
 public class MainActivity extends AppCompatActivity {
 
+  private AppBarConfiguration appBarConfiguration;
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+
+    NavController navController = Navigation.findNavController(
+            this, R.id.nav_host_fragment);
     BottomNavigationView navView = findViewById(R.id.nav_view);
+    NavigationView drawerView = findViewById(R.id.drawer_view);
+    DrawerLayout drawer = findViewById(R.id.drawer_layout);
+    appBarConfiguration = new AppBarConfiguration.Builder(
+            R.id.navigation_visit, R.id.navigation_photos,
+            R.id.navigation_paths).setDrawerLayout(drawer).build();
+
+
     // Passing each menu ID as a set of Ids because each
     // menu should be considered as top level destinations.
-    AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-        R.id.navigation_visit, R.id.navigation_photos, R.id.navigation_paths).build();
-    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+
     NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
     NavigationUI.setupWithNavController(navView, navController);
+    NavigationUI.setupWithNavController(drawerView, navController);
   }
 
+  @Override
+  public boolean onSupportNavigateUp() {
+    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+    return NavigationUI.navigateUp(navController, appBarConfiguration)
+            || super.onSupportNavigateUp();
+  }
   /**
    * Called to process touch screen event. Overridden for custom event handling
    *
