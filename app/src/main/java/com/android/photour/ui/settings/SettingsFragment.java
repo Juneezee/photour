@@ -12,7 +12,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.android.photour.MainActivity;
 import com.android.photour.R;
+
+import java.util.Objects;
 
 public class SettingsFragment extends Fragment {
 
@@ -30,6 +33,12 @@ public class SettingsFragment extends Fragment {
         textView.setText(s);
       }
     });
+    ((MainActivity) Objects.requireNonNull(getActivity())).setNavigationVisibility(false);
     return root;
+  }
+
+  public void onDestroyView() {
+    super.onDestroyView();
+    ((MainActivity) Objects.requireNonNull(getActivity())).setNavigationVisibility(true);
   }
 }
