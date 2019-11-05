@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -15,9 +15,9 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 /**
  * Main activity of the application
@@ -27,6 +27,9 @@ import com.google.android.material.textfield.TextInputLayout;
 public class MainActivity extends AppCompatActivity {
 
   private AppBarConfiguration appBarConfiguration;
+  private DrawerLayout drawer;
+  private BottomNavigationView navView;
+
   /**
    * Perform the required actions when the activity is created
    *
@@ -42,9 +45,9 @@ public class MainActivity extends AppCompatActivity {
 
     NavController navController = Navigation.findNavController(
             this, R.id.nav_host_fragment);
-    BottomNavigationView navView = findViewById(R.id.nav_view);
+    navView = findViewById(R.id.nav_view);
     NavigationView drawerView = findViewById(R.id.drawer_view);
-    DrawerLayout drawer = findViewById(R.id.drawer_layout);
+    drawer = findViewById(R.id.drawer_layout);
     appBarConfiguration = new AppBarConfiguration.Builder(
             R.id.navigation_visit, R.id.navigation_photos,
             R.id.navigation_paths).setDrawerLayout(drawer).build();
@@ -58,12 +61,45 @@ public class MainActivity extends AppCompatActivity {
     NavigationUI.setupWithNavController(drawerView, navController);
   }
 
+  /**
+   * Allows hamburger button to function
+   *
+   * @return if hamburger button is clicked
+   */
   @Override
   public boolean onSupportNavigateUp() {
     NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
     return NavigationUI.navigateUp(navController, appBarConfiguration)
             || super.onSupportNavigateUp();
   }
+
+  /**
+   * function to lock drawer. Used in fragment onCreateView and onDestroyView
+   * DELETE IF NOT USED AT END OF PROJECT
+   *
+   * @param enabled set if drawer is locked or not
+   */
+  public void setDrawerLocked(boolean enabled) {
+    if (enabled) {
+      drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    } else {
+      drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+    }
+  }
+
+  /**
+   * function to disable bottomnavbar. Used in fragment onCreateView and onDestroyView
+   *
+   * @param visible set if bottomnavbar is disabled or not
+   */
+  public void setNavigationVisibility(boolean visible) {
+    if (navView.isShown() && !visible) {
+      navView.setVisibility(View.GONE);
+    } else if (!navView.isShown() && visible) {
+      navView.setVisibility(View.VISIBLE);
+    }
+  }
+
   /**
    * Called to process touch screen event. Overridden for custom event handling
    *
