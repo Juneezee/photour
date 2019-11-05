@@ -20,11 +20,19 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 /**
+ * Main activity of the application
+ *
  * @author Zer Jun Eng & Jia Hua Ng
  */
 public class MainActivity extends AppCompatActivity {
 
   private AppBarConfiguration appBarConfiguration;
+  /**
+   * Perform the required actions when the activity is created
+   *
+   * @param savedInstanceState If the activity is being re-initialized after previously being shut
+   * down then this Bundle contains the data it most recently supplied in
+   */
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -67,13 +75,14 @@ public class MainActivity extends AppCompatActivity {
     if (ev.getAction() == MotionEvent.ACTION_DOWN) {
       View v = getCurrentFocus();
 
-      //
+      // Unfocus TextInputEditText and hide keyboard when tapped outside
       if (v instanceof TextInputEditText) {
         Rect outRect = new Rect();
         v.getGlobalVisibleRect(outRect);
         if (!outRect.contains((int) ev.getRawX(), (int) ev.getRawY())) {
           v.clearFocus();
-          InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+          InputMethodManager imm = (InputMethodManager) getSystemService(
+              Context.INPUT_METHOD_SERVICE);
           assert imm != null;
           imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
         }
