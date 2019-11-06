@@ -1,19 +1,19 @@
 package com.android.photour.ui.photos;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
+import com.android.photour.ImageElement;
+import com.android.photour.R;
 
 public class PhotosViewModel extends ViewModel {
 
-  private MutableLiveData<String> mText;
+  // Statics for readwrite images
+  private static final int REQUEST_READ_EXTERNAL_STORAGE = 2987;
+  private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 7829;
+  private ImageElement img;
 
   public PhotosViewModel() {
-    mText = new MutableLiveData<>();
-    mText.setValue("This is photos fragment");
+    this.img = new ImageElement(R.drawable.ic_full_logo);
   }
 
-  public LiveData<String> getText() {
-    return mText;
-  }
 }

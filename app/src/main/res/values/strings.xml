@@ -9,4 +9,5 @@
   <string name="help_amp_feedback"><![CDATA[Help & Feedback]]></string>
   <string name="activities">Activities</string>
   <string name="left_nav_header_desc">Left navigation drawer header</string>
+  <string name="photo">PhotoHolder</string>
 </resources>
