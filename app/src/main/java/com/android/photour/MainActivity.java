@@ -1,12 +1,12 @@
 package com.android.photour;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -14,10 +14,10 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
+import java.util.Objects;
 
 /**
  * Main activity of the application
@@ -43,15 +43,13 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
-    NavController navController = Navigation.findNavController(
-            this, R.id.nav_host_fragment);
-    navView = findViewById(R.id.nav_view);
+    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
     NavigationView drawerView = findViewById(R.id.drawer_view);
+    navView = findViewById(R.id.nav_view);
     drawer = findViewById(R.id.drawer_layout);
     appBarConfiguration = new AppBarConfiguration.Builder(
-            R.id.navigation_visit, R.id.navigation_photos,
-            R.id.navigation_paths).setDrawerLayout(drawer).build();
-
+        R.id.navigation_visit, R.id.navigation_photos,
+        R.id.navigation_paths).setDrawerLayout(drawer).build();
 
     // Passing each menu ID as a set of Ids because each
     // menu should be considered as top level destinations.
@@ -70,12 +68,12 @@ public class MainActivity extends AppCompatActivity {
   public boolean onSupportNavigateUp() {
     NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
     return NavigationUI.navigateUp(navController, appBarConfiguration)
-            || super.onSupportNavigateUp();
+        || super.onSupportNavigateUp();
   }
 
   /**
-   * function to lock drawer. Used in fragment onCreateView and onDestroyView
-   * DELETE IF NOT USED AT END OF PROJECT
+   * function to lock drawer. Used in fragment onCreateView and onDestroyView DELETE IF NOT USED AT
+   * END OF PROJECT
    *
    * @param enabled set if drawer is locked or not
    */
@@ -90,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
   /**
    * Method to disable bottom navigation bar. Used in fragment onCreateView and onDestroyView
    *
-   * @param visible True if the bottom navigation bar is to be disabled
+   * @param visible True if the bottom navigation bar should not be visible
    */
   public void setNavigationVisibility(boolean visible) {
     if (navView.isShown() && !visible) {

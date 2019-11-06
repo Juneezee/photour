@@ -6,17 +6,14 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.android.photour.ImageElement;
 import com.android.photour.R;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +29,7 @@ public class PhotosFragment extends Fragment {
   /**
    * helper function to recalculate number of columns
    *
-   * @param context       context of application
+   * @param context context of application
    * @param columnWidthDp size of column
    * @return number of columns
    */
@@ -52,16 +49,15 @@ public class PhotosFragment extends Fragment {
   }
 
   public View onCreateView(@NonNull LayoutInflater inflater,
-                           ViewGroup container, Bundle savedInstanceState) {
+      ViewGroup container, Bundle savedInstanceState) {
     photosViewModel =
         ViewModelProviders.of(this).get(PhotosViewModel.class);
     View root = inflater.inflate(R.layout.fragment_photos, container, false);
 
     mRecyclerView = root.findViewById(R.id.grid_recycler_view);
 
-
     mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),
-            calculateNoOfColumns(Objects.requireNonNull(getActivity()), IMAGE_WIDTH)));
+        calculateNoOfColumns(Objects.requireNonNull(getActivity()), IMAGE_WIDTH)));
     photoAdapter = new PhotoAdapter(pictureList);
     mRecyclerView.setAdapter(photoAdapter);
 

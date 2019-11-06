@@ -25,6 +25,8 @@ public class VisitViewModel extends ViewModel {
     return textTitle;
   }
 
-  public LiveData<String> getTextDate() { return textDate; }
+  public LiveData<String> getTextDate() {
+    return textDate;
+  }
 
 }

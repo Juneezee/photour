@@ -30,10 +30,10 @@
     tools:layout="@layout/fragment_activities" />
 
   <fragment
-    android:id="@+id/navigation_help"
-    android:name="com.android.photour.ui.help.HelpFragment"
-    android:label="@string/help_amp_feedback"
-    tools:layout="@layout/fragment_help" />
+    android:id="@+id/navigation_about"
+    android:name="com.android.photour.ui.about.AboutFragment"
+    android:label="@string/about"
+    tools:layout="@layout/fragment_about" />
 
   <fragment
     android:id="@+id/navigation_settings"

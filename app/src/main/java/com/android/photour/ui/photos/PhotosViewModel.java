@@ -1,7 +1,6 @@
 package com.android.photour.ui.photos;
 
 import androidx.lifecycle.ViewModel;
-
 import com.android.photour.ImageElement;
 import com.android.photour.R;
 
