@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class SplashScreenActivity extends AppCompatActivity {
 
   /**
-   *
+   * Create a splash screen while MainActivity is still being loaded
    *
    * @param savedInstanceState If the activity is being re-initialized after previously being shut
    * down then this Bundle contains the data it most recently supplied in
@@ -22,8 +22,7 @@ public class SplashScreenActivity extends AppCompatActivity {
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-    startActivity(intent);
+    startActivity(new Intent(getApplicationContext(), MainActivity.class));
     finish();
   }
 }

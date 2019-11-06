@@ -7,7 +7,6 @@
 
   <!-- Set the Background Image-->
   <item
-    android:gravity="center"
-    android:drawable="@drawable/ic_full_logo">
-  </item>
+    android:drawable="@drawable/ic_full_logo_vertical"
+    android:gravity="center" />
 </layer-list>

@@ -62,9 +62,9 @@ public class MainActivity extends AppCompatActivity {
   }
 
   /**
-   * Allows hamburger button to function
+   * Allows the side navigation bar to slide in when the hamburger button is clicked
    *
-   * @return if hamburger button is clicked
+   * @return boolean True if the hamburger button is clicked
    */
   @Override
   public boolean onSupportNavigateUp() {
@@ -88,9 +88,9 @@ public class MainActivity extends AppCompatActivity {
   }
 
   /**
-   * function to disable bottomnavbar. Used in fragment onCreateView and onDestroyView
+   * Method to disable bottom navigation bar. Used in fragment onCreateView and onDestroyView
    *
-   * @param visible set if bottomnavbar is disabled or not
+   * @param visible True if the bottom navigation bar is to be disabled
    */
   public void setNavigationVisibility(boolean visible) {
     if (navView.isShown() && !visible) {
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
     if (ev.getAction() == MotionEvent.ACTION_DOWN) {
       View v = getCurrentFocus();
 
-      // Unfocus TextInputEditText and hide keyboard when tapped outside
+      // Clear focus of TextInputEditText and hide keyboard when tapped outside
       if (v instanceof TextInputEditText) {
         Rect outRect = new Rect();
         v.getGlobalVisibleRect(outRect);
