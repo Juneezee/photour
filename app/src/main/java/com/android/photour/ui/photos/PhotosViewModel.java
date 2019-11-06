@@ -13,7 +13,7 @@ public class PhotosViewModel extends ViewModel {
   private ImageElement img;
 
   public PhotosViewModel() {
-    this.img = new ImageElement(R.drawable.ic_full_logo);
+    this.img = new ImageElement(R.drawable.ic_full_logo_vertical);
   }
 
 }
