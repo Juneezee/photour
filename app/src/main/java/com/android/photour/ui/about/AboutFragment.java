@@ -15,8 +15,8 @@ public class AboutFragment extends Fragment {
   public View onCreateView(
       @NonNull LayoutInflater inflater,
       ViewGroup container,
-      Bundle savedInstanceState) {
-
+      Bundle savedInstanceState
+  ) {
     View root = inflater.inflate(R.layout.fragment_about, container, false);
 
     ((MainActivity) Objects.requireNonNull(getActivity())).setNavigationVisibility(false);

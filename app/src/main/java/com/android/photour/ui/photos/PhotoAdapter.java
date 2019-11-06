@@ -20,12 +20,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.View_Holder>
     PhotoAdapter.items = items;
   }
 
-  public static List<ImageElement> getItems() {
-    return items;
-  }
+  class View_Holder extends RecyclerView.ViewHolder {
+    private final ImageView imageView;
 
-  public static void setItems(List<ImageElement> items) {
-    PhotoAdapter.items = items;
+    View_Holder(View itemView) {
+      super(itemView);
+      imageView = itemView.findViewById(R.id.image_item);
+    }
   }
 
   @NonNull
@@ -34,7 +35,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.View_Holder>
     //Inflate the layout, initialize the View Holder
     View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_image,
         parent, false);
-    //        context = parent.getContext();
+    //    context = parent.getContext();
     return new View_Holder(v);
   }
 
@@ -69,13 +70,4 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.View_Holder>
     return items.size();
   }
 
-  class View_Holder extends RecyclerView.ViewHolder {
-
-    ImageView imageView;
-
-    View_Holder(View itemView) {
-      super(itemView);
-      imageView = itemView.findViewById(R.id.image_item);
-    }
-  }
 }

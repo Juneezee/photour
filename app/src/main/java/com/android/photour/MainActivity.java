@@ -2,6 +2,7 @@ package com.android.photour;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -14,6 +15,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import com.android.photour.ui.visit.StartVisitActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -96,6 +98,15 @@ public class MainActivity extends AppCompatActivity {
     } else if (!navView.isShown() && visible) {
       navView.setVisibility(View.VISIBLE);
     }
+  }
+
+  /**
+   *
+   *
+   * @param view
+   */
+  public void startNewVisit(View view) {
+    startActivity(new Intent(this, StartVisitActivity.class));
   }
 
   /**

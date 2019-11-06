@@ -1,5 +1,6 @@
 package com.android.photour.ui.visit;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,12 +23,17 @@ public class VisitFragment extends Fragment {
     visitViewModel = ViewModelProviders.of(this).get(VisitViewModel.class);
     View root = inflater.inflate(R.layout.fragment_visit, container, false);
 
+
+    initView(root);
+
+    return root;
+  }
+
+  private void initView(View root) {
     final TextView textViewTitle = root.findViewById(R.id.text_visit);
     final TextView textViewDate = root.findViewById(R.id.text_date);
 
     visitViewModel.getTextTitle().observe(this, textViewTitle::setText);
     visitViewModel.getTextDate().observe(this, textViewDate::setText);
-
-    return root;
   }
 }
