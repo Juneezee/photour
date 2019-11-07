@@ -68,7 +68,6 @@
       android:layout_height="wrap_content"
       android:layout_marginTop="20dp"
       android:background="@drawable/rounded_button"
-      android:onClick="startNewVisit"
       android:text="@string/start"
       android:textColor="@color/colorWhite"
       app:layout_constraintEnd_toEndOf="parent"
