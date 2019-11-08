@@ -11,6 +11,8 @@ import android.view.inputmethod.InputMethodManager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -19,6 +21,9 @@ import com.android.photour.ui.visit.StartVisitActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -28,9 +33,11 @@ import java.util.Objects;
  */
 public class MainActivity extends AppCompatActivity {
 
+  private  LiveData<NavController> currentNavController = null;
   private AppBarConfiguration appBarConfiguration;
   private DrawerLayout drawer;
-  private BottomNavigationView navView;
+  private BottomNavExtension navView;
+  private List<Integer> navGraphIds = new ArrayList<>();
 
   /**
    * Perform the required actions when the activity is created
@@ -42,23 +49,58 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    if (savedInstanceState == null) {
+      setupBottomNavigationBar();
+    }
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
-    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-    NavigationView drawerView = findViewById(R.id.drawer_view);
-    navView = findViewById(R.id.nav_view);
-    drawer = findViewById(R.id.drawer_layout);
-    appBarConfiguration = new AppBarConfiguration.Builder(
-        R.id.navigation_visit, R.id.navigation_photos,
-        R.id.navigation_paths).setDrawerLayout(drawer).build();
+//    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+//    NavigationView drawerView = findViewById(R.id.drawer_view);
+//    navView = findViewById(R.id.nav_view);
+//    drawer = findViewById(R.id.drawer_layout);
+//    appBarConfiguration = new AppBarConfiguration.Builder(
+//        R.id.navigation_visit, R.id.navigation_photos,
+//        R.id.navigation_paths).setDrawerLayout(drawer).build();
 
     // Passing each menu ID as a set of Ids because each
     // menu should be considered as top level destinations.
 
-    NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-    NavigationUI.setupWithNavController(navView, navController);
-    NavigationUI.setupWithNavController(drawerView, navController);
+//    NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+//    NavigationUI.setupWithNavController(navView, navController);
+//    NavigationUI.setupWithNavController(drawerView, navController);
+  }
+
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    super.onRestoreInstanceState(savedInstanceState);
+    setupBottomNavigationBar();
+  }
+
+  /**
+   * Called on first creation and when restoring state.
+   */
+  private void setupBottomNavigationBar() {
+    navView = findViewById(R.id.nav_view);
+    navGraphIds.add(R.navigation.visits_navigation);
+    navGraphIds.add(R.navigation.photos_navigation);
+    navGraphIds.add(R.navigation.paths_navigation);
+    LiveData<NavController> controller;
+
+    controller = navView.setupWithNavController(
+            navGraphIds,
+            this.getSupportFragmentManager(),
+            R.id.nav_host_fragment,
+            this.getIntent()
+    );
+
+    drawer = findViewById(R.id.drawer_layout);
+    final Observer<NavController> navControllerObserver =
+            navController -> NavigationUI.setupActionBarWithNavController(
+                    this,navController,drawer);
+
+    controller.observe(this,navControllerObserver);
+    currentNavController = controller;
   }
 
   /**
@@ -68,9 +110,12 @@ public class MainActivity extends AppCompatActivity {
    */
   @Override
   public boolean onSupportNavigateUp() {
-    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-    return NavigationUI.navigateUp(navController, appBarConfiguration)
-        || super.onSupportNavigateUp();
+
+    return currentNavController.getValue().navigateUp();
+
+//    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+//    return NavigationUI.navigateUp(navController, appBarConfiguration)
+//        || super.onSupportNavigateUp();
   }
 
   /**

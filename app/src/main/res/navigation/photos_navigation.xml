@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/photos_navigation"
+    app:startDestination="@+id/navigation_photos">
+
+    <fragment
+        android:id="@+id/navigation_photos"
+        android:name="com.android.photour.ui.photos.PhotosFragment"
+        android:label="@string/photos"
+        tools:layout="@layout/fragment_photos" />
+
+
+</navigation>

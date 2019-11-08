@@ -17,7 +17,6 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Manages the various graphs needed for a [BottomNavigationView].
@@ -25,6 +24,10 @@ import java.util.concurrent.atomic.AtomicReference;
  * This sample is a workaround until the Navigation Component supports multiple back stacks.
  */
 public class BottomNavExtension extends BottomNavigationView {
+
+    private String selectedItemTag;
+    private String firstFragmentTag;
+    private boolean isOnFirstFragment;
 
     public BottomNavExtension(@NonNull Context context) {
         super(context);
@@ -57,13 +60,14 @@ public class BottomNavExtension extends BottomNavigationView {
 
             // Obtain its id
             int graphId = navHostFragment.getNavController().getGraph().getId();
-
             if (i == 0 ) {
                 firstFragmentGraphId = graphId;
             }
 
+            System.out.println("append "+graphId+": "+fragmentTag);
             // Save to the map
-            graphIdToTagMap.setValueAt(graphId, fragmentTag);
+            graphIdToTagMap.append(graphId, fragmentTag);
+            System.out.println(this.getSelectedItemId());
 
             if(this.getSelectedItemId() == graphId) {
                 selectedNavController.setValue(navHostFragment.getNavController());
@@ -73,24 +77,30 @@ public class BottomNavExtension extends BottomNavigationView {
             }
         }
 
-        AtomicReference<String> selectedItemTag =
-                new AtomicReference<>(graphIdToTagMap.get(this.getSelectedItemId()));
-        String firstFragmentTag = graphIdToTagMap.get(firstFragmentGraphId);
-        AtomicReference<Boolean> isOnFirstFragment =
-                new AtomicReference<>(selectedItemTag.get() == firstFragmentTag);
+        System.out.println(this.getSelectedItemId());
+        System.out.println(firstFragmentGraphId);
+        selectedItemTag = graphIdToTagMap.get(this.getSelectedItemId());
+        firstFragmentTag = graphIdToTagMap.get(firstFragmentGraphId);
+        System.out.println(selectedItemTag);
+        System.out.println(firstFragmentTag);
+        isOnFirstFragment = selectedItemTag.equals(firstFragmentTag);
 
         this.setOnNavigationItemSelectedListener(item -> {
+            System.out.println("FIRST TIME SELECT: "+item);
             if (fragmentManager.isStateSaved()) {
+                System.out.println("state saved!");
                 return false;
             } else {
+                System.out.println(item.getItemId());
                 String newlySelectedItemTag = graphIdToTagMap.get(item.getItemId());
-                if (selectedItemTag.get() != newlySelectedItemTag) {
+                System.out.println(newlySelectedItemTag);
+                if (!selectedItemTag.equals(newlySelectedItemTag)) {
                     fragmentManager.popBackStack(firstFragmentTag,
                             FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     NavHostFragment selectedFragment =
                             (NavHostFragment) fragmentManager.findFragmentByTag(newlySelectedItemTag);
 
-                    if (firstFragmentTag != newlySelectedItemTag) {
+                    if (!firstFragmentTag.equals(newlySelectedItemTag)) {
                         FragmentTransaction ft = fragmentManager.beginTransaction();
                         ft.setCustomAnimations(R.anim.nav_default_enter_anim,
                                 R.anim.nav_default_exit_anim,
@@ -102,7 +112,7 @@ public class BottomNavExtension extends BottomNavigationView {
                             int key = graphIdToTagMap.keyAt(i);
                             // get the object by the key.
                             String fragmentTagIter = graphIdToTagMap.get(key);
-                            if (fragmentTagIter != newlySelectedItemTag) {
+                            if (!fragmentTagIter.equals(newlySelectedItemTag)) {
                                 try {
                                     ft.detach(fragmentManager.findFragmentByTag(firstFragmentTag));
                                 } catch (Exception e) {
@@ -114,11 +124,13 @@ public class BottomNavExtension extends BottomNavigationView {
                         ft.setReorderingAllowed(true);
                         ft.commit();
                     }
-                    selectedItemTag.set(newlySelectedItemTag);
-                    isOnFirstFragment.set(selectedItemTag.get() == firstFragmentTag);
+                    selectedItemTag = newlySelectedItemTag;
+                    isOnFirstFragment = (selectedItemTag.equals(firstFragmentTag));
                     selectedNavController.setValue(selectedFragment.getNavController());
+                    System.out.println("not a new tag!");
                     return true;
                 } else {
+                    System.out.println("a new tag!");
                     return false;
                 }
             }
@@ -128,9 +140,14 @@ public class BottomNavExtension extends BottomNavigationView {
             String newlySelectedItemTag = graphIdToTagMap.get(item.getItemId());
             NavHostFragment selectedFragment =
                     (NavHostFragment) fragmentManager.findFragmentByTag(newlySelectedItemTag);
-            NavController navController = selectedFragment.getNavController();
+
+            NavController navController = null;
+            if (selectedFragment != null) {
+                navController = selectedFragment.getNavController();
+                navController.popBackStack(navController.getGraph().getStartDestination(),false);
+            }
             // Pop the back stack to the start destination of the current navController graph
-            navController.popBackStack(navController.getGraph().getStartDestination(),false);
+
         });
         
         setupDeepLinks(navGraphIds, fragmentManager, containerId, intent);
@@ -147,7 +164,7 @@ public class BottomNavExtension extends BottomNavigationView {
                         isOnBackStack = true;
                     }
                 }
-                if (!isOnFirstFragment.get() && !isOnBackStack) {
+                if (!isOnFirstFragment && !isOnBackStack) {
                     listenerSetSelectedItemId(finalFirstFragmentGraphId);
                 }
                 if (selectedNavController.getValue().getCurrentDestination() == null) {
