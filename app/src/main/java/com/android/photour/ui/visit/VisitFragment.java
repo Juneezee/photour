@@ -17,6 +17,13 @@ public class VisitFragment extends Fragment {
 
   private VisitViewModel visitViewModel;
 
+  /**
+   *
+   * @param inflater
+   * @param container
+   * @param savedInstanceState
+   * @return View
+   */
   public View onCreateView(
       @NonNull LayoutInflater inflater,
       ViewGroup container,
