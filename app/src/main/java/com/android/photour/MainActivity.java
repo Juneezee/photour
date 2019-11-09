@@ -38,10 +38,8 @@ public class MainActivity extends AppCompatActivity {
   private  LiveData<NavController> currentNavController = null;
   private AppBarConfiguration appBarConfiguration;
   private DrawerLayout drawer;
-  private BottomNavExtension navView;
-  private NavigationView drawerView;
-  private ActionBarDrawerToggle drawerToggle;
   private Toolbar toolbar;
+  private BottomNavigationView navView;
 
   /**
    * Perform the required actions when the activity is created
@@ -146,18 +144,9 @@ public class MainActivity extends AppCompatActivity {
   }
 
   /**
+   * Sets the visibility of bottom navigation bar
    *
-   *
-   * @param view
-   */
-  public void startNewVisit(View view) {
-    startActivity(new Intent(this, StartVisitActivity.class));
-  }
-
-  /**
-   * Method to disable bottom navigation bar. Used in fragment onCreateView and onDestroyView
-   *
-   * @param visible True if the bottom navigation bar should not be visible
+   * @param visible True if the bottom navigation bar should be visible
    */
   public void setNavigationVisibility(boolean visible) {
     if (navView.isShown() && !visible) {
@@ -165,6 +154,15 @@ public class MainActivity extends AppCompatActivity {
     } else if (!navView.isShown() && visible) {
       navView.setVisibility(View.VISIBLE);
     }
+  }
+
+  /**
+   * Sets the visibility of top toolbar (Action bar)
+   *
+   * @param visible True if the top toolbar (Action bar) should be visible
+   */
+  public void setToolbarVisibility(boolean visible) {
+    toolbar.setVisibility(visible ? View.VISIBLE : View.GONE);
   }
 
   /**

@@ -8,18 +8,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import com.android.photour.MainActivity;
 import com.android.photour.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.libraries.maps.GoogleMap;
+import com.google.android.libraries.maps.MapFragment;
 import com.google.android.libraries.maps.MapView;
 import com.google.android.libraries.maps.OnMapReadyCallback;
+import com.google.android.libraries.maps.SupportMapFragment;
 import java.util.Objects;
 
 public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
@@ -32,26 +35,27 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   private GoogleMap googleMap;
   private MapView mapView;
 
+  @Override
   public View onCreateView(
       @NonNull LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
 
-    View root = inflater.inflate(R.layout.fragment_visit_map, container, false);
-    stopVisitListener(root);
+    return inflater.inflate(R.layout.fragment_visit_map, container, false);
+  }
 
-    mapView = root.findViewById(R.id.map_start_visit);
-    mapView.onCreate(savedInstanceState);
-    initGoogleMap();
-
-    return root;
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+    stopVisitListener(view);
+//    initGoogleMap();
   }
 
   private void stopVisitListener(View root) {
     final Button stopButton = root.findViewById(R.id.button_stop_visit);
 
     stopButton.setOnClickListener(v -> {
-      VisitFragment visitFragment = new VisitFragment();
+      Fragment visitFragment = new VisitFragment();
       assert getFragmentManager() != null;
       FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.nav_host_fragment, visitFragment);
@@ -123,41 +127,15 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   }
 
   @Override
-  public void onSaveInstanceState(@NonNull Bundle outState) {
-    super.onSaveInstanceState(outState);
-    mapView.onSaveInstanceState(outState);
-  }
-
-  @Override
-  public void onStart() {
-    super.onStart();
-    mapView.onStart();
-  }
-
-  @Override
   public void onResume() {
     super.onResume();
-    mapView.onResume();
-  }
-
-  @Override
-  public void onPause() {
-    super.onPause();
-    mapView.onPause();
-
+//    SupportMapFragment smf = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_fragment));
+    ((MainActivity) Objects.requireNonNull(getActivity())).setToolbarVisibility(false);
   }
 
   @Override
   public void onStop() {
     super.onStop();
-    mapView.onStop();
-
-  }
-
-  @Override
-  public void onDestroy() {
-    super.onDestroy();
-    mapView.onDestroy();
-
+    ((MainActivity) Objects.requireNonNull(getActivity())).setToolbarVisibility(true);
   }
 }
