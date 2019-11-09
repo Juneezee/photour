@@ -82,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
 
   /**
    * Called on first creation and when restoring state.
+   *
+   * Setups the bottomnavbar as well as the navcontroller for the fragment
    */
   private void setupBottomNavigationBar() {
     navView = findViewById(R.id.nav_view);
@@ -120,6 +122,11 @@ public class MainActivity extends AppCompatActivity {
     currentNavController = controller;
   }
 
+  /**
+   * Allows hamburger and back button to function
+   *
+   * @return if in menu or not
+   */
   @Override
   public boolean onSupportNavigateUp() {
     NavController navController = currentNavController.getValue();
@@ -134,6 +141,9 @@ public class MainActivity extends AppCompatActivity {
     return super.onOptionsItemSelected(item);
   }
 
+  /**
+   * Added to allow physical back button to function with drawer
+   */
   @Override
   public void onBackPressed() {
     if (drawer.isDrawerOpen(GravityCompat.START)) {

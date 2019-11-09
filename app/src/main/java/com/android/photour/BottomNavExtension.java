@@ -4,37 +4,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
 import android.util.SparseArray;
-import android.view.MenuItem;
-import android.view.View;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
 
-import com.android.photour.ui.about.AboutFragment;
-import com.android.photour.ui.activities.ActivitiesFragment;
-import com.android.photour.ui.settings.SettingsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
 
 import java.util.List;
 
 /**
  * Manages the various graphs needed for a [BottomNavigationView].
  *
- * This sample is a workaround until the Navigation Component supports multiple back stacks.
+ * Modified and coverted to Java from sample provided by Google
+ * https://github.com/android/architecture-components-samples
  */
 public class BottomNavExtension extends BottomNavigationView {
 
@@ -77,10 +65,8 @@ public class BottomNavExtension extends BottomNavigationView {
                 firstFragmentGraphId = graphId;
             }
 
-            System.out.println("append "+graphId+": "+fragmentTag);
             // Save to the map
             graphIdToTagMap.append(graphId, fragmentTag);
-            System.out.println(this.getSelectedItemId());
 
             if(this.getSelectedItemId() == graphId) {
                 selectedNavController.setValue(navHostFragment.getNavController());
@@ -90,57 +76,16 @@ public class BottomNavExtension extends BottomNavigationView {
             }
         }
 
-        System.out.println(this.getSelectedItemId());
-        System.out.println(firstFragmentGraphId);
         selectedItemTag = graphIdToTagMap.get(this.getSelectedItemId());
         firstFragmentTag = graphIdToTagMap.get(firstFragmentGraphId);
-        System.out.println(selectedItemTag);
-        System.out.println(firstFragmentTag);
         isOnFirstFragment = selectedItemTag.equals(firstFragmentTag);
 
-//        drawerView.setNavigationItemSelectedListener(
-//                (MenuItem item) -> {
-//                    System.out.println("HELLO: "+item.toString());
-//                    FragmentTransaction ft = fragmentManager.beginTransaction();
-//                    Fragment newFragment = null;
-//                    switch (item.toString()) {
-//                        case "About":
-//                            newFragment = new AboutFragment();
-//                            break;
-//                        case "Settings":
-//                            newFragment = new SettingsFragment();
-//                            break;
-//                        case "Activities":
-//                            newFragment = new ActivitiesFragment();
-//                            break;
-//                        default:
-//                            break;
-//                    }
-//                    if (newFragment != null && !selectedItemTag.equals(item.toString())) {
-//                        ft.replace(R.id.nav_host_fragment,newFragment,item.toString());
-//                        ft.addToBackStack(selectedItemTag);
-//                        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-//                        ft.commit();
-//                        selectedItemTag = item.toString();
-//                        drawer.closeDrawer(GravityCompat.START);
-//                        selectedNavController.getValue().getCurrentDestination().
-//                                setLabel(selectedItemTag);
-//                        return true;
-//                    } else {
-//                        return false;
-//                    }
-//                }
-//        );
-
+        // Listener when navigation is selected on bottomnavview
         this.setOnNavigationItemSelectedListener(item -> {
-            System.out.println("FIRST TIME SELECT: "+item);
             if (fragmentManager.isStateSaved()) {
-                System.out.println("state saved!");
                 return false;
             } else {
-                System.out.println(item.getItemId());
                 String newlySelectedItemTag = graphIdToTagMap.get(item.getItemId());
-                System.out.println(newlySelectedItemTag);
                 if (!selectedItemTag.equals(newlySelectedItemTag)) {
                     fragmentManager.popBackStack(firstFragmentTag,
                             FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -174,10 +119,8 @@ public class BottomNavExtension extends BottomNavigationView {
                     selectedItemTag = newlySelectedItemTag;
                     isOnFirstFragment = (selectedItemTag.equals(firstFragmentTag));
                     selectedNavController.setValue(selectedFragment.getNavController());
-                    System.out.println("not a new tag!");
                     return true;
                 } else {
-                    System.out.println("a new tag!");
                     return false;
                 }
             }
@@ -193,8 +136,6 @@ public class BottomNavExtension extends BottomNavigationView {
                 navController = selectedFragment.getNavController();
                 navController.popBackStack(navController.getGraph().getStartDestination(),false);
             }
-            // Pop the back stack to the start destination of the current navController graph
-
         });
         
         setupDeepLinks(navGraphIds, fragmentManager, containerId, intent);
@@ -226,6 +167,7 @@ public class BottomNavExtension extends BottomNavigationView {
                                 int containerId, Intent intent) {
         for (int i=0; i < navGraphIds.size(); i++) {
             String fragmentTag = getFragmentTag(i);
+            // Find or create the Navigation host fragment
             NavHostFragment navHostFragment = obtainNavHostFragment(fragmentManager,
                     fragmentTag, navGraphIds.get(i), containerId);
 
@@ -256,15 +198,16 @@ public class BottomNavExtension extends BottomNavigationView {
 
     private NavHostFragment obtainNavHostFragment(FragmentManager fragmentManager,
           String fragmentTag, int navGraphId, int containerId) {
-
         NavHostFragment existingFragment =
                 (NavHostFragment) fragmentManager.findFragmentByTag(fragmentTag);
         if (existingFragment == null) {
+            // If fragment doesn't exist, create it and return it.
             NavHostFragment navHostFragment = NavHostFragment.create(navGraphId);
             fragmentManager.beginTransaction()
                     .add(containerId, navHostFragment, fragmentTag).commitNow();
             return navHostFragment;
         } else {
+            // If the Nav Host fragment exists, return it
             return existingFragment;
         }
     }

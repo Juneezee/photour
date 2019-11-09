@@ -41,7 +41,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.View_Holder>
 
   @Override
   public void onBindViewHolder(@NonNull View_Holder holder, int position) {
-    System.out.println(position);
     if (items.get(position) != null) {
       if (items.get(position).getImage() != -1) {
         holder.imageView.setImageResource(items.get(position).getImage());
@@ -49,14 +48,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.View_Holder>
         Bitmap myBitmap = BitmapFactory.decodeFile(items.get(position).getFile().getAbsolutePath());
         holder.imageView.setImageBitmap(myBitmap);
       }
-//            holder.itemView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    Intent intent = new Intent(context, ShowImageActivity.class);
-//                    intent.putExtra("position", position);
-//                    context.startActivity(intent);
-//                }
-//            });
     }
   }
 
