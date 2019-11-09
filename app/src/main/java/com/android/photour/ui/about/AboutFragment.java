@@ -10,6 +10,11 @@ import com.android.photour.MainActivity;
 import com.android.photour.R;
 import java.util.Objects;
 
+/**
+ * Fragment that display the developers of this application
+ *
+ * @author Zer Jun Eng & Jia Hua Ng
+ */
 public class AboutFragment extends Fragment {
 
   public View onCreateView(

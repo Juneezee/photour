@@ -9,13 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProviders;
-import com.android.photour.MainActivity;
+import androidx.lifecycle.ViewModelProvider;
 import com.android.photour.R;
-import com.google.android.libraries.maps.MapFragment;
-import com.google.android.libraries.maps.SupportMapFragment;
-import java.util.Objects;
 
 public class VisitFragment extends Fragment {
 
@@ -32,7 +27,7 @@ public class VisitFragment extends Fragment {
       ViewGroup container,
       Bundle savedInstanceState) {
 
-    visitViewModel = ViewModelProviders.of(this).get(VisitViewModel.class);
+    visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
 
     return inflater.inflate(R.layout.fragment_visit, container, false);
   }
@@ -44,8 +39,8 @@ public class VisitFragment extends Fragment {
     final TextView textViewTitle = view.findViewById(R.id.text_visit);
     final TextView textViewDate = view.findViewById(R.id.text_date);
 
-    visitViewModel.getTextTitle().observe(this, textViewTitle::setText);
-    visitViewModel.getTextDate().observe(this, textViewDate::setText);
+    visitViewModel.getTextTitle().observe(getViewLifecycleOwner(), textViewTitle::setText);
+    visitViewModel.getTextDate().observe(getViewLifecycleOwner(), textViewDate::setText);
 
     startNewVisitListener(view);
   }
@@ -58,11 +53,10 @@ public class VisitFragment extends Fragment {
 
     startButton.setOnClickListener(v -> {
       Fragment startVisitFragment = new StartVisitFragment();
-      assert getFragmentManager() != null;
-      FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-      fragmentTransaction.replace(R.id.nav_host_fragment, startVisitFragment);
-      fragmentTransaction.addToBackStack(null);
-      fragmentTransaction.commit();
+      getParentFragmentManager().beginTransaction()
+          .replace(R.id.nav_host_fragment, startVisitFragment)
+          .addToBackStack(null)
+          .commit();
     });
   }
 }

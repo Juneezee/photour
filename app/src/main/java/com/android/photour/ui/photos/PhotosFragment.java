@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.android.photour.ImageElement;
@@ -35,7 +35,7 @@ public class PhotosFragment extends Fragment {
       @NonNull LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
-    photosViewModel = ViewModelProviders.of(this).get(PhotosViewModel.class);
+    photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
     View root = inflater.inflate(R.layout.fragment_photos, container, false);
 
     mRecyclerView = root.findViewById(R.id.grid_recycler_view);

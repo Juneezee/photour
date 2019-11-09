@@ -6,7 +6,7 @@
   xmlns:tools="http://schemas.android.com/tools"
   tools:showIn="@layout/content_main">
 
-  <fragment
+  <androidx.fragment.app.FragmentContainerView
     android:id="@+id/map_fragment"
     android:name="com.google.android.libraries.maps.SupportMapFragment"
     android:layout_width="match_parent"
