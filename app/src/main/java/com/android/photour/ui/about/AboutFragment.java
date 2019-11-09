@@ -18,14 +18,6 @@ public class AboutFragment extends Fragment {
       Bundle savedInstanceState
   ) {
     View root = inflater.inflate(R.layout.fragment_about, container, false);
-
-    ((MainActivity) Objects.requireNonNull(getActivity())).setNavigationVisibility(false);
-
     return root;
-  }
-
-  public void onDestroyView() {
-    super.onDestroyView();
-    ((MainActivity) Objects.requireNonNull(getActivity())).setNavigationVisibility(true);
   }
 }

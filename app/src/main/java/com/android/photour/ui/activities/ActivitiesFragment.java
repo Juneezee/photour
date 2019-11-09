@@ -25,12 +25,6 @@ public class ActivitiesFragment extends Fragment {
     View root = inflater.inflate(R.layout.fragment_paths, container, false);
     final TextView textView = root.findViewById(R.id.text_notifications);
     activitiesViewModel.getText().observe(this, textView::setText);
-    ((MainActivity) Objects.requireNonNull(getActivity())).setNavigationVisibility(false);
     return root;
-  }
-
-  public void onDestroyView() {
-    super.onDestroyView();
-    ((MainActivity) Objects.requireNonNull(getActivity())).setNavigationVisibility(true);
   }
 }

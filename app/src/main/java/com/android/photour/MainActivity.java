@@ -3,18 +3,26 @@ package com.android.photour;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import com.android.photour.ui.visit.StartVisitActivity;
@@ -25,6 +33,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static android.media.CamcorderProfile.get;
 
 /**
  * Main activity of the application
@@ -37,7 +47,9 @@ public class MainActivity extends AppCompatActivity {
   private AppBarConfiguration appBarConfiguration;
   private DrawerLayout drawer;
   private BottomNavExtension navView;
-  private List<Integer> navGraphIds = new ArrayList<>();
+  private NavigationView drawerView;
+  private ActionBarDrawerToggle drawerToggle;
+  private Toolbar toolbar;
 
   /**
    * Perform the required actions when the activity is created
@@ -49,26 +61,17 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    toolbar = findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    getSupportActionBar().setHomeButtonEnabled(true);
+
+    drawer = findViewById(R.id.drawer_layout);
+    drawerView = findViewById(R.id.drawer_view);
+
     if (savedInstanceState == null) {
       setupBottomNavigationBar();
     }
-    Toolbar toolbar = findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
-
-//    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-//    NavigationView drawerView = findViewById(R.id.drawer_view);
-//    navView = findViewById(R.id.nav_view);
-//    drawer = findViewById(R.id.drawer_layout);
-//    appBarConfiguration = new AppBarConfiguration.Builder(
-//        R.id.navigation_visit, R.id.navigation_photos,
-//        R.id.navigation_paths).setDrawerLayout(drawer).build();
-
-    // Passing each menu ID as a set of Ids because each
-    // menu should be considered as top level destinations.
-
-//    NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-//    NavigationUI.setupWithNavController(navView, navController);
-//    NavigationUI.setupWithNavController(drawerView, navController);
   }
 
   @Override
@@ -82,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
    */
   private void setupBottomNavigationBar() {
     navView = findViewById(R.id.nav_view);
+    List<Integer> navGraphIds = new ArrayList<>();
     navGraphIds.add(R.navigation.visits_navigation);
     navGraphIds.add(R.navigation.photos_navigation);
     navGraphIds.add(R.navigation.paths_navigation);
@@ -94,42 +98,58 @@ public class MainActivity extends AppCompatActivity {
             this.getIntent()
     );
 
-    drawer = findViewById(R.id.drawer_layout);
     final Observer<NavController> navControllerObserver =
-            navController -> NavigationUI.setupActionBarWithNavController(
-                    this,navController,drawer);
+            navController -> {
+              navController.addOnDestinationChangedListener((controller1, destination, arguments) -> {
+                switch (destination.getId()) {
+                  case(R.id.navigation_settings):
+                  case(R.id.navigation_activities):
+                  case(R.id.navigation_about):
+                    navView.setVisibility(View.GONE);
+                    break;
+                  default:
+                    navView.setVisibility(View.VISIBLE);
+                    break;
+                }
+              });
+              NavigationUI.setupWithNavController(drawerView,navController);
+              NavigationUI.setupActionBarWithNavController(this,navController,drawer);
+    };
 
     controller.observe(this,navControllerObserver);
     currentNavController = controller;
   }
 
-  /**
-   * Allows the side navigation bar to slide in when the hamburger button is clicked
-   *
-   * @return boolean True if the hamburger button is clicked
-   */
   @Override
   public boolean onSupportNavigateUp() {
+    NavController navController = currentNavController.getValue();
+    return NavigationUI.navigateUp(navController,drawer)
+            || super.onSupportNavigateUp();
 
-    return currentNavController.getValue().navigateUp();
 
-//    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-//    return NavigationUI.navigateUp(navController, appBarConfiguration)
-//        || super.onSupportNavigateUp();
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    return super.onOptionsItemSelected(item);
+  }
+
+  @Override
+  public void onBackPressed() {
+    if (drawer.isDrawerOpen(GravityCompat.START)) {
+      drawer.closeDrawer(GravityCompat.START);
+    } else {
+      super.onBackPressed();
+    }
   }
 
   /**
-   * function to lock drawer. Used in fragment onCreateView and onDestroyView DELETE IF NOT USED AT
-   * END OF PROJECT
    *
-   * @param enabled set if drawer is locked or not
+   *
+   * @param view
    */
-  public void setDrawerLocked(boolean enabled) {
-    if (enabled) {
-      drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-    } else {
-      drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-    }
+  public void startNewVisit(View view) {
+    startActivity(new Intent(this, StartVisitActivity.class));
   }
 
   /**
@@ -143,15 +163,6 @@ public class MainActivity extends AppCompatActivity {
     } else if (!navView.isShown() && visible) {
       navView.setVisibility(View.VISIBLE);
     }
-  }
-
-  /**
-   *
-   *
-   * @param view
-   */
-  public void startNewVisit(View view) {
-    startActivity(new Intent(this, StartVisitActivity.class));
   }
 
   /**
