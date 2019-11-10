@@ -4,16 +4,18 @@ import android.Manifest.permission;
 import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import com.android.photour.MainActivity;
 import com.android.photour.R;
 import com.google.android.gms.common.ConnectionResult;
@@ -25,34 +27,74 @@ import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
 import java.util.Objects;
 
+/**
+ * Fragment to create when new visit has started
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
+
+  private VisitViewModel visitViewModel;
 
   private static final int PERMISSION_REQUEST_CODE = 9001;
   private static final int PLAY_SERVICES_ERROR_CODE = 9002;
   private static final String TAG = "MapDebug";
   private boolean locationPermissionGranted;
-
   private GoogleMap googleMap;
   private MapView mapView;
 
+  /**
+   * Called to have the fragment instantiate its user interface view.
+   *
+   * @param inflater The LayoutInflater object that can be used to inflate any views in the
+   * fragment,
+   * @param container If non-null, this is the parent view that the fragment's UI should be attached
+   * to.  The fragment should not add the view itself, but this can be used to generate the
+   * LayoutParams of the view.
+   * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
+   * saved state as given here.
+   * @return Return the View for the fragment's UI, or null.
+   */
   @Override
   public View onCreateView(
       @NonNull LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
 
+    visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
+
     return inflater.inflate(R.layout.fragment_visit_map, container, false);
   }
 
+  /**
+   * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} has returned,
+   * but before any saved state has been restored in to the view.
+   *
+   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+   * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
+   * saved state as given here.
+   */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
+
+    // Add click listener to stop button
     stopVisitListener(view);
+
+    // Initialise chronometer
+    initChronometer(view);
+
 //    initGoogleMap();
   }
 
-  private void stopVisitListener(View root) {
-    final Button stopButton = root.findViewById(R.id.button_stop_visit);
+  /**
+   * Add a click listener to the Stop button, to replace current fragment with {@link
+   * VisitFragment}
+   *
+   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+   */
+  private void stopVisitListener(View view) {
+    final Button stopButton = view.findViewById(R.id.button_stop_visit);
     Fragment visitFragment = new VisitFragment();
 
     stopButton.setOnClickListener(v -> {
@@ -61,6 +103,29 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
           .addToBackStack(null)
           .commit();
     });
+  }
+
+  /**
+   *
+   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+   */
+  private void initChronometer(View view) {
+    Chronometer chronometer = view.findViewById(R.id.chronometer);
+
+    if (visitViewModel.getElapsedTime() == null) {
+      // If the elapsed time is not defined, it's a new ViewModel so set it.
+      long startTime = SystemClock.elapsedRealtime();
+      visitViewModel.setElapsedTime(startTime);
+      chronometer.setBase(startTime);
+      System.out.println("Not Retained");
+    } else {
+      // Otherwise the ViewModel has been retained, set the chronometer's base to the original
+      // starting time.
+      System.out.println("Retained");
+      chronometer.setBase(visitViewModel.getElapsedTime());
+    }
+
+    chronometer.start();
   }
 
   @Override
@@ -112,8 +177,11 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   }
 
   @Override
-  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-      @NonNull int[] grantResults) {
+  public void onRequestPermissionsResult(
+      int requestCode,
+      @NonNull String[] permissions,
+      @NonNull int[] grantResults
+  ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
     if (requestCode == PERMISSION_REQUEST_CODE

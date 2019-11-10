@@ -2,33 +2,51 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  xmlns:tools="http://schemas.android.com/tools"
-  tools:showIn="@layout/content_main">
+  android:layout_height="match_parent">
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/visit_stats"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    app:layout_constraintBottom_toTopOf="@id/map_fragment"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
+
+    <Chronometer
+      android:id="@+id/chronometer"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:drawableStart="@drawable/ic_stopwatch"
+      android:drawablePadding="8dp"
+      android:textSize="@dimen/min_text_size"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+      android:id="@+id/button_stop_visit"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:background="@drawable/rounded_button"
+      android:backgroundTint="@color/colorCancel"
+      android:text="@string/stop"
+      android:textColor="@color/colorWhite"
+      android:textSize="@dimen/min_text_size"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+  </androidx.constraintlayout.widget.ConstraintLayout>
 
   <androidx.fragment.app.FragmentContainerView
     android:id="@+id/map_fragment"
     android:name="com.google.android.libraries.maps.SupportMapFragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="0dp"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="parent" />
-
-  <Button
-    android:id="@+id/button_stop_visit"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/activity_vertical_margin"
-    android:background="@drawable/rounded_button"
-    android:backgroundTint="@color/colorCancel"
-    android:text="@string/stop"
-    android:textColor="@color/colorWhite"
-    android:textSize="@dimen/min_text_size"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
+    app:layout_constraintTop_toBottomOf="@id/visit_stats" />
 
   <com.google.android.material.floatingactionbutton.FloatingActionButton
     android:id="@+id/fab_camera"

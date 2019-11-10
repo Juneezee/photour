@@ -17,12 +17,15 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Manages the various graphs needed for a [BottomNavigationView].
+ * Manages the various graphs needed for a [BottomNavigationView]. Modified and converted to Java
+ * from sample provided by Google https://github.com/android/architecture-components-samples
  *
  * Modified and coverted to Java from sample provided by Google
  * https://github.com/android/architecture-components-samples
+ * @author Zer Jun Eng, Jia Hua Ng
  */
 public class BottomNavExtension extends BottomNavigationView {
 
@@ -34,148 +37,109 @@ public class BottomNavExtension extends BottomNavigationView {
         super(context);
     }
 
-    public BottomNavExtension(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-    }
+    selectedItemTag = graphIdToTagMap.get(this.getSelectedItemId());
+    firstFragmentTag = graphIdToTagMap.get(firstFragmentGraphId);
+    isOnFirstFragment = selectedItemTag.equals(firstFragmentTag);
 
-    public BottomNavExtension(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
+    // Listener when navigation is selected on bottomnavview
+    this.setOnNavigationItemSelectedListener(item -> {
+      if (fragmentManager.isStateSaved()) {
+        return false;
+      } else {
+        String newlySelectedItemTag = graphIdToTagMap.get(item.getItemId());
+        if (!selectedItemTag.equals(newlySelectedItemTag)) {
+          fragmentManager.popBackStack(firstFragmentTag,
+              FragmentManager.POP_BACK_STACK_INCLUSIVE);
+          NavHostFragment selectedFragment =
+              (NavHostFragment) fragmentManager.findFragmentByTag(newlySelectedItemTag);
 
-    public LiveData<NavController> setupWithNavController(List<Integer> navGraphIds,
-                              FragmentManager fragmentManager, int containerId, Intent intent) {
-
-        // Map of tags
-        SparseArray<String> graphIdToTagMap = new SparseArray<>();
-        // Result. Mutable live data with the selected controlled
-        MutableLiveData<NavController> selectedNavController = new MutableLiveData<>();
-        int firstFragmentGraphId = 0;
-
-        // First create a NavHostFragment for each NavGraph ID
-        for(int i=0; i<navGraphIds.size(); i++) {
-            String fragmentTag = getFragmentTag(i);
-
-            // Find or create the Navigation host fragment
-            NavHostFragment navHostFragment = obtainNavHostFragment(
-                    fragmentManager, fragmentTag, navGraphIds.get(i),containerId);
-
-            // Obtain its id
-            int graphId = navHostFragment.getNavController().getGraph().getId();
-            if (i == 0 ) {
-                firstFragmentGraphId = graphId;
-            }
-
-            // Save to the map
-            graphIdToTagMap.append(graphId, fragmentTag);
-
-            if(this.getSelectedItemId() == graphId) {
-                selectedNavController.setValue(navHostFragment.getNavController());
-                attachNavHostFragment(fragmentManager, navHostFragment, i == 0);
-            } else {
-                detachNavHostFragment(fragmentManager, navHostFragment);
-            }
-        }
-
-        selectedItemTag = graphIdToTagMap.get(this.getSelectedItemId());
-        firstFragmentTag = graphIdToTagMap.get(firstFragmentGraphId);
-        isOnFirstFragment = selectedItemTag.equals(firstFragmentTag);
-
-        // Listener when navigation is selected on bottomnavview
-        this.setOnNavigationItemSelectedListener(item -> {
-            if (fragmentManager.isStateSaved()) {
-                return false;
-            } else {
-                String newlySelectedItemTag = graphIdToTagMap.get(item.getItemId());
-                if (!selectedItemTag.equals(newlySelectedItemTag)) {
-                    fragmentManager.popBackStack(firstFragmentTag,
-                            FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                    NavHostFragment selectedFragment =
-                            (NavHostFragment) fragmentManager.findFragmentByTag(newlySelectedItemTag);
-
-                    if (!firstFragmentTag.equals(newlySelectedItemTag)) {
-                        FragmentTransaction ft = fragmentManager.beginTransaction();
-                        ft.setCustomAnimations(R.anim.nav_default_enter_anim,
-                                R.anim.nav_default_exit_anim,
-                                R.anim.nav_default_pop_enter_anim,
-                                R.anim.nav_default_pop_exit_anim);
-                        ft.attach(selectedFragment);
-                        ft.setPrimaryNavigationFragment(selectedFragment);
-                        for(int i = 0; i < graphIdToTagMap.size(); i++) {
-                            int key = graphIdToTagMap.keyAt(i);
-                            // get the object by the key.
-                            String fragmentTagIter = graphIdToTagMap.get(key);
-                            if (!fragmentTagIter.equals(newlySelectedItemTag)) {
-                                try {
-                                    ft.detach(fragmentManager.findFragmentByTag(firstFragmentTag));
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                        ft.addToBackStack(firstFragmentTag);
-                        ft.setReorderingAllowed(true);
-                        ft.commit();
-                    }
-                    selectedItemTag = newlySelectedItemTag;
-                    isOnFirstFragment = (selectedItemTag.equals(firstFragmentTag));
-                    selectedNavController.setValue(selectedFragment.getNavController());
-                    return true;
-                } else {
-                    return false;
+          if (!firstFragmentTag.equals(newlySelectedItemTag)) {
+            FragmentTransaction ft = fragmentManager.beginTransaction();
+            ft.setCustomAnimations(R.anim.nav_default_enter_anim,
+                R.anim.nav_default_exit_anim,
+                R.anim.nav_default_pop_enter_anim,
+                R.anim.nav_default_pop_exit_anim);
+            assert selectedFragment != null;
+            ft.attach(selectedFragment);
+            ft.setPrimaryNavigationFragment(selectedFragment);
+            for (int i = 0; i < graphIdToTagMap.size(); i++) {
+              int key = graphIdToTagMap.keyAt(i);
+              // get the object by the key.
+              String fragmentTagIter = graphIdToTagMap.get(key);
+              if (!fragmentTagIter.equals(newlySelectedItemTag)) {
+                try {
+                  ft.detach(
+                      Objects.requireNonNull(fragmentManager.findFragmentByTag(firstFragmentTag)));
+                } catch (Exception e) {
+                  e.printStackTrace();
                 }
+              }
             }
-        });
-
-        this.setOnNavigationItemReselectedListener(item -> {
-            String newlySelectedItemTag = graphIdToTagMap.get(item.getItemId());
-            NavHostFragment selectedFragment =
-                    (NavHostFragment) fragmentManager.findFragmentByTag(newlySelectedItemTag);
-
-            NavController navController = null;
-            if (selectedFragment != null) {
-                navController = selectedFragment.getNavController();
-                navController.popBackStack(navController.getGraph().getStartDestination(),false);
-            }
-        });
-        
-        setupDeepLinks(navGraphIds, fragmentManager, containerId, intent);
-
-        int finalFirstFragmentGraphId = firstFragmentGraphId;
-
-        fragmentManager.addOnBackStackChangedListener(() -> {
-            int backStackCount = fragmentManager.getBackStackEntryCount();
-            boolean isOnBackStack = false;
-            for (int i = 0; i < backStackCount; i++) {
-                if (fragmentManager.getBackStackEntryAt(i).getName() == firstFragmentTag) {
-                    isOnBackStack = true;
-                }
-            }
-            if (!isOnFirstFragment && !isOnBackStack) {
-                listenerSetSelectedItemId(finalFirstFragmentGraphId);
-            }
-            if (selectedNavController.getValue().getCurrentDestination() == null) {
-                selectedNavController.getValue().navigate(
-                        selectedNavController.getValue().getGraph().getId()
-                );
-            }
-
-        });
-        return selectedNavController;
-    }
-
-    private void setupDeepLinks(List<Integer> navGraphIds, FragmentManager fragmentManager,
-                                int containerId, Intent intent) {
-        for (int i=0; i < navGraphIds.size(); i++) {
-            String fragmentTag = getFragmentTag(i);
-            // Find or create the Navigation host fragment
-            NavHostFragment navHostFragment = obtainNavHostFragment(fragmentManager,
-                    fragmentTag, navGraphIds.get(i), containerId);
-
-            if (navHostFragment.getNavController().handleDeepLink(intent)
-            && this.getSelectedItemId() != navHostFragment.getNavController().getGraph().getId()) {
-                this.setSelectedItemId(navHostFragment.getNavController().getGraph().getId());
-            }
+            ft.addToBackStack(firstFragmentTag);
+            ft.setReorderingAllowed(true);
+            ft.commit();
+          }
+          selectedItemTag = newlySelectedItemTag;
+          isOnFirstFragment = (selectedItemTag.equals(firstFragmentTag));
+          assert selectedFragment != null;
+          selectedNavController.setValue(selectedFragment.getNavController());
+          return true;
+        } else {
+          return false;
         }
+      }
+    });
+
+    this.setOnNavigationItemReselectedListener(item -> {
+      String newlySelectedItemTag = graphIdToTagMap.get(item.getItemId());
+      NavHostFragment selectedFragment =
+          (NavHostFragment) fragmentManager.findFragmentByTag(newlySelectedItemTag);
+
+      NavController navController = null;
+      if (selectedFragment != null) {
+        navController = selectedFragment.getNavController();
+        navController.popBackStack(navController.getGraph().getStartDestination(), false);
+      }
+    });
+
+    setupDeepLinks(navGraphIds, fragmentManager, containerId, intent);
+
+    int finalFirstFragmentGraphId = firstFragmentGraphId;
+
+    fragmentManager.addOnBackStackChangedListener(() -> {
+      int backStackCount = fragmentManager.getBackStackEntryCount();
+      boolean isOnBackStack = false;
+      for (int i = 0; i < backStackCount; i++) {
+        if (Objects.equals(fragmentManager.getBackStackEntryAt(i).getName(), firstFragmentTag)) {
+          isOnBackStack = true;
+        }
+      }
+      if (!isOnFirstFragment && !isOnBackStack) {
+        listenerSetSelectedItemId(finalFirstFragmentGraphId);
+      }
+      if (Objects.requireNonNull(selectedNavController.getValue()).getCurrentDestination()
+          == null) {
+        selectedNavController.getValue().navigate(
+            selectedNavController.getValue().getGraph().getId()
+        );
+      }
+
+    });
+    return selectedNavController;
+  }
+
+  private void setupDeepLinks(List<Integer> navGraphIds, FragmentManager fragmentManager,
+      int containerId, Intent intent) {
+    for (int i = 0; i < navGraphIds.size(); i++) {
+      String fragmentTag = getFragmentTag(i);
+      // Find or create the Navigation host fragment
+      NavHostFragment navHostFragment = obtainNavHostFragment(fragmentManager,
+          fragmentTag, navGraphIds.get(i), containerId);
+
+      if (navHostFragment.getNavController().handleDeepLink(intent)
+          && this.getSelectedItemId() != navHostFragment.getNavController().getGraph().getId()) {
+        this.setSelectedItemId(navHostFragment.getNavController().getGraph().getId());
+      }
     }
 
     private void listenerSetSelectedItemId(int itemId) {
@@ -216,4 +180,3 @@ public class BottomNavExtension extends BottomNavigationView {
         return "fragment#"+index;
     }
 }
-

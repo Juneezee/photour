@@ -12,15 +12,26 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.android.photour.R;
 
+/**
+ * Fragment for New Visit page
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class VisitFragment extends Fragment {
 
   private VisitViewModel visitViewModel;
 
   /**
-   * @param inflater c
-   * @param container c
-   * @param savedInstanceState c
-   * @return View
+   * Called to have the fragment instantiate its user interface view.
+   *
+   * @param inflater The LayoutInflater object that can be used to inflate any views in the
+   * fragment,
+   * @param container If non-null, this is the parent view that the fragment's UI should be attached
+   * to.  The fragment should not add the view itself, but this can be used to generate the
+   * LayoutParams of the view.
+   * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
+   * saved state as given here.
+   * @return Return the View for the fragment's UI, or null.
    */
   public View onCreateView(
       @NonNull LayoutInflater inflater,
@@ -32,24 +43,32 @@ public class VisitFragment extends Fragment {
     return inflater.inflate(R.layout.fragment_visit, container, false);
   }
 
+  /**
+   * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} has returned,
+   * but before any saved state has been restored in to the view.
+   *
+   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+   * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
+   * saved state as given here.
+   */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    final TextView textViewTitle = view.findViewById(R.id.text_visit);
     final TextView textViewDate = view.findViewById(R.id.text_date);
-
-    visitViewModel.getTextTitle().observe(getViewLifecycleOwner(), textViewTitle::setText);
     visitViewModel.getTextDate().observe(getViewLifecycleOwner(), textViewDate::setText);
 
     startNewVisitListener(view);
   }
 
   /**
-   * @param root c
+   * Add a click listener to the Start button, to replace current fragment with {@link
+   * StartVisitFragment}
+   *
+   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
    */
-  private void startNewVisitListener(View root) {
-    final Button startButton = root.findViewById(R.id.button_start_visit);
+  private void startNewVisitListener(View view) {
+    final Button startButton = view.findViewById(R.id.button_start_visit);
 
     startButton.setOnClickListener(v -> {
       Fragment startVisitFragment = new StartVisitFragment();

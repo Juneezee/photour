@@ -6,9 +6,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
- * Show a splash screen before the main activity has been loaded
+ * Show a splash screen before the {@link MainActivity} has been loaded
  *
- * @author Zer Jun Eng & Jia Hua Ng
+ * @author Zer Jun Eng, Jia Hua Ng
  */
 public class SplashScreenActivity extends AppCompatActivity {
 

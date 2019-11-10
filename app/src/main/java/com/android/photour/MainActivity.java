@@ -31,7 +31,7 @@ import static android.media.CamcorderProfile.get;
 /**
  * Main activity of the application
  *
- * @author Zer Jun Eng & Jia Hua Ng
+ * @author Zer Jun Eng, Jia Hua Ng
  */
 public class MainActivity extends AppCompatActivity {
 

@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * Fragment that display the developers of this application
  *
- * @author Zer Jun Eng & Jia Hua Ng
+ * @author Zer Jun Eng, Jia Hua Ng
  */
 public class AboutFragment extends Fragment {
 

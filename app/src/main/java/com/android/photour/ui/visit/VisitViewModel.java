@@ -6,14 +6,20 @@ import androidx.lifecycle.ViewModel;
 import java.text.DateFormat;
 import java.util.Calendar;
 
+/**
+ * A ViewModel for {@link VisitFragment} and {@link StartVisitFragment}
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class VisitViewModel extends ViewModel {
 
-  private MutableLiveData<String> textTitle, textDate;
+  private MutableLiveData<String> textDate;
+  private Long elapsedTime;
 
+  /**
+   * Constructor of {@link VisitViewModel}
+   */
   public VisitViewModel() {
-    textTitle = new MutableLiveData<>();
-    textTitle.setValue("Start a New Visit");
-
     Calendar calendar = Calendar.getInstance();
     String today = DateFormat.getDateInstance(DateFormat.FULL).format(calendar.getTime());
 
@@ -21,12 +27,25 @@ public class VisitViewModel extends ViewModel {
     textDate.setValue(today);
   }
 
-  public LiveData<String> getTextTitle() {
-    return textTitle;
-  }
-
-  public LiveData<String> getTextDate() {
+  /**
+   * Get the value of textDate
+   *
+   * @return LiveData The value of textDate
+   */
+  LiveData<String> getTextDate() {
     return textDate;
   }
 
+  Long getElapsedTime() {
+    return elapsedTime;
+  }
+
+  /**
+   * Set the value of elapsedTime
+   *
+   * @param elapsedTime The new value of elapsedTime
+   */
+  void setElapsedTime(final long elapsedTime) {
+    this.elapsedTime = elapsedTime;
+  }
 }
