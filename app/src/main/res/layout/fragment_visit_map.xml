@@ -4,39 +4,31 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
-  <androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/visit_stats"
-    android:layout_width="match_parent"
+  <Chronometer
+    android:id="@+id/chronometer"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="8dp"
+    android:layout_margin="8dp"
+    android:drawableStart="@drawable/ic_stopwatch"
+    android:drawablePadding="8dp"
+    android:textSize="@dimen/min_text_size"
+    app:layout_constraintBottom_toTopOf="@id/map_fragment"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <Button
+    android:id="@+id/button_stop_visit"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:background="@drawable/rounded_button"
+    android:backgroundTint="@color/colorCancel"
+    android:text="@string/stop"
+    android:textColor="@color/colorWhite"
+    android:textSize="@dimen/min_text_size"
     app:layout_constraintBottom_toTopOf="@id/map_fragment"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent">
-
-    <Chronometer
-      android:id="@+id/chronometer"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:drawableStart="@drawable/ic_stopwatch"
-      android:drawablePadding="8dp"
-      android:textSize="@dimen/min_text_size"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-      android:id="@+id/button_stop_visit"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:background="@drawable/rounded_button"
-      android:backgroundTint="@color/colorCancel"
-      android:text="@string/stop"
-      android:textColor="@color/colorWhite"
-      android:textSize="@dimen/min_text_size"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
-  </androidx.constraintlayout.widget.ConstraintLayout>
+    app:layout_constraintTop_toTopOf="parent" />
 
   <androidx.fragment.app.FragmentContainerView
     android:id="@+id/map_fragment"
@@ -46,7 +38,7 @@
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@id/visit_stats" />
+    app:layout_constraintTop_toBottomOf="@id/button_stop_visit" />
 
   <com.google.android.material.floatingactionbutton.FloatingActionButton
     android:id="@+id/fab_camera"

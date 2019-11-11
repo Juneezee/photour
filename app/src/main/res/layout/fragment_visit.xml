@@ -40,7 +40,7 @@
       app:layout_constraintTop_toBottomOf="@id/text_visit">
 
       <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/new_"
+        android:id="@+id/new_visit_title_input"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:importantForAutofill="no"

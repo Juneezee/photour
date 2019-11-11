@@ -11,42 +11,39 @@
     android:layout_height="@dimen/logo_height"
     android:contentDescription="@string/photour_vertical_logo"
     app:layout_constraintTop_toTopOf="parent"
-    app:srcCompat="@drawable/ic_full_logo_vertical" />
+    app:srcCompat="@drawable/ic_logo_vertical" />
 
-  <LinearLayout
+  <TextView
+    android:id="@+id/developed_by"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/fragment_horizontal_margin"
     android:layout_marginTop="36dp"
-    android:layout_marginEnd="@dimen/fragment_horizontal_margin"
-    android:orientation="vertical"
-    app:layout_constraintTop_toBottomOf="@id/about_logo">
+    android:text="@string/developed_by"
+    android:textAlignment="center"
+    android:textColor="@color/colorSubtitleGray"
+    android:textSize="@dimen/min_text_size"
+    app:layout_constraintTop_toBottomOf="@id/about_logo" />
 
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="@dimen/activity_vertical_margin"
-      android:text="@string/developed_by"
-      android:textAlignment="center"
-      android:textColor="@color/colorSubtitleGray"
-      android:textSize="@dimen/min_text_size" />
+  <TextView
+    android:id="@+id/jia_hua"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:text="@string/jia_hua"
+    android:textAlignment="center"
+    android:textColor="@color/colorTitleGray"
+    android:textSize="20sp"
+    app:layout_constraintTop_toBottomOf="@id/developed_by" />
 
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:text="@string/jia_hua"
-      android:textAlignment="center"
-      android:textColor="@color/colorTitleGray"
-      android:textSize="20sp" />
-
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:text="@string/zer_jun"
-      android:textAlignment="center"
-      android:textColor="@color/colorTitleGray"
-      android:textSize="20sp" />
-  </LinearLayout>
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/fragment_vertical_margin"
+    android:text="@string/zer_jun"
+    android:textAlignment="center"
+    android:textColor="@color/colorTitleGray"
+    android:textSize="20sp"
+    app:layout_constraintTop_toBottomOf="@id/jia_hua" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
