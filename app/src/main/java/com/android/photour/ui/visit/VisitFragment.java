@@ -31,7 +31,7 @@ public class VisitFragment extends Fragment {
    * LayoutParams of the view.
    * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
    * saved state as given here.
-   * @return Return the View for the fragment's UI, or null.
+   * @return View Return the View for the fragment's UI, or null.
    */
   public View onCreateView(
       @NonNull LayoutInflater inflater,

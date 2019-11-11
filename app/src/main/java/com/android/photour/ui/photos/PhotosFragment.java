@@ -25,11 +25,6 @@ public class PhotosFragment extends Fragment {
   private final int IMAGE_WIDTH = 100;
 
 
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    initDataset();
-  }
 
   public View onCreateView(
       @NonNull LayoutInflater inflater,
@@ -47,6 +42,7 @@ public class PhotosFragment extends Fragment {
     photoAdapter = new PhotoAdapter(pictureList);
     mRecyclerView.setAdapter(photoAdapter);
 
+    initDataset();
     return root;
   }
 

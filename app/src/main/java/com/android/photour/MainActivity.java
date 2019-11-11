@@ -3,18 +3,15 @@ package com.android.photour;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
@@ -35,9 +32,9 @@ import static android.media.CamcorderProfile.get;
  */
 public class MainActivity extends AppCompatActivity {
 
-  private  LiveData<NavController> currentNavController = null;
+  private LiveData<NavController> currentNavController;
   private AppBarConfiguration appBarConfiguration;
-  private DrawerLayout drawer;
+  private BottomNavExtension navView;
   private Toolbar toolbar;
   private BottomNavigationView navView;
 
@@ -54,17 +51,19 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
     toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    getSupportActionBar().setHomeButtonEnabled(true);
-
-    drawer = findViewById(R.id.drawer_layout);
-    drawerView = findViewById(R.id.drawer_view);
 
     if (savedInstanceState == null) {
       setupBottomNavigationBar();
     }
   }
 
+  /**
+   * This method is called after {@link #onStart} when the activity is being re-initialized from a
+   * previously saved state. Performs a restore of any view state that had previously been frozen by
+   * {@link #onSaveInstanceState}.
+   *
+   * @param savedInstanceState The data most recently supplied in {@link #onSaveInstanceState}.
+   */
   @Override
   protected void onRestoreInstanceState(Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
@@ -91,70 +90,53 @@ public class MainActivity extends AppCompatActivity {
             this.getIntent()
     );
 
-    final Observer<NavController> navControllerObserver =
-            navController -> {
-              navController.addOnDestinationChangedListener((controller1, destination, arguments) -> {
-                switch (destination.getId()) {
-                  case(R.id.navigation_settings):
-                  case(R.id.navigation_activities):
-                  case(R.id.navigation_about):
-                    navView.setVisibility(View.GONE);
-                    break;
-                  default:
-                    navView.setVisibility(View.VISIBLE);
-                    break;
-                }
-              });
-              NavigationUI.setupWithNavController(drawerView,navController);
-              NavigationUI.setupActionBarWithNavController(this,navController,drawer);
+    final Observer<NavController> navControllerObserver = navController -> {
+      navController.addOnDestinationChangedListener((controller1, destination, arguments) -> {
+        switch (destination.getId()) {
+          case (R.id.navigation_settings):
+          case (R.id.navigation_activities):
+          case (R.id.navigation_about):
+            navView.setVisibility(View.GONE);
+            break;
+          default:
+            navView.setVisibility(View.VISIBLE);
+            break;
+        }
+      });
+      NavigationUI.setupActionBarWithNavController(this, navController);
     };
 
-    controller.observe(this,navControllerObserver);
+    controller.observe(this, navControllerObserver);
     currentNavController = controller;
   }
 
+//  /**
+//   * Allows hamburger and back button to function
+//   *
+//   * @return if in menu or not
+//   */
+//  @Override
+//  public boolean onSupportNavigateUp() {
+//    return NavigationUI.navigateUp(Objects.requireNonNull(currentNavController.getValue()), appBarConfiguration)
+//        || super.onSupportNavigateUp();
+//  }
+
   /**
-   * Allows hamburger and back button to function
+   * Initialize the contents of the Activity's standard options menu.
    *
-   * @return if in menu or not
+   * @param menu The options menu in which you place your items.
+   * @return boolean Must return true for the menu to be displayed; if return false it will not be
+   * shown.
    */
   @Override
-  public boolean onSupportNavigateUp() {
-    NavController navController = currentNavController.getValue();
-    return NavigationUI.navigateUp(navController,drawer)
-            || super.onSupportNavigateUp();
-
-
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.menu_main, menu);
+    return true;
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    return super.onOptionsItemSelected(item);
-  }
-
-  /**
-   * Added to allow physical back button to function with drawer
-   */
-  @Override
-  public void onBackPressed() {
-    if (drawer.isDrawerOpen(GravityCompat.START)) {
-      drawer.closeDrawer(GravityCompat.START);
-    } else {
-      super.onBackPressed();
-    }
-  }
-
-  /**
-   * Sets the visibility of bottom navigation bar
-   *
-   * @param visible True if the bottom navigation bar should be visible
-   */
-  public void setNavigationVisibility(boolean visible) {
-    if (navView.isShown() && !visible) {
-      navView.setVisibility(View.GONE);
-    } else if (!navView.isShown() && visible) {
-      navView.setVisibility(View.VISIBLE);
-    }
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    return true;
   }
 
   /**

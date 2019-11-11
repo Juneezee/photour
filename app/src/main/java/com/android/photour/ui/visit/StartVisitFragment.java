@@ -53,7 +53,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    * LayoutParams of the view.
    * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
    * saved state as given here.
-   * @return Return the View for the fragment's UI, or null.
+   * @return View Return the View for the fragment's UI, or null.
    */
   @Override
   public View onCreateView(
@@ -106,6 +106,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   }
 
   /**
+   * Initialise
    *
    * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
    */
