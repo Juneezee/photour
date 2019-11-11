@@ -23,7 +23,7 @@
       android:value="AIzaSyA4izbO87DoWYUt_jZ069cbPNnY6uvfLIk" />
 
     <activity
-      android:name=".MainActivity"
+      android:name="com.android.photour.MainActivity"
       android:theme="@style/SplashScreenTheme"
       android:windowSoftInputMode="adjustNothing">
 
