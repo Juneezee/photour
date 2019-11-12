@@ -95,7 +95,7 @@ public class BottomNavExtension extends BottomNavigationView {
       NavHostFragment selectedFragment =
           (NavHostFragment) fragmentManager.findFragmentByTag(newlySelectedItemTag);
 
-      NavController navController = null;
+      NavController navController;
       if (selectedFragment != null) {
         navController = selectedFragment.getNavController();
         navController.popBackStack(navController.getGraph().getStartDestination(), false);
@@ -128,8 +128,12 @@ public class BottomNavExtension extends BottomNavigationView {
     return selectedNavController;
   }
 
-  private void setupDeepLinks(List<Integer> navGraphIds, FragmentManager fragmentManager,
-      int containerId, Intent intent) {
+  private void setupDeepLinks(
+      List<Integer> navGraphIds,
+      FragmentManager fragmentManager,
+      int containerId,
+      Intent intent
+  ) {
     for (int i = 0; i < navGraphIds.size(); i++) {
       String fragmentTag = getFragmentTag(i);
       // Find or create the Navigation host fragment
@@ -146,34 +150,41 @@ public class BottomNavExtension extends BottomNavigationView {
         this.setSelectedItemId(itemId);
     }
 
-    private void detachNavHostFragment(FragmentManager fragmentManager, NavHostFragment navHostFragment) {
-        fragmentManager.beginTransaction().detach(navHostFragment).commitNow();
+  private void detachNavHostFragment(
+      FragmentManager fragmentManager,
+      NavHostFragment navHostFragment
+  ) {
+    fragmentManager.beginTransaction().detach(navHostFragment).commitNow();
+  }
+
+  private void attachNavHostFragment(
+      FragmentManager fragmentManager,
+      NavHostFragment navHostFragment,
+      Boolean isPrimaryNavFragment
+  ) {
+    FragmentTransaction ft = fragmentManager.beginTransaction();
+    ft.attach(navHostFragment);
+    if (isPrimaryNavFragment) {
+      ft.setPrimaryNavigationFragment(navHostFragment);
     }
 
-    private void attachNavHostFragment(FragmentManager fragmentManager, NavHostFragment navHostFragment,
-                                       Boolean isPrimaryNavFragment ) {
-        FragmentTransaction ft = fragmentManager.beginTransaction();
-        ft.attach(navHostFragment);
-        if (isPrimaryNavFragment) {
-            ft.setPrimaryNavigationFragment(navHostFragment);
-        }
-        ft.commitNow();
-    }
-
-    private NavHostFragment obtainNavHostFragment(FragmentManager fragmentManager,
-          String fragmentTag, int navGraphId, int containerId) {
-        NavHostFragment existingFragment =
-                (NavHostFragment) fragmentManager.findFragmentByTag(fragmentTag);
-        if (existingFragment == null) {
-            // If fragment doesn't exist, create it and return it.
-            NavHostFragment navHostFragment = NavHostFragment.create(navGraphId);
-            fragmentManager.beginTransaction()
-                    .add(containerId, navHostFragment, fragmentTag).commitNow();
-            return navHostFragment;
-        } else {
-            // If the Nav Host fragment exists, return it
-            return existingFragment;
-        }
+  private NavHostFragment obtainNavHostFragment(
+      FragmentManager fragmentManager,
+      String fragmentTag,
+      int navGraphId,
+      int containerId
+  ) {
+    NavHostFragment existingFragment =
+        (NavHostFragment) fragmentManager.findFragmentByTag(fragmentTag);
+    if (existingFragment == null) {
+      // If fragment doesn't exist, create it and return it.
+      NavHostFragment navHostFragment = NavHostFragment.create(navGraphId);
+      fragmentManager.beginTransaction()
+          .add(containerId, navHostFragment, fragmentTag).commitNow();
+      return navHostFragment;
+    } else {
+      // If the Nav Host fragment exists, return it
+      return existingFragment;
     }
 
     private String getFragmentTag(int index) {

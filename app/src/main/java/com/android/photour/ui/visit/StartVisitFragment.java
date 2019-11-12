@@ -97,12 +97,10 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     final Button stopButton = view.findViewById(R.id.button_stop_visit);
     Fragment visitFragment = new VisitFragment();
 
-    stopButton.setOnClickListener(v -> {
-      getParentFragmentManager().beginTransaction()
-          .replace(R.id.nav_host_fragment, visitFragment)
-          .addToBackStack(null)
-          .commit();
-    });
+    stopButton.setOnClickListener(v -> getParentFragmentManager().beginTransaction()
+        .replace(R.id.nav_host_fragment, visitFragment)
+        .addToBackStack(null)
+        .commit());
   }
 
   /**

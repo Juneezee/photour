@@ -78,48 +78,34 @@ public class MainActivity extends AppCompatActivity {
   private void setupBottomNavigationBar() {
     navView = findViewById(R.id.nav_view);
     List<Integer> navGraphIds = new ArrayList<>();
-    navGraphIds.add(R.navigation.visits_navigation);
-    navGraphIds.add(R.navigation.photos_navigation);
-    navGraphIds.add(R.navigation.paths_navigation);
-    LiveData<NavController> controller;
+    navGraphIds.add(R.navigation.navigation_visit);
+    navGraphIds.add(R.navigation.navigation_photos);
+    navGraphIds.add(R.navigation.navigation_paths);
+    navGraphIds.add(R.navigation.navigation_settings);
 
-    controller = navView.setupWithNavController(
-            navGraphIds,
-            this.getSupportFragmentManager(),
-            R.id.nav_host_fragment,
-            this.getIntent()
+    LiveData<NavController> controller = navView.setupWithNavController(
+        navGraphIds,
+        this.getSupportFragmentManager(),
+        R.id.nav_host_fragment,
+        this.getIntent()
     );
 
     final Observer<NavController> navControllerObserver = navController -> {
       navController.addOnDestinationChangedListener((controller1, destination, arguments) -> {
-        switch (destination.getId()) {
-          case (R.id.navigation_settings):
-          case (R.id.navigation_activities):
-          case (R.id.navigation_about):
-            navView.setVisibility(View.GONE);
-            break;
-          default:
-            navView.setVisibility(View.VISIBLE);
-            break;
+        if (destination.getId() == R.id.action_settings) {
+          navView.setVisibility(View.GONE);
+        } else {
+          navView.setVisibility(View.VISIBLE);
         }
       });
-      NavigationUI.setupActionBarWithNavController(this, navController);
+
+      appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+      NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
     };
 
     controller.observe(this, navControllerObserver);
     currentNavController = controller;
   }
-
-//  /**
-//   * Allows hamburger and back button to function
-//   *
-//   * @return if in menu or not
-//   */
-//  @Override
-//  public boolean onSupportNavigateUp() {
-//    return NavigationUI.navigateUp(Objects.requireNonNull(currentNavController.getValue()), appBarConfiguration)
-//        || super.onSupportNavigateUp();
-//  }
 
   /**
    * Initialize the contents of the Activity's standard options menu.
@@ -134,9 +120,38 @@ public class MainActivity extends AppCompatActivity {
     return true;
   }
 
+  /**
+   * This hook is called whenever an item in your options menu is selected.
+   *
+   * @param item The menu item that was selected
+   * @return boolean Return false to allow normal menu processing to proceed, true to consume it
+   * here.
+   */
   @Override
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-    return true;
+    /*
+      Have the NavigationUI look for an action or destination matching the menu
+      item id and navigate there if found.
+      Otherwise, bubble up to the parent.
+     */
+    return NavigationUI.onNavDestinationSelected(item,
+        Navigation.findNavController(this, R.id.nav_host_fragment))
+        || super.onOptionsItemSelected(item);
+  }
+
+  /**
+   * This method is called whenever the user chooses to navigate Up within the application's
+   * activity hierarchy from the action bar.
+   *
+   * @return boolean True if Up navigation completed successfully and this Activity was finished,
+   * false otherwise.
+   */
+  @Override
+  public boolean onSupportNavigateUp() {
+    // Have NavigationUI handle up behavior in the ActionBar
+    return NavigationUI
+        .navigateUp(Objects.requireNonNull(currentNavController.getValue()), appBarConfiguration)
+        || super.onSupportNavigateUp();
   }
 
   /**

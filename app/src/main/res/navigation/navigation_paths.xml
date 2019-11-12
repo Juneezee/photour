@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/navigation_paths"
+  app:startDestination="@+id/paths">
+
+  <fragment
+    android:id="@+id/paths"
+    android:name="com.android.photour.ui.paths.PathsFragment"
+    android:label="@string/paths"
+    tools:layout="@layout/fragment_paths" />
+
+  <include app:graph="@navigation/navigation_settings" />
+
+</navigation>

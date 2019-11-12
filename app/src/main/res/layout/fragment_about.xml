@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
-  android:layout_height="wrap_content"
+  android:layout_height="match_parent"
   android:padding="@dimen/activity_horizontal_margin">
 
   <ImageView
@@ -16,7 +16,7 @@
   <TextView
     android:id="@+id/developed_by"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="0dp"
     android:layout_marginTop="36dp"
     android:text="@string/developed_by"
     android:textAlignment="center"
@@ -27,7 +27,7 @@
   <TextView
     android:id="@+id/jia_hua"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="0dp"
     android:layout_marginTop="@dimen/activity_vertical_margin"
     android:text="@string/jia_hua"
     android:textAlignment="center"
@@ -37,7 +37,7 @@
 
   <TextView
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="0dp"
     android:layout_marginTop="@dimen/fragment_vertical_margin"
     android:text="@string/zer_jun"
     android:textAlignment="center"

@@ -2,17 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
   <item
-    android:id="@+id/visits_navigation"
+    android:id="@+id/navigation_visit"
     android:icon="@drawable/ic_visit"
     android:title="@string/new_visit" />
 
   <item
-    android:id="@+id/photos_navigation"
+    android:id="@+id/navigation_photos"
     android:icon="@drawable/ic_photo"
     android:title="@string/photos" />
 
   <item
-    android:id="@+id/paths_navigation"
+    android:id="@+id/navigation_paths"
     android:icon="@drawable/ic_map"
     android:title="@string/paths" />
 

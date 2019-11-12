@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/navigation_visit"
+  app:startDestination="@+id/new_visit">
+
+  <fragment
+    android:id="@+id/new_visit"
+    android:name="com.android.photour.ui.visit.VisitFragment"
+    android:label="@string/new_visit"
+    tools:layout="@layout/fragment_visit" />
+
+  <include app:graph="@navigation/navigation_settings" />
+
+</navigation>
