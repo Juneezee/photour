@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import com.android.photour.R;
 
 /**
@@ -70,12 +71,7 @@ public class VisitFragment extends Fragment {
   private void startNewVisitListener(View view) {
     final Button startButton = view.findViewById(R.id.button_start_visit);
 
-    startButton.setOnClickListener(v -> {
-      Fragment startVisitFragment = new StartVisitFragment();
-      getParentFragmentManager().beginTransaction()
-          .replace(R.id.nav_host_fragment, startVisitFragment)
-          .addToBackStack(null)
-          .commit();
-    });
+    startButton.setOnClickListener(
+        v -> Navigation.findNavController(view).navigate(R.id.action_start_visit));
   }
 }

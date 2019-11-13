@@ -118,10 +118,14 @@ public class MainActivity extends AppCompatActivity {
 
     final Observer<NavController> navControllerObserver = navController -> {
       navController.addOnDestinationChangedListener((controller1, destination, arguments) -> {
-        if (destination.getId() == R.id.action_settings) {
-          navView.setVisibility(View.GONE);
-        } else {
-          navView.setVisibility(View.VISIBLE);
+        switch (destination.getId()) {
+          case R.id.new_visit:
+          case R.id.photos:
+          case R.id.paths:
+            navView.setVisibility(View.VISIBLE);
+            break;
+          default:
+            navView.setVisibility(View.GONE);
         }
       });
 

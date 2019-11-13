@@ -9,7 +9,25 @@
     android:id="@+id/new_visit"
     android:name="com.android.photour.ui.visit.VisitFragment"
     android:label="@string/new_visit"
-    tools:layout="@layout/fragment_visit" />
+    tools:layout="@layout/fragment_visit">
+
+    <action
+      android:id="@+id/action_start_visit"
+      app:destination="@+id/start_visit" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/start_visit"
+    android:name="com.android.photour.ui.visit.StartVisitFragment"
+    tools:layout="@layout/fragment_start_visit">
+
+    <action
+      android:id="@+id/action_stop_visit"
+      app:destination="@id/new_visit"
+      app:popUpTo="@id/new_visit"
+      app:popUpToInclusive="true" />
+  </fragment>
+
 
   <include app:graph="@navigation/navigation_settings" />
 

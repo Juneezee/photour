@@ -4,10 +4,13 @@ import android.Manifest.permission;
 import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.Toast;
@@ -16,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import com.android.photour.MainActivity;
 import com.android.photour.R;
 import com.google.android.gms.common.ConnectionResult;
@@ -63,7 +67,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
     visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
 
-    return inflater.inflate(R.layout.fragment_visit_map, container, false);
+    return inflater.inflate(R.layout.fragment_start_visit, container, false);
   }
 
   /**
@@ -84,6 +88,10 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     // Initialise chronometer
     initChronometer(view);
 
+    new Handler().post(() -> {
+      ViewStub viewStub = view.findViewById(R.id.viewstub_map);
+      viewStub.inflate();
+    });
 //    initGoogleMap();
   }
 
@@ -95,12 +103,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    */
   private void stopVisitListener(View view) {
     final Button stopButton = view.findViewById(R.id.button_stop_visit);
-    Fragment visitFragment = new VisitFragment();
-
-    stopButton.setOnClickListener(v -> getParentFragmentManager().beginTransaction()
-        .replace(R.id.nav_host_fragment, visitFragment)
-        .addToBackStack(null)
-        .commit());
+    stopButton.setOnClickListener(v -> Navigation.findNavController(view).navigate(R.id.action_stop_visit));
   }
 
   /**
