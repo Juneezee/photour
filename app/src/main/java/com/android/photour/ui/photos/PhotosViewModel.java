@@ -1,21 +1,27 @@
 package com.android.photour.ui.photos;
 
+import android.Manifest;
 import android.content.Context;
+import android.net.Uri;
+import android.os.Build;
 import android.util.DisplayMetrics;
+
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModel;
 import com.android.photour.ImageElement;
 import com.android.photour.R;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 public class PhotosViewModel extends ViewModel {
 
   // Statics for readwrite images
-  private static final int REQUEST_READ_EXTERNAL_STORAGE = 2987;
-  private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 7829;
+  static final List<ImageElement> ITEMS = new ArrayList<>();
   private ImageElement img;
 
-  public PhotosViewModel() {
-    this.img = new ImageElement(R.drawable.ic_logo_vertical);
-  }
+  public int getPermission
 
   /**
    * Helper function to recalculate number of columns
@@ -30,4 +36,48 @@ public class PhotosViewModel extends ViewModel {
     return (int) (screenWidthDp / columnWidthDp + 0.5);
   }
 
+  /**
+   *
+   * @param dir
+   * @param config 0 = By trips(folder), 1 = By Date
+   */
+  public static void loadSavedImages(File dir, int config) {
+    ITEMS.clear();
+    //by trips
+    if (config == 0) {
+      File[] files = dir.listFiles();
+      List<File> tempFiles = new ArrayList<>();
+      for (File file : files) {
+
+      }
+    } else if (config == 1) {
+
+    }
+    addItem(new ImageElement(dir.toString()));
+  }
+
+  private List<File> createImageElement(File dir, List<File> tempFiles) {
+    ImageElement imageElement = new ImageElement(dir.toString());
+    if (dir.exists()) {
+      File[] files = dir.listFiles();
+      for (File file : files) {
+        String absolutePath = file.getAbsolutePath();
+        String extension = absolutePath.substring(absolutePath.lastIndexOf("."));
+        if (extension.equals(".jpg") || extension.equals(".png")) {
+//          loadImage(file);
+        }
+      }
+    }
+  }
+
+  public static void loadImage(File file) {
+    PictureItem newItem = new PictureItem();
+    newItem.uri = Uri.fromFile(file);
+    newItem.date = getDateFromUri(newItem.uri);
+    addItem(newItem);
+  }
+
+  private static void addItem(ImageElement item) {
+    ITEMS.add(0, item);
+  }
 }

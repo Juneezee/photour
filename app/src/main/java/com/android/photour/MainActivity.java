@@ -1,17 +1,26 @@
 package com.android.photour;
 
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
@@ -36,7 +45,9 @@ public class MainActivity extends AppCompatActivity {
   private AppBarConfiguration appBarConfiguration;
   private BottomNavExtension navView;
   private Toolbar toolbar;
-  private BottomNavigationView navView;
+  private static final int REQUEST_READ_EXTERNAL_STORAGE = 2987;
+  private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 7829;
+
 
   /**
    * Perform the required actions when the activity is created
@@ -189,5 +200,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     return super.dispatchTouchEvent(ev);
+  }
+
+  private void checkStoragePermissions(final Context context) {
+    int currentAPIVersion = Build.VERSION.SDK_INT;
+    if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
+      if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+          android.support.v7.app.AlertDialog.Builder alertBuilder = new android.support.v7.app.AlertDialog.Builder(context);
+          alertBuilder.setCancelable(true);
+          alertBuilder.setTitle("Permission necessary");
+          alertBuilder.setMessage("External storage permission is necessary");
+          alertBuilder.setPositiveButton(android.R.string.yes, new android.content.DialogInterface.OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+            public void onClick(DialogInterface dialog, int which) {
+              ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL_STORAGE);
+            }
+          });
+          android.support.v7.app.AlertDialog alert = alertBuilder.create();
+          alert.show();
+
+        } else {
+          ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL_STORAGE);
+        }
+
+      }
+      if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+          android.support.v7.app.AlertDialog.Builder alertBuilder = new android.support.v7.app.AlertDialog.Builder(context);
+          alertBuilder.setCancelable(true);
+          alertBuilder.setTitle("Permission necessary");
+          alertBuilder.setMessage("Writing external storage permission is necessary");
+          alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+            public void onClick(DialogInterface dialog, int which) {
+              ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL_STORAGE);
+            }
+          });
+          android.support.v7.app.AlertDialog alert = alertBuilder.create();
+          alert.show();
+
+        } else {
+          ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL_STORAGE);
+        }
+
+      }
+
+    }
   }
 }

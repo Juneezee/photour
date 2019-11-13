@@ -5,11 +5,16 @@ import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.android.photour.ImageElement;
 import com.android.photour.R;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.View_Holder> {
@@ -33,7 +38,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.View_Holder>
   @Override
   public View_Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     //Inflate the layout, initialize the View Holder
-    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_image,
+    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_photos_sort,
         parent, false);
     //    context = parent.getContext();
     return new View_Holder(v);
@@ -42,12 +47,16 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.View_Holder>
   @Override
   public void onBindViewHolder(@NonNull View_Holder holder, int position) {
     if (items.get(position) != null) {
-      if (items.get(position).getImage() != -1) {
-        holder.imageView.setImageResource(items.get(position).getImage());
-      } else if (items.get(position).getFile() != null) {
-        Bitmap myBitmap = BitmapFactory.decodeFile(items.get(position).getFile().getAbsolutePath());
-        holder.imageView.setImageBitmap(myBitmap);
-      }
+      holder.mItem = mValues.get(position);
+      holder.mImageView.setImageURI(mValues.get(position).uri);
+      holder.mDateView.setText(mValues.get(position).date);
+
+      Bitmap myBitmap = BitmapFactory.decodeFile(items.get(position).getFile().getAbsolutePath());
+      holder.imageView.setImageBitmap(myBitmap);
+
+      holder.imageView.setOnClickListener(view -> {
+        // INSERT CODE TO ENTER IMAGE HERE
+      });
     }
   }
 
@@ -59,6 +68,21 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.View_Holder>
   @Override
   public int getItemCount() {
     return items.size();
+  }
+
+  class View_Holder extends RecyclerView.ViewHolder {
+
+    public final RecyclerView sortedRecyclerView;
+    public final TextView sortedTitleView;
+
+
+    public View_Holder(@NonNull View itemView) {
+      super(itemView);
+      sortedTitleView = itemView.findViewById(R.id.sortedTitleView);
+      sortedRecyclerView = itemView.findViewById(R.id.sortedRecyclerView);
+    }
+
+
   }
 
 }
