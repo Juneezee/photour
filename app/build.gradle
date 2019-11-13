@@ -44,9 +44,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0-rc02"
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-rc02'
 
-    // SavedState module
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-savedstate:1.0.0-rc02'
-
     // Google Maps and Play Services
     implementation 'com.google.android.gms:play-services-basement:17.1.1'
     implementation 'com.google.android.gms:play-services-base:17.1.0'

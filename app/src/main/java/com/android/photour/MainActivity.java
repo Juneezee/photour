@@ -65,22 +65,7 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
     toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
-
-    checkStoragePermissions(this);
-
-    final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-    final int cacheSize = maxMemory / 8;
-
-    memoryCache = new LruCache<String, Bitmap>(cacheSize) {
-      @Override
-      protected int sizeOf(String key, Bitmap bitmap) {
-        return bitmap.getByteCount() / 1024;
-      }
-    };
-
-    if (savedInstanceState == null) {
-      setupBottomNavigationBar();
-    }
+    setupBottomNavigationBar();
   }
 
   /**

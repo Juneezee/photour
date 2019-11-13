@@ -6,7 +6,7 @@
 
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
-    android:layout_height="0dp"
+    android:layout_height="wrap_content"
     android:clipToPadding="false"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin">
@@ -49,8 +49,8 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
-      android:id="@+id/text_date"
+    <TextClock
+      android:id="@+id/textclock"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:layout_marginStart="@dimen/fragment_horizontal_margin"
@@ -76,6 +76,6 @@
       android:textSize="@dimen/min_text_size"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/text_date" />
+      app:layout_constraintTop_toBottomOf="@id/textclock" />
   </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
