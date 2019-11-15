@@ -30,8 +30,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
+import com.google.android.libraries.maps.MapView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import static android.media.CamcorderProfile.get;
@@ -63,9 +62,12 @@ public class MainActivity extends AppCompatActivity {
     setTheme(R.style.AppTheme_NoActionBar);
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
     toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     setupBottomNavigationBar();
+
+    preloadPlayServices();
   }
 
   /**
@@ -79,6 +81,22 @@ public class MainActivity extends AppCompatActivity {
   protected void onRestoreInstanceState(Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
     setupBottomNavigationBar();
+  }
+
+  /**
+   * Preload Google Play Services (client version and package version download)
+   *
+   * @see <a href="https://stackoverflow.com/a/29246677/7902371"></a>
+   */
+  private void preloadPlayServices() {
+    new Thread(() -> {
+      try {
+        MapView mv = new MapView(getApplicationContext());
+        mv.onCreate(null);
+        mv.onPause();
+        mv.onDestroy();
+      } catch (Exception ignored) { }
+    }).start();
   }
 
   /**

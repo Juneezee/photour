@@ -4,6 +4,7 @@
   <dimen name="activity_vertical_margin">16dp</dimen>
   <dimen name="fragment_horizontal_margin">8dp</dimen>
   <dimen name="fragment_vertical_margin">8dp</dimen>
+  <dimen name="dialog_imageview_padding">35dp</dimen>
   <dimen name="min_text_size">15sp</dimen>
   <dimen name="logo_height">100dp</dimen>
 </resources>

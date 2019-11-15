@@ -31,6 +31,7 @@ android {
 }
 
 dependencies {
+    // Default Android libraries
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta3'
@@ -49,6 +50,13 @@ dependencies {
     implementation 'com.google.android.gms:play-services-base:17.1.0'
     implementation 'com.google.android.gms:play-services-gcm:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.0.0'
+
+    // EasyImage
+    implementation 'com.github.jkwiecien:EasyImage:3.0.3'
+
+    // PermissionDispatcher (approved by lecturer)
+    implementation "org.permissionsdispatcher:permissionsdispatcher:4.6.0"
+    annotationProcessor "org.permissionsdispatcher:permissionsdispatcher-processor:4.6.0"
 
     // Room
     implementation 'androidx.room:room-runtime:2.2.1'

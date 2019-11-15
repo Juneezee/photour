@@ -31,7 +31,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   private VisitViewModel visitViewModel;
   private Activity activity;
 
-
   private GoogleMap googleMap;
   private MapView mapView;
 
@@ -77,6 +76,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     // Initialise chronometer
     initChronometer(view);
 
+    // Prevent mini-slutter when the start button is pressed
     new Handler().post(() -> {
       view.findViewById(R.id.viewstub_map).setVisibility(View.VISIBLE);
     });
