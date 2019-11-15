@@ -1,5 +1,7 @@
 package com.android.photour;
 
+import android.net.Uri;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,28 +11,31 @@ public class ImageElement {
     private File file = null;
 
   private String title;
-  private List<File> file;
+  private List<Uri> uri;
 
   public ImageElement(String title) {
     this.title = title;
+    this.uri = new ArrayList<>();
   }
 
 
-  public ImageElement(String title, File file) {
+  public ImageElement(String title, Uri uri) {
     this.title = title;
-    this.file = new ArrayList<>();
-    this.file.add(file);
+    this.uri = new ArrayList<>();
+    this.uri.add(uri);
   }
 
-  public ImageElement(String title, List<File> fileList) {
+  public ImageElement(String title, List<Uri> uriList) {
     this.title = title;
-    this.file = fileList;
+    this.uri = uriList;
   }
-  public void addFile (File file) {
-    this.file.add(file);
+  public void addUri (Uri uri) {
+    this.uri.add(uri);
   }
 
-  public List<File> getFiles() {
-    return file;
+  public List<Uri> getUris() {
+    return uri;
   }
+
+  public String getTitle() { return title; }
 }

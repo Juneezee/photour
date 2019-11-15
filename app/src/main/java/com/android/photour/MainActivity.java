@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
     toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
+    checkStoragePermissions(this);
+
     if (savedInstanceState == null) {
       setupBottomNavigationBar();
     }
@@ -207,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
     if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
       if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-          android.support.v7.app.AlertDialog.Builder alertBuilder = new android.support.v7.app.AlertDialog.Builder(context);
+          androidx.appcompat.app.AlertDialog.Builder alertBuilder = new androidx.appcompat.app.AlertDialog.Builder(context);
           alertBuilder.setCancelable(true);
           alertBuilder.setTitle("Permission necessary");
           alertBuilder.setMessage("External storage permission is necessary");
@@ -217,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
               ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL_STORAGE);
             }
           });
-          android.support.v7.app.AlertDialog alert = alertBuilder.create();
+          androidx.appcompat.app.AlertDialog alert = alertBuilder.create();
           alert.show();
 
         } else {
@@ -227,17 +229,15 @@ public class MainActivity extends AppCompatActivity {
       }
       if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-          android.support.v7.app.AlertDialog.Builder alertBuilder = new android.support.v7.app.AlertDialog.Builder(context);
+          androidx.appcompat.app.AlertDialog.Builder alertBuilder = new androidx.appcompat.app.AlertDialog.Builder(context);
           alertBuilder.setCancelable(true);
           alertBuilder.setTitle("Permission necessary");
           alertBuilder.setMessage("Writing external storage permission is necessary");
-          alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-            public void onClick(DialogInterface dialog, int which) {
-              ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL_STORAGE);
-            }
-          });
-          android.support.v7.app.AlertDialog alert = alertBuilder.create();
+          alertBuilder.setPositiveButton(android.R.string.yes, (dialog, which) ->
+            ActivityCompat.requestPermissions((Activity) context,
+              new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+              REQUEST_WRITE_EXTERNAL_STORAGE));
+          androidx.appcompat.app.AlertDialog alert = alertBuilder.create();
           alert.show();
 
         } else {

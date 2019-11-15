@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -42,15 +43,18 @@ public class PhotosFragment extends Fragment {
     photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
     View root = inflater.inflate(R.layout.fragment_photos, container, false);
 
+    photosViewModel.images.observe(getViewLifecycleOwner(), imageElements -> {
+      photoAdapter = new PhotoAdapter(imageElements, getContext());
+      mRecyclerView.setAdapter(photoAdapter);
+    });
+
     mRecyclerView = root.findViewById(R.id.grid_recycler_view);
     mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-//    mRecyclerView.setLayoutManager(new GridLayoutManager(
-//        getActivity(),
-//        photosViewModel.calculateNoOfColumns(Objects.requireNonNull(getActivity()), IMAGE_WIDTH))
-//    );
 
-    photoAdapter = new PhotoAdapter(pictureList);
+
+//    photoAdapter = new PhotoAdapter();
     mRecyclerView.setAdapter(photoAdapter);
+
 
 
     return root;
