@@ -6,9 +6,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -41,6 +43,7 @@ import static android.media.CamcorderProfile.get;
  */
 public class MainActivity extends AppCompatActivity {
 
+  private LruCache<String, Bitmap> memoryCache;
   private LiveData<NavController> currentNavController;
   private AppBarConfiguration appBarConfiguration;
   private BottomNavExtension navView;
@@ -64,6 +67,16 @@ public class MainActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
 
     checkStoragePermissions(this);
+
+    final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+    final int cacheSize = maxMemory / 8;
+
+    memoryCache = new LruCache<String, Bitmap>(cacheSize) {
+      @Override
+      protected int sizeOf(String key, Bitmap bitmap) {
+        return bitmap.getByteCount() / 1024;
+      }
+    };
 
     if (savedInstanceState == null) {
       setupBottomNavigationBar();
@@ -247,5 +260,15 @@ public class MainActivity extends AppCompatActivity {
       }
 
     }
+  }
+
+  public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+    if (getBitmapFromMemCache(key) == null) {
+      memoryCache.put(key, bitmap);
+    }
+  }
+
+  public Bitmap getBitmapFromMemCache(String key) {
+    return memoryCache.get(key);
   }
 }

@@ -1,30 +1,28 @@
 package com.android.photour.ui.photos;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.android.photour.ImageElement;
 import com.android.photour.R;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.View_Holder> {
+public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.SortCard> {
 
   private static List<ImageElement> items;
   private Context context;
+  private static final int OUTER_RECYCLER = 0;
+  private static final int INNER_RECYCLER = 1;
+  private final int IMAGE_WIDTH = 150;
 
   PhotoAdapter(List<ImageElement> items, Context context) {
     PhotoAdapter.items = items;
@@ -42,27 +40,33 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.View_Holder>
 
   @NonNull
   @Override
-  public View_Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+  public SortCard onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_photos_sort,
-        parent, false);
-    return new View_Holder(v);
+            parent, false);
+    return new SortCard(v);
   }
 
   @Override
-  public void onBindViewHolder(@NonNull View_Holder holder, int position) {
+  public void onBindViewHolder(@NonNull SortCard holder, int position) {
     if (items.get(position) != null) {
+
       holder.imageElement = items.get(position);
       holder.sortedTitleView.setText(items.get(position).getTitle());
-      List<Uri> uriList = items.get(position).getUris();
-      System.out.println(uriList);
+
+      holder.sortedRecyclerView.setAdapter(new ImageAdapter(items.get(position).getUris(),context));
+      holder.sortedRecyclerView.setLayoutManager(new GridLayoutManager(
+              context,
+              PhotosViewModel.calculateNoOfColumns(Objects.requireNonNull(context), IMAGE_WIDTH)));
+
 //       loop images
-      try {
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uriList.get(0));
-        holder.sortedRecyclerView.setImageBitmap(bitmap);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+//        try {
+//          Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), holder..uriList.get(0));
+//          ((ImageHolder) holder).imageView.setImageBitmap(bitmap);
+//        } catch (IOException e) {
+//          e.printStackTrace();
+//        }
     }
+
 //      holder.imageView.setOnClickListener(view -> {
 //        // INSERT CODE TO ENTER IMAGE HERE
 //      });
@@ -79,7 +83,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.View_Holder>
     return items.size();
   }
 
-  class View_Holder extends RecyclerView.ViewHolder {
+  class SortCard extends RecyclerView.ViewHolder {
 
     public final View sortedView;
     public final ImageView imageView;
@@ -88,15 +92,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.View_Holder>
     public ImageElement imageElement;
 
 
-    public View_Holder(@NonNull View itemView) {
+    public SortCard(@NonNull View itemView) {
       super(itemView);
       sortedView = itemView;
       imageView = itemView.findViewById(R.id.sorted_image_view);
       sortedTitleView = itemView.findViewById(R.id.sorted_title_view);
       sortedRecyclerView = itemView.findViewById(R.id.sorted_recycler_view);
     }
-
-
   }
 
 }

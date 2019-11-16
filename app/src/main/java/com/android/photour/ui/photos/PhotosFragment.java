@@ -24,7 +24,6 @@ import com.android.photour.R;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class PhotosFragment extends Fragment {
 
@@ -52,10 +51,7 @@ public class PhotosFragment extends Fragment {
     mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
 
-//    photoAdapter = new PhotoAdapter();
     mRecyclerView.setAdapter(photoAdapter);
-
-
 
     return root;
   }

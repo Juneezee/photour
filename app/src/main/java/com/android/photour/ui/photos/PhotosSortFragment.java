@@ -18,8 +18,6 @@ import java.util.Objects;
 
 public class PhotosSortFragment extends Fragment {
 
-    private final int IMAGE_WIDTH = 100;
-    private PhotosViewModel photosViewModel;
     private RecyclerView.Adapter photoAdapter;
     private RecyclerView sortedRecyclerView;
 
@@ -27,18 +25,23 @@ public class PhotosSortFragment extends Fragment {
             @NonNull LayoutInflater inflater,
             ViewGroup container,
             Bundle savedInstanceState) {
-        photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
-        android.view.View root = inflater.inflate(R.layout.fragment_photos, container, false);
+        System.out.println("Fragment recreated");
+        PhotosViewModel photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
+        View root = inflater.inflate(R.layout.fragment_photos, container, false);
 
         sortedRecyclerView = root.findViewById(R.id.sorted_recycler_view);
+        int IMAGE_WIDTH = 100;
         sortedRecyclerView.setLayoutManager(new GridLayoutManager(
                 getActivity(),
-                photosViewModel.calculateNoOfColumns(Objects.requireNonNull(getActivity()), IMAGE_WIDTH))
+                PhotosViewModel.calculateNoOfColumns(Objects.requireNonNull(getActivity()), IMAGE_WIDTH))
         );
 
+        photosViewModel.images.observe(getViewLifecycleOwner(), imageElements -> {
+            photoAdapter = new PhotoAdapter(imageElements, getContext());
+            sortedRecyclerView.setAdapter(photoAdapter);
+        });
 
-//        photoAdapter = new PhotoAdapter();
-//        sortedRecyclerView.setAdapter(photoAdapter);
+        sortedRecyclerView.setAdapter(photoAdapter);
 
 
         return root;
