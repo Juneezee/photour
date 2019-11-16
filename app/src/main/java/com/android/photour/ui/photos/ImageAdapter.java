@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -47,13 +48,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageHolder>
     public void onBindViewHolder(@NonNull ImageHolder holder, int position) {
         if (items.get(position) != null) {
             final String imageKey = items.get(position).toString();
-            final Bitmap bitmap = ((MainActivity)context).getBitmapFromMemCache(imageKey);
+            Bitmap bitmap = ((MainActivity)context).getBitmapFromMemCache(imageKey);
             if(bitmap != null) {
-                holder.imageView.setImageBitmap(bitmap);
+                holder.imageView.setImageBitmap(ThumbnailUtils.extractThumbnail(bitmap,360,360));
             } else {
                 try {
-                    holder.imageView.setImageBitmap(ImageAdapter.decodeSampledBitmapFromResource(context,
-                            items.get(position), 100, 100));
+                    bitmap = ImageAdapter.decodeSampledBitmapFromResource(context,
+                            items.get(position), 150, 150);
+                    holder.imageView.setImageBitmap(ThumbnailUtils.extractThumbnail(bitmap,360,360));
                     BitmapWorkerTask task = new BitmapWorkerTask(context);
                     task.execute(items.get(position));
                 } catch (FileNotFoundException e) {
@@ -105,7 +107,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageHolder>
             if (options.inSampleSize <= 1) {
                 return bitmap;
             } else {
-                System.out.println("TOO BIG");
                 inputStream = context.getContentResolver().openInputStream(resUri);
                 options.inJustDecodeBounds = false;
                 bitmap = BitmapFactory.decodeStream(inputStream,

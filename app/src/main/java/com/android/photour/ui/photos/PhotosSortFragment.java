@@ -33,7 +33,7 @@ public class PhotosSortFragment extends Fragment {
         int IMAGE_WIDTH = 100;
         sortedRecyclerView.setLayoutManager(new GridLayoutManager(
                 getActivity(),
-                PhotosViewModel.calculateNoOfColumns(Objects.requireNonNull(getActivity()), IMAGE_WIDTH))
+                3)
         );
 
         photosViewModel.images.observe(getViewLifecycleOwner(), imageElements -> {

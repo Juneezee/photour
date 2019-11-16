@@ -22,7 +22,7 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
         Bitmap bitmap;
         try {
             bitmap = decodeSampledBitmapFromResource(
-                    context, params[0], 100, 100);
+                    context, params[0], 150, 150);
             ((MainActivity)context).addBitmapToMemoryCache(String.valueOf(params[0]), bitmap);
             return bitmap;
         } catch (FileNotFoundException e) {
