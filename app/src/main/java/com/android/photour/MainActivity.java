@@ -128,39 +128,44 @@ public class MainActivity extends AppCompatActivity {
    * Setups the bottomnavbar as well as the navcontroller for the fragment
    */
   private void setupBottomNavigationBar() {
-    navView = findViewById(R.id.nav_view);
-    List<Integer> navGraphIds = new ArrayList<>();
-    navGraphIds.add(R.navigation.navigation_visit);
-    navGraphIds.add(R.navigation.navigation_photos);
-    navGraphIds.add(R.navigation.navigation_paths);
-    navGraphIds.add(R.navigation.navigation_settings);
+    runOnUiThread(() -> {
+      navView = findViewById(R.id.nav_view);
+      List<Integer> navGraphIds = new ArrayList<>();
+      navGraphIds.add(R.navigation.navigation_visit);
+      navGraphIds.add(R.navigation.navigation_photos);
+      navGraphIds.add(R.navigation.navigation_paths);
+      navGraphIds.add(R.navigation.navigation_settings);
 
-    LiveData<NavController> controller = navView.setupWithNavController(
-        navGraphIds,
-        this.getSupportFragmentManager(),
-        R.id.nav_host_fragment,
-        this.getIntent()
-    );
+      LiveData<NavController> controller = navView.setupWithNavController(
+          navGraphIds,
+          this.getSupportFragmentManager(),
+          R.id.nav_host_fragment,
+          this.getIntent()
+      );
 
-    final Observer<NavController> navControllerObserver = navController -> {
-      navController.addOnDestinationChangedListener((controller1, destination, arguments) -> {
-        switch (destination.getId()) {
-          case R.id.new_visit:
-          case R.id.photos:
-          case R.id.paths:
-            navView.setVisibility(View.VISIBLE);
-            break;
-          default:
-            navView.setVisibility(View.GONE);
-        }
-      });
+      final Observer<NavController> navControllerObserver = navController -> {
+        navController.addOnDestinationChangedListener((controller1, destination, arguments) -> {
+          switch (destination.getId()) {
+            case R.id.new_visit:
+            case R.id.photos:
+            case R.id.paths:
+              navView.setVisibility(View.VISIBLE);
+              break;
+            default:
+              navView.setVisibility(View.GONE);
+          }
+        });
 
-      appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-      NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-    };
+        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+      };
 
-    controller.observe(this, navControllerObserver);
-    currentNavController = controller;
+      controller.observe(this, navControllerObserver);
+      currentNavController = controller;
+    });
+
+
+
   }
 
   /**

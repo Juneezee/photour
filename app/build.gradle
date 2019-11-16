@@ -10,7 +10,7 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+//        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         debug {
@@ -53,10 +53,6 @@ dependencies {
 
     // EasyImage
     implementation 'com.github.jkwiecien:EasyImage:3.0.3'
-
-    // PermissionDispatcher (approved by lecturer)
-    implementation "org.permissionsdispatcher:permissionsdispatcher:4.6.0"
-    annotationProcessor "org.permissionsdispatcher:permissionsdispatcher-processor:4.6.0"
 
     // Room
     implementation 'androidx.room:room-runtime:2.2.1'

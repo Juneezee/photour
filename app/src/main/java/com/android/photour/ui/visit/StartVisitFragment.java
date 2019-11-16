@@ -17,9 +17,8 @@ import androidx.navigation.Navigation;
 import com.android.photour.MainActivity;
 import com.android.photour.R;
 import com.google.android.libraries.maps.GoogleMap;
-import com.google.android.libraries.maps.MapFragment;
-import com.google.android.libraries.maps.MapView;
 import com.google.android.libraries.maps.OnMapReadyCallback;
+import com.google.android.libraries.maps.SupportMapFragment;
 
 /**
  * Fragment to create when new visit has started
@@ -32,7 +31,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   private Activity activity;
 
   private GoogleMap googleMap;
-  private MapView mapView;
+  private SupportMapFragment supportMapFragment;
 
   /**
    * Called to have the fragment instantiate its user interface view.
@@ -126,7 +125,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   }
 
   private void initGoogleMap() {
-    mapView.getMapAsync(this);
+    supportMapFragment.getMapAsync(this);
   }
 
   /**

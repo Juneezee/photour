@@ -7,6 +7,8 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.util.SparseArray;
+import com.android.photour.R;
 
 /**
  * Helper class for handling runtime permissions
@@ -20,9 +22,31 @@ public class PermissionHelper {
   public static final int LOCATION_PERMISSION_CODE = 100;
   public static final int CAMERA_PERMISSION_CODE = 10;
   public static final int STORAGE_PERMISSION_CODE = 1;
-  public static final int LC_PERMISSION_CODE = 110;
-  public static final int LS_PERMISSION_CODE = 101;
-  public static final int CS_PERMISSION_CODE = 11;
+  public static final int LC_PERMISSION_CODE = 110; // LC: Location and Camera
+  public static final int LS_PERMISSION_CODE = 101; // LS: Location and Storage
+  public static final int CS_PERMISSION_CODE = 11; // CS: Camera and Storage
+
+  public static final SparseArray<PermissionCodeResponse> PERMISSIONS_MAP = new SparseArray<PermissionCodeResponse>() {
+    {
+      append(ALL_PERMISSIONS_CODE, new PermissionCodeResponse(R.layout.dialog_permission_all,
+          "location, camera, and storage", "location ON, camera ON, and storage ON"));
+      append(LOCATION_PERMISSION_CODE,
+          new PermissionCodeResponse(R.layout.dialog_permission_location,
+              "location ", "location ON"));
+      append(CAMERA_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_camera,
+          "camera", "camera ON"));
+      append(STORAGE_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_storage,
+          "storage", "storage ON"));
+      append(LC_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_lc,
+          "location and camera", "location ON and camera ON"));
+      append(LS_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_ls,
+          "location and storage", "location ON and storage ON"));
+      append(CS_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_cs,
+          "camera and storage", "camera ON and storage ON"));
+      append(NO_PERMISSIONS_CODE, new PermissionCodeResponse(R.layout.dialog_permission_all,
+          "", ""));
+    }
+  };
 
   /**
    * 1. Check if device version is Marshmallow (API 23) and above. Used in deciding to ask runtime
@@ -203,5 +227,36 @@ public class PermissionHelper {
      * Callback on permission granted
      */
     void onPermissionGranted();
+  }
+
+  /**
+   *
+   */
+  public static class PermissionCodeResponse {
+
+    private int layout;
+    private String rationaleName, rationaleNameOn;
+
+    PermissionCodeResponse(int layout, String rationaleName, String rationaleNameOn) {
+      this.layout = layout;
+      this.rationaleName = rationaleName;
+      this.rationaleNameOn = rationaleNameOn;
+    }
+
+    public int getLayout() {
+      return layout;
+    }
+
+    public String getRationaleName() {
+      return rationaleName;
+    }
+
+    public String getRationaleNameOn() {
+      return rationaleNameOn;
+    }
+
+    public String getResponseResult() {
+      return rationaleName.substring(0, 1).toUpperCase() + rationaleName.substring(1);
+    }
   }
 }

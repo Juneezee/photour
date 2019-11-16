@@ -32,6 +32,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import com.android.photour.R;
 import com.android.photour.helper.PermissionHelper;
+import com.android.photour.helper.PermissionHelper.PermissionCodeResponse;
 import com.android.photour.helper.ToastHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -51,15 +52,14 @@ import java.util.Objects;
 public class VisitFragment extends Fragment {
 
   private VisitViewModel visitViewModel;
-  private View view;
   private Activity activity;
 
-  private final String[] ALL_PERMISSIONS_REQUIRED = {
+  private static final String[] ALL_PERMISSIONS_REQUIRED = {
       permission.ACCESS_FINE_LOCATION,
       permission.CAMERA,
       permission.WRITE_EXTERNAL_STORAGE
   };
-  private final int REQUEST_CHECK_SETTINGS = 214;
+  private static final int REQUEST_CHECK_SETTINGS = 214;
   private static final int PLAY_SERVICES_ERROR_CODE = 9002;
   private static final int LOCATION_INTERVAL = 20000;
   private static final int FAST_LOCATION_INTERVAL = 10000;
@@ -83,9 +83,8 @@ public class VisitFragment extends Fragment {
 
     visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
     this.activity = getActivity();
-    view = inflater.inflate(R.layout.fragment_visit, container, false);
 
-    return view;
+    return inflater.inflate(R.layout.fragment_visit, container, false);
   }
 
   /**
@@ -237,53 +236,25 @@ public class VisitFragment extends Fragment {
     boolean anyNeverAskChecked = !isFirstTime && permissionsNeverAsked != NO_PERMISSIONS_CODE
         && permissionsNeverAsked != permissionGranted;
 
+    int permissionToRequest
+        = isFirstTime ? ALL_PERMISSIONS_CODE
+        : isAllPermissionsAllowed ? NO_PERMISSIONS_CODE
+            : anyNeverAskChecked ? permissionsNeverAsked | permissionNotGranted : permissionNotGranted;
+
+    PermissionCodeResponse codeResponse = PermissionHelper.PERMISSIONS_MAP.get(permissionToRequest);
+
     String message = "To capture and upload photos with location tag, allow Photour access to your "
         + "device's %s. "
         + (anyNeverAskChecked ? "Tap Settings > Permissions, and turn %s." : "");
 
-    int permissionToRequest
-        = isFirstTime ? ALL_PERMISSIONS_CODE
-        : isAllPermissionsAllowed ? NO_PERMISSIONS_CODE
-            : anyNeverAskChecked ? permissionsNeverAsked : permissionNotGranted;
-
-    int titleLayout = R.layout.dialog_permission_all;
-
-    switch (permissionToRequest) {
-      case ALL_PERMISSIONS_CODE:
-        message = String.format(message, "location, camera, and storage",
-            "Location ON, Camera ON, and Storage ON");
-        break;
-      case LOCATION_PERMISSION_CODE:
-        message = String.format(message, "location", "Location ON");
-        titleLayout = R.layout.dialog_permission_location;
-        break;
-      case CAMERA_PERMISSION_CODE:
-        message = String.format(message, "camera", "Camera ON");
-        titleLayout = R.layout.dialog_permission_camera;
-        break;
-      case STORAGE_PERMISSION_CODE:
-        message = String.format(message, "storage", "Storage ON");
-        titleLayout = R.layout.dialog_permission_storage;
-        break;
-      case LC_PERMISSION_CODE:
-        message = String.format(message, "location and camera", "Location ON and Camera ON");
-        titleLayout = R.layout.dialog_permission_lc;
-        break;
-      case LS_PERMISSION_CODE:
-        message = String.format(message, "location and storage", "Location ON and Storage ON");
-        titleLayout = R.layout.dialog_permission_ls;
-        break;
-      case CS_PERMISSION_CODE:
-        message = String.format(message, "camera and storage", "Camera ON and Storage ON");
-        titleLayout = R.layout.dialog_permission_cs;
-        break;
-      default:
-        break;
-    }
+    message = String
+        .format(message, codeResponse.getRationaleName(), codeResponse.getRationaleNameOn());
 
     if (isAllPermissionsAllowed) {
       checkRequiredPermissions(permissionToRequest);
     } else {
+      int titleLayout = codeResponse.getLayout();
+
       buildDialog(titleLayout, message, permissionToRequest, anyNeverAskChecked);
     }
   }
@@ -364,62 +335,27 @@ public class VisitFragment extends Fragment {
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-    switch (requestCode) {
-      case ALL_PERMISSIONS_CODE:
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED
-            && grantResults[1] == PackageManager.PERMISSION_GRANTED
-            && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-          ToastHelper.tShort(activity, "Required permissions granted");
-        } else {
-          ToastHelper.tShort(activity, "Required permissions denied");
-        }
-        break;
-      case LOCATION_PERMISSION_CODE:
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-          ToastHelper.tShort(activity, "Location permission granted");
-        } else {
-          ToastHelper.tShort(activity, "Location permission denied");
-        }
-        break;
-      case CAMERA_PERMISSION_CODE:
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-          ToastHelper.tShort(activity, "Camera permission granted");
-        } else {
-          ToastHelper.tShort(activity, "Camera permission denied");
-        }
-        break;
-      case STORAGE_PERMISSION_CODE:
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-          ToastHelper.tShort(activity, "Storage permission granted");
-        } else {
-          ToastHelper.tShort(activity, "Storage permission denied");
-        }
-        break;
-      case LC_PERMISSION_CODE:
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED
-            && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-          ToastHelper.tShort(activity, "Location and camera permissions granted");
-        } else {
-          ToastHelper.tShort(activity, "Location and camera permissions denied");
-        }
-        break;
-      case LS_PERMISSION_CODE:
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED
-            && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-          ToastHelper.tShort(activity, "Location and storage permissions granted");
-        } else {
-          ToastHelper.tShort(activity, "Location and storage permissions denied");
-        }
-        break;
-      case CS_PERMISSION_CODE:
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED
-            && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-          ToastHelper.tShort(activity, "Camera and storage permissions granted");
-        } else {
-          ToastHelper.tShort(activity, "Camera and storage permissions denied");
-        }
-        break;
+    boolean allPermissionsGranted = true;
+
+    for (int grantResult : grantResults) {
+      allPermissionsGranted &= grantResult == PackageManager.PERMISSION_GRANTED;
     }
+
+    PermissionCodeResponse codeResponse = PermissionHelper.PERMISSIONS_MAP.get(requestCode);
+
+    String result = allPermissionsGranted ? "granted" : "denied";
+
+    String message
+        = requestCode == ALL_PERMISSIONS_CODE
+        ? "Required permissions "
+        : (codeResponse.getResponseResult());
+    message += result;
+
+    if (allPermissionsGranted) {
+      checkDeviceLocation();
+    }
+
+    ToastHelper.tShort(activity, message);
   }
 
   /**
