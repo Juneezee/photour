@@ -38,4 +38,8 @@ public class ImageElement {
   }
 
   public String getTitle() { return title; }
+
+  public String toString() {
+    return title+": "+uri.toString();
+  }
 }

@@ -13,30 +13,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.photour.ImageElement;
 import com.android.photour.R;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.SortCard> {
 
-  private static List<ImageElement> items;
+  private static List<ImageElement> items = new ArrayList<>();
   private Context context;
-  private static final int OUTER_RECYCLER = 0;
-  private static final int INNER_RECYCLER = 1;
   private final int IMAGE_WIDTH = 150;
 
-  PhotoAdapter(List<ImageElement> items, Context context) {
-    PhotoAdapter.items = items;
+  PhotoAdapter(Context context) {
     this.context = context;
   }
 
-  class View_Holder extends RecyclerView.ViewHolder {
-    private final ImageView imageView;
-
-    View_Holder(View itemView) {
-      super(itemView);
-      imageView = itemView.findViewById(R.id.image_item);
-    }
+  public void setItems(List<ImageElement> items) {
+      this.items = items;
   }
+
 
   @NonNull
   @Override
@@ -50,21 +44,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.SortCard> {
   public void onBindViewHolder(@NonNull SortCard holder, int position) {
     if (items.get(position) != null) {
 
-      holder.imageElement = items.get(position);
-      holder.sortedTitleView.setText(items.get(position).getTitle());
+        holder.imageElement = items.get(position);
+        holder.sortedTitleView.setText(items.get(position).getTitle());
 
-      holder.sortedRecyclerView.setAdapter(new ImageAdapter(items.get(position).getUris(),context));
-      holder.sortedRecyclerView.setLayoutManager(new GridLayoutManager(
-              context,
-              PhotosViewModel.calculateNoOfColumns(Objects.requireNonNull(context), IMAGE_WIDTH)));
-
-//       loop images
-//        try {
-//          Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), holder..uriList.get(0));
-//          ((ImageHolder) holder).imageView.setImageBitmap(bitmap);
-//        } catch (IOException e) {
-//          e.printStackTrace();
-//        }
+        holder.sortedRecyclerView.setAdapter(new ImageAdapter(items.get(position).getUris(), context));
+        holder.sortedRecyclerView.setLayoutManager(new GridLayoutManager(
+                context,
+                PhotosViewModel.calculateNoOfColumns(Objects.requireNonNull(context), IMAGE_WIDTH)));
     }
 
 //      holder.imageView.setOnClickListener(view -> {

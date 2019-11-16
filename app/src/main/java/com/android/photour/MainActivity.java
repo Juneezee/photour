@@ -30,6 +30,8 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import com.android.photour.ui.photos.PhotosFragment;
 import com.google.android.libraries.maps.MapView;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -67,6 +69,27 @@ public class MainActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
     setupBottomNavigationBar();
 
+   checkStoragePermissions(this);
+
+    final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+    final int cacheSize = maxMemory / 8;
+
+    PhotosFragment mRetainFragment =
+            PhotosFragment.findOrCreateRetainFragment(this.getSupportFragmentManager());
+    memoryCache = PhotosFragment.mRetainedCache;
+    if (memoryCache == null) {
+      memoryCache = new LruCache<String, Bitmap>(cacheSize) {
+        @Override
+        protected int sizeOf(String key, Bitmap bitmap) {
+          return bitmap.getByteCount() / 1024;
+        }
+      };
+      mRetainFragment.mRetainedCache = memoryCache;
+    }
+
+    if (savedInstanceState == null) {
+      setupBottomNavigationBar();
+    }
     preloadPlayServices();
   }
 

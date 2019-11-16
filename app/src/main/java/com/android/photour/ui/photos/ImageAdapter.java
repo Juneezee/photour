@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.photour.BitmapWorkerTask;
+import com.android.photour.AsyncDrawable;
 import com.android.photour.ImageElement;
 import com.android.photour.MainActivity;
 import com.android.photour.R;
@@ -31,14 +32,18 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageHolder>
 
     private static List<Uri> items;
     private Context context;
+    final Bitmap placeholder;
 
     ImageAdapter(List<Uri> items, Context context) {
         ImageAdapter.items = items;
         this.context = context;
+        this.placeholder = BitmapFactory.decodeResource(context.getResources(),
+                R.drawable.ic_logo_vertical);
     }
     @NonNull
     @Override
     public ImageHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        System.out.println("INFLATED");
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_image,
                 parent, false);
         return new ImageHolder(v);
@@ -50,16 +55,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageHolder>
             final String imageKey = items.get(position).toString();
             Bitmap bitmap = ((MainActivity)context).getBitmapFromMemCache(imageKey);
             if(bitmap != null) {
-                holder.imageView.setImageBitmap(ThumbnailUtils.extractThumbnail(bitmap,360,360));
+                holder.imageView.setImageBitmap(bitmap);
             } else {
-                try {
-                    bitmap = ImageAdapter.decodeSampledBitmapFromResource(context,
-                            items.get(position), 150, 150);
-                    holder.imageView.setImageBitmap(ThumbnailUtils.extractThumbnail(bitmap,360,360));
-                    BitmapWorkerTask task = new BitmapWorkerTask(context);
-                    task.execute(items.get(position));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                Uri uri = items.get(position);
+                if (BitmapWorkerTask.cancelPotentialWork(uri,holder.imageView)) {
+                    System.out.println(position+": "+uri);
+                    BitmapWorkerTask task = new BitmapWorkerTask(context, holder.imageView);
+                    final AsyncDrawable asyncDrawable =
+                            new AsyncDrawable(context.getResources(), placeholder, task);
+                    holder.imageView.setImageDrawable(asyncDrawable);
+                    task.execute(uri);
                 }
             }
         }
@@ -112,7 +117,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageHolder>
                 bitmap = BitmapFactory.decodeStream(inputStream,
                         null, options);
                 inputStream.close();
-                System.out.println(options.outWidth+","+options.outHeight);
                 return bitmap;
             }
         } catch (Exception e) {

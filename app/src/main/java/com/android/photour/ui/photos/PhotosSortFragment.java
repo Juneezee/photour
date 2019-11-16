@@ -37,7 +37,7 @@ public class PhotosSortFragment extends Fragment {
         );
 
         photosViewModel.images.observe(getViewLifecycleOwner(), imageElements -> {
-            photoAdapter = new PhotoAdapter(imageElements, getContext());
+            photoAdapter = new PhotoAdapter(getContext());
             sortedRecyclerView.setAdapter(photoAdapter);
         });
 
