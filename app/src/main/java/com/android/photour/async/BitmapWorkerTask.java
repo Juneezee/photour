@@ -1,20 +1,19 @@
-package com.android.photour;
+package com.android.photour.async;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.widget.ImageView;
 
-import com.android.photour.ui.photos.ImageAdapter;
+import com.android.photour.MainActivity;
 
 import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 
-import static com.android.photour.ui.photos.ImageAdapter.decodeSampledBitmapFromResource;
+import static com.android.photour.ui.photos.PhotoAdapter.decodeSampledBitmapFromResource;
 
 public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
 
@@ -34,7 +33,7 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
             data = params[0];
             bitmap = decodeSampledBitmapFromResource(
                     context, data, 100, 100);
-            bitmap = ThumbnailUtils.extractThumbnail(bitmap,360,360);
+            bitmap = ThumbnailUtils.extractThumbnail(bitmap,300,300);
             ((MainActivity)context).addBitmapToMemoryCache(String.valueOf(data), bitmap);
             return bitmap;
         } catch (FileNotFoundException e) {

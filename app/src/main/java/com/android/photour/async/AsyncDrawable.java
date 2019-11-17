@@ -1,10 +1,8 @@
-package com.android.photour;
+package com.android.photour.async;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-
-import com.android.photour.BitmapWorkerTask;
 
 import java.lang.ref.WeakReference;
 
@@ -15,7 +13,7 @@ public class AsyncDrawable extends BitmapDrawable {
                          BitmapWorkerTask bitmapWorkerTask) {
         super(res, bitmap);
         bitmapWorkerTaskReference =
-                new WeakReference<>(bitmapWorkerTask);
+                new WeakReference<BitmapWorkerTask>(bitmapWorkerTask);
     }
 
     public BitmapWorkerTask getBitmapWorkerTask() {
