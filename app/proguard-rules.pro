@@ -7,5 +7,10 @@
 -keep public class * extends androidx.fragment.app.Fragment{}
 -keep public class com.google.android.libraries.maps.** { *; }
 
--overloadaggressively
+-optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
+-optimizationpasses 5
+-allowaccessmodification
+-dontpreverify
+-dontusemixedcaseclassnames
+-dontskipnonpubliclibraryclasses
 -repackageclasses

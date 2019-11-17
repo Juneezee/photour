@@ -3,6 +3,7 @@
   <color name="colorPrimary">#5755d9</color>
   <color name="colorTitleGray">#505c6e</color>
   <color name="colorSubtitleGray">#66758c</color>
+  <color name="colorBlack">#000</color>
   <color name="colorWhite">#fff</color>
   <color name="colorCancel">#c53929</color>
 </resources>

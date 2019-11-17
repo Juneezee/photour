@@ -1,5 +1,6 @@
 package com.android.photour.ui.visit;
 
+import static com.android.photour.helper.LocationServicesHelper.checkDeviceLocation;
 import static com.android.photour.helper.PermissionHelper.ALL_PERMISSIONS_CODE;
 import static com.android.photour.helper.PermissionHelper.CAMERA_PERMISSION_CODE;
 import static com.android.photour.helper.PermissionHelper.CS_PERMISSION_CODE;
@@ -13,7 +14,6 @@ import android.Manifest.permission;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,20 +28,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import com.android.photour.R;
 import com.android.photour.helper.PermissionHelper;
 import com.android.photour.helper.PermissionHelper.PermissionCodeResponse;
 import com.android.photour.helper.ToastHelper;
+import com.android.photour.ui.visit.VisitFragmentDirections.ActionStartVisit;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.material.textfield.TextInputEditText;
 import java.util.Objects;
 
 /**
@@ -51,7 +46,6 @@ import java.util.Objects;
  */
 public class VisitFragment extends Fragment {
 
-  private VisitViewModel visitViewModel;
   private Activity activity;
 
   private static final String[] ALL_PERMISSIONS_REQUIRED = {
@@ -59,10 +53,9 @@ public class VisitFragment extends Fragment {
       permission.CAMERA,
       permission.WRITE_EXTERNAL_STORAGE
   };
-  private static final int REQUEST_CHECK_SETTINGS = 214;
+  public static final int REQUEST_CHECK_SETTINGS = 214;
   private static final int PLAY_SERVICES_ERROR_CODE = 9002;
-  private static final int LOCATION_INTERVAL = 20000;
-  private static final int FAST_LOCATION_INTERVAL = 10000;
+
 
   /**
    * Called to have the fragment instantiate its user interface view.
@@ -81,7 +74,6 @@ public class VisitFragment extends Fragment {
       ViewGroup container,
       Bundle savedInstanceState) {
 
-    visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
     this.activity = getActivity();
 
     return inflater.inflate(R.layout.fragment_visit, container, false);
@@ -107,14 +99,22 @@ public class VisitFragment extends Fragment {
     startNewVisitListener(view);
   }
 
-
   /**
    * Navigate to the start visit fragment. Condition: Device location turned on, location permission
    * granted
    */
   private void navigateToStartVisit() {
-    Navigation.findNavController(Objects.requireNonNull(getView()))
-        .navigate(R.id.action_start_visit);
+    View view = getView();
+
+    if (view != null) {
+      TextInputEditText newVisitTitle = view.findViewById(R.id.new_visit_title_input);
+
+      // Pass data between destinations using safe-args
+      ActionStartVisit actionStartVisit = VisitFragmentDirections.actionStartVisit();
+      actionStartVisit.setNewVisitTitle(Objects.requireNonNull(newVisitTitle.getText()).toString());
+
+      Navigation.findNavController(Objects.requireNonNull(getView())).navigate(actionStartVisit);
+    }
   }
 
   /**
@@ -239,7 +239,8 @@ public class VisitFragment extends Fragment {
     int permissionToRequest
         = isFirstTime ? ALL_PERMISSIONS_CODE
         : isAllPermissionsAllowed ? NO_PERMISSIONS_CODE
-            : anyNeverAskChecked ? permissionsNeverAsked | permissionNotGranted : permissionNotGranted;
+            : anyNeverAskChecked ? permissionsNeverAsked | permissionNotGranted
+                : permissionNotGranted;
 
     PermissionCodeResponse codeResponse = PermissionHelper.PERMISSIONS_MAP.get(permissionToRequest);
 
@@ -309,7 +310,7 @@ public class VisitFragment extends Fragment {
   private void checkRequiredPermissions(int permissionToRequest) {
     if (permissionToRequest == NO_PERMISSIONS_CODE) {
       // All permissions required are granted, check if device location is ON
-      checkDeviceLocation();
+      checkDeviceLocation(activity, this, this::navigateToStartVisit);
 
     } else {
       // No permissions for location, camera, and storage
@@ -352,65 +353,10 @@ public class VisitFragment extends Fragment {
     message += result;
 
     if (allPermissionsGranted) {
-      checkDeviceLocation();
+      checkDeviceLocation(activity, this, this::navigateToStartVisit);
     }
 
     ToastHelper.tShort(activity, message);
-  }
-
-  /**
-   * Check if the status of the device location (either ON of OFF)
-   */
-  private void checkDeviceLocation() {
-    LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-    builder.addLocationRequest(LocationRequest.create()
-        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-        .setInterval(LOCATION_INTERVAL)
-        .setFastestInterval(FAST_LOCATION_INTERVAL)
-    );
-    builder.setAlwaysShow(true);
-
-    LocationSettingsRequest mLocationSettingsRequest = builder.build();
-
-    LocationServices
-        .getSettingsClient(activity)
-        .checkLocationSettings(mLocationSettingsRequest)
-
-        .addOnSuccessListener(
-            // Device location is turned on, and location permission granted
-            locationSettingsResponse -> navigateToStartVisit())
-
-        .addOnFailureListener(this::locationServicesFail);
-  }
-
-  /**
-   * Device location if OFF . Prompt a dialog that allows the user to click OK and automatically
-   * turn ON device location
-   *
-   * @param e Exception class instance
-   */
-  private void locationServicesFail(Exception e) {
-    final int statusCode = ((ApiException) e).getStatusCode();
-
-    // Device location is off, location permission can either be granted or denied
-    if (statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
-      try {
-        /*
-         * Create a dialog (like Google Maps does) to turn ON device location after the user has
-         * pressed OK
-         */
-        ResolvableApiException rae = (ResolvableApiException) e;
-        startIntentSenderForResult(rae.getResolution().getIntentSender(),
-            REQUEST_CHECK_SETTINGS, null, 0, 0, 0, null);
-      } catch (IntentSender.SendIntentException sie) {
-        ToastHelper.tShort(activity, "Unable to execute request");
-      }
-
-    } else if (statusCode == LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE) {
-      // When WiFi off and Cellular Off, this will happen
-      ToastHelper.tShort(activity,
-          "Unable to find GPS location (try turning on WiFi or mobile signal)");
-    }
   }
 
   /**

@@ -65,6 +65,36 @@ public class PermissionHelper {
   }
 
   /**
+   * Check for ACCESS_FINE_LOCATION permission
+   *
+   * @param activity The current activity
+   * @param listener A {@link PermissionAskListener} instance for callback
+   */
+  public static void checkLocationPermission(Activity activity, PermissionAskListener listener) {
+    checkPermission(activity, permission.ACCESS_FINE_LOCATION, listener);
+  }
+
+  /**
+   * Check for CAMERA permission
+   *
+   * @param activity The current activity
+   * @param listener A {@link PermissionAskListener} instance for callback
+   */
+  public static void checkCameraPermission(Activity activity, PermissionAskListener listener) {
+    checkPermission(activity, permission.CAMERA, listener);
+  }
+
+  /**
+   * Check for WRITE_EXTERNAL_STORAGE permission
+   *
+   * @param activity The current activity
+   * @param listener A {@link PermissionAskListener} instance for callback
+   */
+  public static void checkStoragePermission(Activity activity, PermissionAskListener listener) {
+    checkPermission(activity, permission.WRITE_EXTERNAL_STORAGE, listener);
+  }
+
+  /**
    * 1. App launched first time,
    *
    * 2. App launched before, and the user had denied the permission in previous launches
@@ -77,7 +107,7 @@ public class PermissionHelper {
    * @param permission The permission to check
    * @param listener A {@link PermissionAskListener} instance for callback
    */
-  public static void checkPermission(Activity activity, String permission,
+  private static void checkPermission(Activity activity, String permission,
       PermissionAskListener listener) {
     /*
      * If permission is not granted
@@ -119,7 +149,7 @@ public class PermissionHelper {
   }
 
   /**
-   * Set the "firstTime" attribute of the permission to false in shared_preferences.xml
+   * Set the "firstTime" attribute of the permission to false in MainActivity.xml
    *
    * @param activity The current activity
    * @param permission The array of permissions to set
@@ -147,7 +177,7 @@ public class PermissionHelper {
   }
 
   /**
-   * Set the "firstTime" attribute of the array of permissions to false in shared_preferences.xml
+   * Set the "firstTime" attribute of the array of permissions to false in MainActivity.xml
    *
    * @param activity The current activity
    * @param permissions The array of permissions to set
@@ -230,31 +260,61 @@ public class PermissionHelper {
   }
 
   /**
+   * Static class for handling the rationale strings of permission request code
    *
+   * @author Zer Jun Eng, Jia Hua Ng
    */
   public static class PermissionCodeResponse {
 
     private int layout;
     private String rationaleName, rationaleNameOn;
 
+    /**
+     * Constructor for {@link PermissionCodeResponse}
+     *
+     * @param layout Layout to use in the alert dialog title
+     * @param rationaleName The name of the permissions to show on rationale dialog
+     * @param rationaleNameOn The name of the permissions + "ON" to show on rationale dialog (e.g.
+     * Location ON, Camera ON,...)
+     */
     PermissionCodeResponse(int layout, String rationaleName, String rationaleNameOn) {
       this.layout = layout;
       this.rationaleName = rationaleName;
       this.rationaleNameOn = rationaleNameOn;
     }
 
+    /**
+     * Get the layout to use for the permission request code
+     *
+     * @return The layout to use in the alert dialog title
+     */
     public int getLayout() {
       return layout;
     }
 
+    /**
+     * Get the name of the permissions to show on the rationale dialog
+     *
+     * @return The name of the permissions to show on the rationale dialog
+     */
     public String getRationaleName() {
       return rationaleName;
     }
 
+    /**
+     * Get the name of th permissions + "ON" to show on the rationale dialog
+     *
+     * @return The name of the permissions + "ON" to show on the rationale dialog
+     */
     public String getRationaleNameOn() {
       return rationaleNameOn;
     }
 
+    /**
+     * Get the response result to show on Toast
+     *
+     * @return The name of the permission with first letter capitalised to show on Toast
+     */
     public String getResponseResult() {
       return rationaleName.substring(0, 1).toUpperCase() + rationaleName.substring(1);
     }

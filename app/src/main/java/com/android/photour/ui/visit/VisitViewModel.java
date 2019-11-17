@@ -1,7 +1,5 @@
 package com.android.photour.ui.visit;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 /**
@@ -14,11 +12,10 @@ public class VisitViewModel extends ViewModel {
   private Long elapsedTime;
 
   /**
-   * Constructor of {@link VisitViewModel}
+   * Get the value of elapsedTime
+   *
+   * @return The value of elapsedTime
    */
-  public VisitViewModel() {
-  }
-
   Long getElapsedTime() {
     return elapsedTime;
   }

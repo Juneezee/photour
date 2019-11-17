@@ -26,6 +26,11 @@
       app:destination="@id/new_visit"
       app:popUpTo="@id/new_visit"
       app:popUpToInclusive="true" />
+
+    <argument
+      android:name="newVisitTitle"
+      android:defaultValue="Untitled trip"
+      app:argType="string" />
   </fragment>
 
 

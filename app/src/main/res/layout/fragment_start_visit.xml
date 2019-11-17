@@ -4,60 +4,84 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
-  <RelativeLayout
-    android:id="@+id/layout_stats"
+  <TextView
+    android:id="@+id/new_visit_title"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_centerVertical="true"
+    android:ellipsize="marquee"
+    android:marqueeRepeatLimit="marquee_forever"
+    android:paddingStart="8dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="8dp"
+    android:singleLine="true"
+    android:textAlignment="center"
+    android:textColor="@color/colorBlack"
+    android:textSize="20sp"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <Chronometer
+    android:id="@+id/chronometer"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:drawableStart="@drawable/ic_stopwatch"
+    android:drawablePadding="8dp"
+    android:paddingStart="@dimen/fragment_horizontal_margin"
+    android:paddingEnd="@dimen/activity_horizontal_margin"
+    android:textSize="@dimen/min_text_size"
+    app:layout_constraintBottom_toBottomOf="@id/button_stop_visit"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="@id/button_stop_visit" />
+
+  <TextView
+    android:id="@+id/thermometer"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:drawableStart="@drawable/ic_thermometer"
+    android:drawablePadding="8dp"
+    android:paddingStart="@dimen/fragment_horizontal_margin"
+    android:paddingEnd="@dimen/activity_horizontal_margin"
+    android:text="\u00B0C"
+    android:textColor="@color/colorBlack"
+    app:layout_constraintBottom_toBottomOf="@id/button_stop_visit"
+    app:layout_constraintStart_toEndOf="@id/chronometer"
+    app:layout_constraintTop_toTopOf="@id/button_stop_visit" />
+
+  <TextView
+    android:id="@+id/barometer"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:drawableStart="@drawable/ic_barometer"
+    android:drawablePadding="8dp"
+    android:paddingStart="@dimen/fragment_horizontal_margin"
+    android:paddingEnd="@dimen/activity_horizontal_margin"
+    app:layout_constraintBottom_toBottomOf="@id/button_stop_visit"
+    app:layout_constraintStart_toEndOf="@id/thermometer"
+    app:layout_constraintTop_toTopOf="@id/button_stop_visit" />
+
+  <Button
+    android:id="@+id/button_stop_visit"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/fragment_horizontal_margin"
+    android:background="@drawable/rounded_button"
+    android:backgroundTint="@color/colorCancel"
+    android:text="@string/stop"
+    android:textColor="@color/colorWhite"
+    android:textSize="@dimen/min_text_size"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toTopOf="parent">
-
-    <Chronometer
-      android:id="@+id/chronometer"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_margin="8dp"
-      android:layout_toStartOf="@id/button_stop_visit"
-      android:drawableStart="@drawable/ic_stopwatch"
-      android:drawablePadding="8dp"
-      android:gravity="center_vertical"
-      android:textSize="@dimen/min_text_size" />
-
-    <Button
-      android:id="@+id/button_stop_visit"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_alignParentEnd="true"
-      android:layout_margin="8dp"
-      android:background="@drawable/rounded_button"
-      android:backgroundTint="@color/colorCancel"
-      android:text="@string/stop"
-      android:textColor="@color/colorWhite"
-      android:textSize="@dimen/min_text_size" />
-  </RelativeLayout>
+    app:layout_constraintTop_toBottomOf="@id/new_visit_title" />
 
   <ViewStub
     android:id="@+id/viewstub_map"
     android:layout_width="match_parent"
     android:layout_height="0dp"
+    android:layout_marginTop="@dimen/fragment_vertical_margin"
     android:layout="@layout/viewstub_map"
     android:visibility="gone"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@id/layout_stats" />
-
-  <com.google.android.material.floatingactionbutton.FloatingActionButton
-    android:id="@+id/fab_camera"
-    android:layout_width="wrap_content"
-    android:layout_height="0dp"
-    android:layout_marginEnd="@dimen/activity_horizontal_margin"
-    android:layout_marginBottom="@dimen/activity_vertical_margin"
-    android:src="@drawable/ic_camera"
-    app:backgroundTint="@color/colorPrimary"
-    app:borderWidth="0dp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent" />
+    app:layout_constraintTop_toBottomOf="@id/button_stop_visit" />
 
   <com.google.android.material.floatingactionbutton.FloatingActionButton
     android:id="@+id/fab_gallery"
@@ -69,6 +93,19 @@
     android:src="@drawable/ic_photo_library"
     app:backgroundTint="@color/colorSubtitleGray"
     app:borderWidth="1dp"
-    app:layout_constraintBottom_toTopOf="@id/fab_camera"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toStartOf="@id/fab_camera" />
+
+  <com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/fab_camera"
+    android:layout_width="wrap_content"
+    android:layout_height="0dp"
+    android:layout_marginEnd="@dimen/fragment_horizontal_margin"
+    android:layout_marginBottom="@dimen/activity_vertical_margin"
+    android:src="@drawable/ic_camera"
+    app:backgroundTint="@color/colorPrimary"
+    app:borderWidth="0dp"
+    app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
