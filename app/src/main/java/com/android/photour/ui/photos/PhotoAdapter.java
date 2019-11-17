@@ -58,7 +58,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
         } else {
             Uri uri = items.get(position);
             if (BitmapWorkerTask.cancelPotentialWork(uri,holder.imageView)) {
-                System.out.println(position+": "+uri);
                 BitmapWorkerTask task = new BitmapWorkerTask(context, holder.imageView);
                 final AsyncDrawable asyncDrawable =
                         new AsyncDrawable(context.getResources(), placeholder, task);

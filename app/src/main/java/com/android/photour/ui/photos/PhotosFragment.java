@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.photour.ImageElement;
 import com.android.photour.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class PhotosFragment extends Fragment {
   private List<ImageElement> pictureList = new ArrayList<ImageElement>();
   private PhotoAdapter photoAdapter;
   private RecyclerView mRecyclerView;
+  private FloatingActionButton sortButton;
   private final int IMAGE_WIDTH = 100;
 
   public static PhotosFragment findOrCreateRetainFragment(FragmentManager fm) {
@@ -67,6 +69,8 @@ public class PhotosFragment extends Fragment {
             R.layout.fragment_photos_sort,R.id.sorted_title_view,mRecyclerView,photoAdapter);
 
     photosViewModel.images.observe(getViewLifecycleOwner(), imageElements -> {
+      System.out.println("OBSERVER TRIGGERED");
+      System.out.println(imageElements.size());
       sections.clear();
       uris.clear();
 
@@ -78,14 +82,31 @@ public class PhotosFragment extends Fragment {
       }
       photoAdapter.setItems(uris);
       photoAdapter.notifyDataSetChanged();
+      mSectionedAdapter.notifyDataSetChanged();
       mSectionedAdapter.setSections(sections.toArray(dummy));
+      mRecyclerView.setAdapter(mSectionedAdapter);
     });
 
-
-
-    mRecyclerView.setAdapter(mSectionedAdapter);
+    sortButton = root.findViewById(R.id.fab_sort);
+    initializeSortButton();
 
     return root;
+  }
+
+  private void initializeSortButton() {
+    if (photosViewModel.sortMode == 0) {
+      sortButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_calendar, null));
+    } else {
+      sortButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_map, null));
+    }
+    sortButton.setOnClickListener(v -> {
+      photosViewModel.switchSortMode();
+      if (photosViewModel.sortMode == 0) {
+        sortButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_calendar, null));
+      } else {
+        sortButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_map, null));
+      }
+    });
   }
 
 }

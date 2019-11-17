@@ -33,7 +33,7 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
             data = params[0];
             bitmap = decodeSampledBitmapFromResource(
                     context, data, 100, 100);
-            bitmap = ThumbnailUtils.extractThumbnail(bitmap,300,300);
+            bitmap = ThumbnailUtils.extractThumbnail(bitmap,100,100);
             ((MainActivity)context).addBitmapToMemoryCache(String.valueOf(data), bitmap);
             return bitmap;
         } catch (FileNotFoundException e) {

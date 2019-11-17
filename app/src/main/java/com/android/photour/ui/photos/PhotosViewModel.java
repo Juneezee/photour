@@ -1,6 +1,7 @@
 package com.android.photour.ui.photos;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.ContentUris;
 import android.content.Context;
@@ -23,11 +24,15 @@ import com.android.photour.ImageElement;
 import com.android.photour.R;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import static android.content.ContentUris.withAppendedId;
 
@@ -36,13 +41,15 @@ public class PhotosViewModel extends AndroidViewModel {
   // Statics for readwrite images
   private MutableLiveData<List<ImageElement>> _images = new MutableLiveData<List<ImageElement>>();
   public LiveData<List<ImageElement>> images = _images;
-  static final List<ImageElement> ITEMS = new ArrayList<>();
+//  static final List<ImageElement> ITEMS = new ArrayList<>();
   private ContentObserver contentObserver = null;
   private static final int QUERY_BY_DATE = 0;
   private static final int QUERY_BY_TRIPS = 1;
+  public int sortMode;
 
   public PhotosViewModel(@NonNull Application application) {
     super(application);
+    sortMode = QUERY_BY_DATE;
     loadImages();
   }
 
@@ -60,9 +67,10 @@ public class PhotosViewModel extends AndroidViewModel {
   }
 
   public void loadImages() {
-      List<ImageElement> imageList = queryImages(QUERY_BY_TRIPS);
-      _images.postValue(imageList);
 
+      List<ImageElement> imageList = queryImages();
+      _images.postValue(imageList);
+      System.out.println(images.getValue());
     if (contentObserver == null) {
         contentObserver = new ContentObserver(new Handler()) {
           @Override
@@ -76,53 +84,55 @@ public class PhotosViewModel extends AndroidViewModel {
     }
   }
 
-  private List<ImageElement> queryImages(int config) {
+  private List<ImageElement> queryImages() {
     List<ImageElement> images = new ArrayList<>();
-    new Thread(() -> {
-      String[] projection = new String[]{MediaStore.Images.Media._ID,
-              MediaStore.Images.Media.DISPLAY_NAME,
-              MediaStore.Images.Media.DATE_TAKEN,
-              "_data"
-      };
-      String selection = null;
-      if (config == QUERY_BY_DATE) {
-        selection = MediaStore.Images.Media.DATE_TAKEN + " >= ?";
-      } else if (config == QUERY_BY_TRIPS) {
-        selection = "( _data LIKE ? )";
+
+    String[] projection = new String[]{MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.DISPLAY_NAME,
+            MediaStore.Images.Media.DATE_TAKEN,
+            "_data"
+    };
+
+    String selection = "( _data LIKE ? )";
+    String[] selectionArgs = new String[]{"%Pictures%"};
+
+    String sortOrder = sortMode == QUERY_BY_DATE ? MediaStore.Images.Media.DATE_TAKEN + " DESC" : "_data DESC";
+
+    Cursor query = getApplication().getContentResolver().query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            sortOrder
+    );
+    int i = 0;
+    String previousTitle = "";
+    ImageElement imageElement = null;
+    while (i < query.getCount()) {
+      query.moveToPosition(i);
+      String currentTitle;
+      if (sortMode == QUERY_BY_DATE) {
+        Date date = new Date(query.getLong(query.getColumnIndexOrThrow("datetaken")));
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.ENGLISH);
+        currentTitle = sdf.format(date);
+      } else {
+        currentTitle = getPath(query.getString(query.getColumnIndexOrThrow("_data")));
       }
-
-      String[] selectionArgs = new String[]{"%Test%"}; //Change for folder name when fully completed
-
-      String sortOrder = MediaStore.Images.Media.DATE_TAKEN + " DESC";
-
-      Cursor query = getApplication().getContentResolver().query(
-              MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-              projection,
-              selection,
-              selectionArgs,
-              sortOrder
-      );
-      int i = 0;
-      String previousPath = "";
-      ImageElement imageElement = null;
-      while (i < query.getCount()) {
-        query.moveToPosition(i);
-        String currentPath = getPath(query.getString(query.getColumnIndexOrThrow("_data")));
-        long columnIndex = query.getLong(query.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-        Uri contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columnIndex);
-        if (!previousPath.equals(currentPath)) {
-          if (imageElement != null) {
-            images.add(imageElement);
-          }
-          imageElement = new ImageElement(currentPath);
-          previousPath = currentPath;
+      long columnIndex = query.getLong(query.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+      Uri contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columnIndex);
+      if (!previousTitle.equals(currentTitle)) {
+        if (imageElement != null) {
+          images.add(imageElement);
         }
-        imageElement.addUri(contentUri);
-        i++;
+        imageElement = new ImageElement(currentTitle);
+        previousTitle  = currentTitle;
       }
-      images.add(imageElement);
-      query.close();
-    }).start();
+      imageElement.addUri(contentUri);
+      i++;
+    }
+    images.add(imageElement);
+    query.close();
+
     return images;
   }
 
@@ -131,4 +141,8 @@ public class PhotosViewModel extends AndroidViewModel {
    return temp[temp.length - 2];
   }
 
+  public void switchSortMode() {
+    sortMode = sortMode == QUERY_BY_TRIPS ? QUERY_BY_DATE : QUERY_BY_TRIPS;
+    loadImages();
+  }
 }
