@@ -22,27 +22,27 @@ public class PermissionHelper {
   public static final int LOCATION_PERMISSION_CODE = 100;
   public static final int CAMERA_PERMISSION_CODE = 10;
   public static final int STORAGE_PERMISSION_CODE = 1;
-  public static final int LC_PERMISSION_CODE = 110; // LC: Location and Camera
-  public static final int LS_PERMISSION_CODE = 101; // LS: Location and Storage
-  public static final int CS_PERMISSION_CODE = 11; // CS: Camera and Storage
+  private static final int LC_PERMISSION_CODE = 110; // LC: Location and Camera
+  private static final int LS_PERMISSION_CODE = 101; // LS: Location and Storage
+  private static final int CS_PERMISSION_CODE = 11; // CS: Camera and Storage
 
-  public static final SparseArray<PermissionCodeResponse> PERMISSIONS_MAP = new SparseArray<PermissionCodeResponse>() {
+  public static final SparseArray<PermissionCodeResponse> CODE_RESPONSE = new SparseArray<PermissionCodeResponse>() {
     {
       append(ALL_PERMISSIONS_CODE, new PermissionCodeResponse(R.layout.dialog_permission_all,
-          "location, camera, and storage ", "location ON, camera ON, and storage ON"));
+          "location, camera, and storage ", "Location ON, Camera ON, and Storage ON"));
       append(LOCATION_PERMISSION_CODE,
           new PermissionCodeResponse(R.layout.dialog_permission_location,
-              "location ", "location ON"));
+              "location ", "Location ON"));
       append(CAMERA_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_camera,
-          "camera ", "camera ON"));
+          "camera ", "Camera ON"));
       append(STORAGE_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_storage,
-          "storage ", "storage ON"));
+          "storage ", "Storage ON"));
       append(LC_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_lc,
-          "location and camera ", "location ON and camera ON"));
+          "location and camera ", "Location ON and Camera ON"));
       append(LS_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_ls,
-          "location and storage ", "location ON and storage ON"));
+          "location and storage ", "Location ON and Storage ON"));
       append(CS_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_cs,
-          "camera and storage ", "camera ON and storage ON"));
+          "camera and storage ", "Camera ON and Storage ON"));
       append(NO_PERMISSIONS_CODE, new PermissionCodeResponse(R.layout.dialog_permission_all,
           "", ""));
     }
@@ -62,16 +62,6 @@ public class PermissionHelper {
   private static boolean shouldAskPermission(Activity activity, String permission) {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
         activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED;
-  }
-
-  /**
-   * Check for ACCESS_FINE_LOCATION permission
-   *
-   * @param activity The current activity
-   * @param listener A {@link PermissionAskListener} instance for callback
-   */
-  public static void checkLocationPermission(Activity activity, PermissionAskListener listener) {
-    checkPermission(activity, permission.ACCESS_FINE_LOCATION, listener);
   }
 
   /**
@@ -123,7 +113,6 @@ public class PermissionHelper {
          * Permission denied or first time requested
          */
         if (isFirstTimeAskingPermissions(activity, permission)) {
-          setFirstTimeAskingPermissions(activity, permission);
           listener.onPermissionAsk();
         } else {
           /*
@@ -164,7 +153,9 @@ public class PermissionHelper {
     SharedPreferences sharedPreference = activity.getPreferences(MODE_PRIVATE);
 
     for (String permission : permissions) {
-      sharedPreference.edit().putBoolean(permission, false).apply();
+      if  (isFirstTimeAskingPermissions(activity, permission)) {
+        sharedPreference.edit().putBoolean(permission, false).apply();
+      }
     }
   }
 

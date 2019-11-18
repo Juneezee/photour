@@ -20,7 +20,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 public class LocationServicesHelper {
 
   private static final int LOCATION_INTERVAL = 20000;
-  private static final int FAST_LOCATION_INTERVAL = 10000;
+  private static final int FAST_LOCATION_INTERVAL = 5000;
 
   /**
    * Check if the status of the device location (either ON of OFF)

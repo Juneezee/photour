@@ -3,10 +3,7 @@ package com.android.photour.ui.visit;
 import static com.android.photour.helper.LocationServicesHelper.checkDeviceLocation;
 import static com.android.photour.helper.PermissionHelper.ALL_PERMISSIONS_CODE;
 import static com.android.photour.helper.PermissionHelper.CAMERA_PERMISSION_CODE;
-import static com.android.photour.helper.PermissionHelper.CS_PERMISSION_CODE;
-import static com.android.photour.helper.PermissionHelper.LC_PERMISSION_CODE;
 import static com.android.photour.helper.PermissionHelper.LOCATION_PERMISSION_CODE;
-import static com.android.photour.helper.PermissionHelper.LS_PERMISSION_CODE;
 import static com.android.photour.helper.PermissionHelper.NO_PERMISSIONS_CODE;
 import static com.android.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 import static com.android.photour.helper.PlayServicesHelper.checkPlayServices;
@@ -42,7 +39,7 @@ import java.util.Objects;
 public class VisitFragment extends Fragment {
 
   public static final int REQUEST_CHECK_SETTINGS = 214;
-  private static final String[] ALL_PERMISSIONS_REQUIRED = {
+  private static final String[] PERMISSIONS_REQUIRED = {
       permission.ACCESS_FINE_LOCATION,
       permission.CAMERA,
       permission.WRITE_EXTERNAL_STORAGE
@@ -117,7 +114,7 @@ public class VisitFragment extends Fragment {
 
       if (checkPlayServices(activity)) {
         boolean isFirstTime = PermissionHelper
-            .isFirstTimeAskingPermissions(activity, ALL_PERMISSIONS_REQUIRED);
+            .isFirstTimeAskingPermissions(activity, PERMISSIONS_REQUIRED);
 
         int permissionGranted = ALL_PERMISSIONS_CODE - permissionsNotGranted(false);
         int permissionsNeverAsked = permissionsNotGranted(true) - permissionGranted;
@@ -148,50 +145,32 @@ public class VisitFragment extends Fragment {
    * @return int The permission request code
    */
   private int permissionsNotGranted(boolean checkNeverAsk) {
-    boolean locationPermission = checkNeverAsk
+    boolean isLocationGranted = checkNeverAsk
         ? !shouldShowRequestPermissionRationale(permission.ACCESS_FINE_LOCATION)
         : PermissionHelper.hasLocationPermission(activity);
-    boolean cameraPermission = checkNeverAsk
+    boolean isCameraGranted = checkNeverAsk
         ? !shouldShowRequestPermissionRationale(permission.CAMERA)
         : PermissionHelper.hasCameraPermission(activity);
-    boolean storagePermission = checkNeverAsk
+    boolean isStorageGranted = checkNeverAsk
         ? !shouldShowRequestPermissionRationale(permission.WRITE_EXTERNAL_STORAGE)
         : PermissionHelper.hasStoragePermission(activity);
 
     int permissionCode = ALL_PERMISSIONS_CODE;
-
-    if (locationPermission && cameraPermission && storagePermission) {
-      // All permissions granted, check if device location is turned on
-      permissionCode = NO_PERMISSIONS_CODE;
-
-    } else if (!locationPermission && cameraPermission && storagePermission) {
-      // No permission for location; camera and storage granted
-      permissionCode = LOCATION_PERMISSION_CODE;
-
-    } else if (locationPermission && !cameraPermission && storagePermission) {
-      // Permission granted for location; no permission for camera and storage
-      permissionCode = CAMERA_PERMISSION_CODE;
-
-    } else if (locationPermission && cameraPermission) {
-      // Permission granted for location and camera; no permission for storage
-      permissionCode = STORAGE_PERMISSION_CODE;
-
-    } else if (!locationPermission && !cameraPermission && storagePermission) {
-      // Permission granted for storage; no permission for location and camera
-      permissionCode = LC_PERMISSION_CODE;
-
-    } else if (!locationPermission && cameraPermission) {
-      // Permission granted for camera; no permission for location and storage
-      permissionCode = LS_PERMISSION_CODE;
-
-    } else if (locationPermission) {
-      // Permission granted for location; no permission for camera and storage
-      permissionCode = CS_PERMISSION_CODE;
-    }
+    permissionCode -= isLocationGranted ? LOCATION_PERMISSION_CODE : 0;
+    permissionCode -= isCameraGranted ? CAMERA_PERMISSION_CODE : 0;
+    permissionCode -= isStorageGranted ? STORAGE_PERMISSION_CODE : 0;
 
     return checkNeverAsk ? ALL_PERMISSIONS_CODE - permissionCode : permissionCode;
   }
 
+  /**
+   * @param isFirstTime True if it is the first time the application has asked for these
+   * permissions
+   * @param permissionGranted Permission code (constant value in {@link PermissionHelper}) of those
+   * granted permissions
+   * @param permissionsNeverAsked Permission code (constant value in {@link PermissionHelper}) of
+   * those never asked permissions
+   */
   private void showPermissionRationale(
       boolean isFirstTime,
       int permissionGranted,
@@ -202,46 +181,48 @@ public class VisitFragment extends Fragment {
     boolean anyNeverAskChecked = !isFirstTime && permissionsNeverAsked != NO_PERMISSIONS_CODE
         && permissionsNeverAsked != permissionGranted;
 
-    int permissionToRequest
+    int requestCode
         = isFirstTime ? permissionNotGranted
         : isAllPermissionsAllowed ? NO_PERMISSIONS_CODE
             : anyNeverAskChecked ? permissionsNeverAsked | permissionNotGranted
                 : permissionNotGranted;
 
+    if (isAllPermissionsAllowed) {
+      checkRequiredPermissions(requestCode);
+    } else {
+      buildDialog(requestCode, anyNeverAskChecked);
+    }
+  }
+
+  private void buildDialog(int requestCode, boolean anyNeverAskChecked) {
     String message = "To capture and upload photos with location tag, allow Photour access to your "
         + "device's %s. "
         + (anyNeverAskChecked ? "Tap Settings > Permissions, and turn %s." : "");
 
-    if (isAllPermissionsAllowed) {
-      checkRequiredPermissions(permissionToRequest);
-    } else {
-      AlertDialogHelper alertDialog = new AlertDialogHelper(activity, message);
-      alertDialog.initAlertDialog(permissionToRequest);
+    AlertDialogHelper alertDialog = new AlertDialogHelper(activity, message);
+    alertDialog.initAlertDialog(requestCode);
 
-      if (anyNeverAskChecked) {
-        alertDialog.buildSettingsDialog();
-      } else {
-        alertDialog.buildContinueDialog(() -> {
-          PermissionHelper.setFirstTimeAskingPermissions(activity, ALL_PERMISSIONS_REQUIRED);
-          checkRequiredPermissions(permissionToRequest);
-        });
-      }
+    if (anyNeverAskChecked) {
+      alertDialog.buildSettingsDialog();
+    } else {
+      alertDialog
+          .buildContinueDialog(PERMISSIONS_REQUIRED, () -> checkRequiredPermissions(requestCode));
     }
   }
 
   /**
    * Check if the applications need to ask for permissions or not
    *
-   * @param permissionToRequest The permission request code
+   * @param requestCode The permission request code
    */
-  private void checkRequiredPermissions(int permissionToRequest) {
-    if (permissionToRequest == NO_PERMISSIONS_CODE) {
+  private void checkRequiredPermissions(int requestCode) {
+    if (requestCode == NO_PERMISSIONS_CODE) {
       // All permissions required are granted, check if device location is ON
       checkDeviceLocation(activity, this, this::navigateToStartVisit);
 
     } else {
       // No permissions for location, camera, and storage
-      requestPermissions(ALL_PERMISSIONS_REQUIRED, permissionToRequest);
+      requestPermissions(PERMISSIONS_REQUIRED, requestCode);
     }
   }
 
@@ -269,7 +250,7 @@ public class VisitFragment extends Fragment {
       allPermissionsGranted &= grantResult == PackageManager.PERMISSION_GRANTED;
     }
 
-    PermissionCodeResponse codeResponse = PermissionHelper.PERMISSIONS_MAP.get(requestCode);
+    PermissionCodeResponse codeResponse = PermissionHelper.CODE_RESPONSE.get(requestCode);
 
     String message = requestCode == ALL_PERMISSIONS_CODE ? "Required permissions "
         : (codeResponse.getResponseResult());
@@ -298,7 +279,7 @@ public class VisitFragment extends Fragment {
     super.onActivityResult(requestCode, resultCode, data);
 
     if (requestCode == REQUEST_CHECK_SETTINGS && resultCode == Activity.RESULT_OK) {
-      // The user has pressed OK on the dialog
+      // The user has pressed OK on the Location Settings Dialog
       navigateToStartVisit();
     } else {
       ToastHelper.tShort(activity, "Device location is off (High accuracy mode required)");

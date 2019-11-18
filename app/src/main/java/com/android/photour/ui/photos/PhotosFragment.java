@@ -13,7 +13,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +45,7 @@ public class PhotosFragment extends Fragment {
 
   public static LruCache<String, Bitmap> mRetainedCache;
   private Activity activity;
+  private View view;
   private PhotosViewModel photosViewModel;
   private PhotoAdapter photoAdapter;
   private RecyclerView mRecyclerView;
@@ -88,7 +88,7 @@ public class PhotosFragment extends Fragment {
   ) {
 
     this.activity = getActivity();
-    View view = inflater.inflate(R.layout.fragment_photos, container, false);
+    view = inflater.inflate(R.layout.fragment_photos, container, false);
 
     boolean isFirstTime = PermissionHelper
         .isFirstTimeAskingPermissions(activity, permission.WRITE_EXTERNAL_STORAGE);
@@ -102,7 +102,7 @@ public class PhotosFragment extends Fragment {
     // Initialise view if has access, else displays a text notice
     textView = view.findViewById(R.id.text_notifications);
     if (PermissionHelper.hasStoragePermission(activity)) {
-      initializeRecyclerView(view);
+      initializeRecyclerView();
     } else {
       textView.setText("Please Enable Storage Access to use this feature");
     }
@@ -112,26 +112,19 @@ public class PhotosFragment extends Fragment {
 
   /***
    * Initialize recycler view for photos
-   *
-   *
-   * @param root View of PhotosFragment
    */
   @SuppressLint("SetTextI18n")
-  private void initializeRecyclerView(View root) {
+  private void initializeRecyclerView() {
 
     //Initialize lists for SectionedGridRecyclerViewAdapter
     List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
     List<Uri> uris = new ArrayList<>();
 
-    //If called outside of onCreateView, get view
-    if (root == null) {
-      root = this.getView();
-    }
     textView.setText("");
 
     //Sets up recycler view and view model
     photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
-    mRecyclerView = root.findViewById(R.id.grid_recycler_view);
+    mRecyclerView = view.findViewById(R.id.grid_recycler_view);
     mRecyclerView.setHasFixedSize(true);
     int IMAGE_WIDTH = 100;
     mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),
@@ -172,9 +165,8 @@ public class PhotosFragment extends Fragment {
       mRecyclerView.setAdapter(mSectionedAdapter);
     });
 
-
     //sets up sort button
-    sortButton = root.findViewById(R.id.fab_sort);
+    sortButton = view.findViewById(R.id.fab_sort);
     sortButton.setVisibility(View.VISIBLE);
     initializeSortButton();
 
@@ -238,7 +230,7 @@ public class PhotosFragment extends Fragment {
             : anyNeverAskChecked ? permissionsNeverAsked | permissionNotGranted
                 : permissionNotGranted;
 
-    PermissionHelper.PermissionCodeResponse codeResponse = PermissionHelper.PERMISSIONS_MAP
+    PermissionHelper.PermissionCodeResponse codeResponse = PermissionHelper.CODE_RESPONSE
         .get(permissionToRequest);
 
     String message = "To access your photos, allow Photour access to your "
@@ -330,13 +322,9 @@ public class PhotosFragment extends Fragment {
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-    boolean allPermissionsGranted = true;
+    boolean allPermissionsGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
 
-    for (int grantResult : grantResults) {
-      allPermissionsGranted &= grantResult == PackageManager.PERMISSION_GRANTED;
-    }
-
-    PermissionHelper.PermissionCodeResponse codeResponse = PermissionHelper.PERMISSIONS_MAP
+    PermissionHelper.PermissionCodeResponse codeResponse = PermissionHelper.CODE_RESPONSE
         .get(requestCode);
 
     String message = requestCode == STORAGE_PERMISSION_CODE ? "Storage permission "
@@ -344,7 +332,7 @@ public class PhotosFragment extends Fragment {
     message += allPermissionsGranted ? "granted" : "denied";
 
     if (allPermissionsGranted) {
-      initializeRecyclerView(null);
+      initializeRecyclerView();
     }
 
     ToastHelper.tShort(activity, message);

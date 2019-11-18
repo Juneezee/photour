@@ -38,7 +38,7 @@ public class AlertDialogHelper {
    * @param permissionToRequest The permissions to request
    */
   public void initAlertDialog(int permissionToRequest) {
-    PermissionCodeResponse codeResponse = PermissionHelper.PERMISSIONS_MAP.get(permissionToRequest);
+    PermissionCodeResponse codeResponse = PermissionHelper.CODE_RESPONSE.get(permissionToRequest);
     titleLayout = codeResponse.getLayout();
 
     message = String
@@ -72,10 +72,18 @@ public class AlertDialogHelper {
 
   /**
    * The user has not checked "Never ask again" for any permissions. The dialog should show Continue
-   * as positive button that keeps asking the user to grant permissions
+   * as positive button that keeps asking the user to grant permissions.
+   *
+   * When the OK button is clicked. onSuccess listener is activated
+   *
+   * @param permissionsRequested The permissions requested
+   * @param listener A {@link AlertDialogListener} instance for callback
    */
-  public void buildContinueDialog(AlertDialogListener listener) {
-    builder.setPositiveButton("CONTINUE", (dialog, which) -> listener.onSuccess());
+  public void buildContinueDialog(String[] permissionsRequested, AlertDialogListener listener) {
+    builder.setPositiveButton("CONTINUE", (dialog, which) -> {
+      PermissionHelper.setFirstTimeAskingPermissions(activity, permissionsRequested);
+      listener.onSuccess();
+    });
     builder.create().show();
   }
 
