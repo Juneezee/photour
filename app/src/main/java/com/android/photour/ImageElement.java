@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImageElement {
-    private int image = -1;
-    private File file = null;
 
   private String title;
   private List<Uri> uri;

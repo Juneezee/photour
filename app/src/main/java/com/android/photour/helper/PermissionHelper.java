@@ -29,20 +29,20 @@ public class PermissionHelper {
   public static final SparseArray<PermissionCodeResponse> PERMISSIONS_MAP = new SparseArray<PermissionCodeResponse>() {
     {
       append(ALL_PERMISSIONS_CODE, new PermissionCodeResponse(R.layout.dialog_permission_all,
-          "location, camera, and storage", "location ON, camera ON, and storage ON"));
+          "location, camera, and storage ", "location ON, camera ON, and storage ON"));
       append(LOCATION_PERMISSION_CODE,
           new PermissionCodeResponse(R.layout.dialog_permission_location,
               "location ", "location ON"));
       append(CAMERA_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_camera,
-          "camera", "camera ON"));
+          "camera ", "camera ON"));
       append(STORAGE_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_storage,
-          "storage", "storage ON"));
+          "storage ", "storage ON"));
       append(LC_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_lc,
-          "location and camera", "location ON and camera ON"));
+          "location and camera ", "location ON and camera ON"));
       append(LS_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_ls,
-          "location and storage", "location ON and storage ON"));
+          "location and storage ", "location ON and storage ON"));
       append(CS_PERMISSION_CODE, new PermissionCodeResponse(R.layout.dialog_permission_cs,
-          "camera and storage", "camera ON and storage ON"));
+          "camera and storage ", "camera ON and storage ON"));
       append(NO_PERMISSIONS_CODE, new PermissionCodeResponse(R.layout.dialog_permission_all,
           "", ""));
     }
@@ -122,8 +122,8 @@ public class PermissionHelper {
         /*
          * Permission denied or first time requested
          */
-        if (isFirstTimeAskingPermission(activity, permission)) {
-          setFirstTimeAskingPermission(activity, permission);
+        if (isFirstTimeAskingPermissions(activity, permission)) {
+          setFirstTimeAskingPermissions(activity, permission);
           listener.onPermissionAsk();
         } else {
           /*
@@ -138,28 +138,6 @@ public class PermissionHelper {
   }
 
   /**
-   * Check if the application is requesting a permission for the first time
-   *
-   * @param activity The current activity
-   * @param permission The array of permissions to check
-   * @return boolean True if the application is asking the array of permissions for the first time
-   */
-  private static boolean isFirstTimeAskingPermission(Activity activity, String permission) {
-    return activity.getPreferences(MODE_PRIVATE).getBoolean(permission, true);
-  }
-
-  /**
-   * Set the "firstTime" attribute of the permission to false in MainActivity.xml
-   *
-   * @param activity The current activity
-   * @param permission The array of permissions to set
-   */
-  private static void setFirstTimeAskingPermission(Activity activity, String permission) {
-    SharedPreferences sharedPreference = activity.getPreferences(MODE_PRIVATE);
-    sharedPreference.edit().putBoolean(permission, false).apply();
-  }
-
-  /**
    * Check if the application is requesting the array of permissions for the first time
    *
    * @param activity The current activity
@@ -167,10 +145,10 @@ public class PermissionHelper {
    * @return boolean True if the application is asking the array of permissions for the first time
    */
   public static boolean isFirstTimeAskingPermissions(Activity activity, String... permissions) {
-    boolean isFirstTime = true;
+    boolean isFirstTime = false;
 
     for (String permission : permissions) {
-      isFirstTime &= activity.getPreferences(MODE_PRIVATE).getBoolean(permission, true);
+      isFirstTime |= activity.getPreferences(MODE_PRIVATE).getBoolean(permission, true);
     }
 
     return isFirstTime;

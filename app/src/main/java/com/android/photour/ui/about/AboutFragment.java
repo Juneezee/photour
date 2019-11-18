@@ -6,9 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import com.android.photour.MainActivity;
 import com.android.photour.R;
-import java.util.Objects;
 
 /**
  * Fragment that display the developers of this application

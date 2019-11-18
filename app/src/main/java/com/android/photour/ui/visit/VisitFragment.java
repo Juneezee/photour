@@ -9,15 +9,13 @@ import static com.android.photour.helper.PermissionHelper.LOCATION_PERMISSION_CO
 import static com.android.photour.helper.PermissionHelper.LS_PERMISSION_CODE;
 import static com.android.photour.helper.PermissionHelper.NO_PERMISSIONS_CODE;
 import static com.android.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
+import static com.android.photour.helper.PlayServicesHelper.checkPlayServices;
 
 import android.Manifest.permission;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,17 +23,14 @@ import android.view.ViewGroup;
 import android.widget.TextClock;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.android.photour.R;
+import com.android.photour.helper.AlertDialogHelper;
 import com.android.photour.helper.PermissionHelper;
 import com.android.photour.helper.PermissionHelper.PermissionCodeResponse;
 import com.android.photour.helper.ToastHelper;
 import com.android.photour.ui.visit.VisitFragmentDirections.ActionStartVisit;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.material.textfield.TextInputEditText;
 import java.util.Objects;
 
@@ -46,16 +41,15 @@ import java.util.Objects;
  */
 public class VisitFragment extends Fragment {
 
-  private Activity activity;
-
+  public static final int REQUEST_CHECK_SETTINGS = 214;
   private static final String[] ALL_PERMISSIONS_REQUIRED = {
       permission.ACCESS_FINE_LOCATION,
       permission.CAMERA,
       permission.WRITE_EXTERNAL_STORAGE
   };
-  public static final int REQUEST_CHECK_SETTINGS = 214;
-  private static final int PLAY_SERVICES_ERROR_CODE = 9002;
 
+  private Activity activity;
+  private View view;
 
   /**
    * Called to have the fragment instantiate its user interface view.
@@ -74,9 +68,10 @@ public class VisitFragment extends Fragment {
       ViewGroup container,
       Bundle savedInstanceState) {
 
-    this.activity = getActivity();
+    activity = getActivity();
+    view = inflater.inflate(R.layout.fragment_visit, container, false);
 
-    return inflater.inflate(R.layout.fragment_visit, container, false);
+    return view;
   }
 
   /**
@@ -96,7 +91,7 @@ public class VisitFragment extends Fragment {
     textClock.setFormat24Hour("EEEE, dd MMMM yyyy\n\nHH:mm:ss");
     textClock.setFormat12Hour("EEEE, dd MMMM yyyy\n\nh:mm:ss a");
 
-    startNewVisitListener(view);
+    startNewVisitListener();
   }
 
   /**
@@ -104,29 +99,23 @@ public class VisitFragment extends Fragment {
    * granted
    */
   private void navigateToStartVisit() {
-    View view = getView();
+    TextInputEditText newVisitTitle = view.findViewById(R.id.new_visit_title_input);
 
-    if (view != null) {
-      TextInputEditText newVisitTitle = view.findViewById(R.id.new_visit_title_input);
+    // Pass data between destinations using safe-args
+    ActionStartVisit actionStartVisit = VisitFragmentDirections.actionStartVisit();
+    actionStartVisit.setNewVisitTitle(Objects.requireNonNull(newVisitTitle.getText()).toString());
 
-      // Pass data between destinations using safe-args
-      ActionStartVisit actionStartVisit = VisitFragmentDirections.actionStartVisit();
-      actionStartVisit.setNewVisitTitle(Objects.requireNonNull(newVisitTitle.getText()).toString());
-
-      Navigation.findNavController(Objects.requireNonNull(getView())).navigate(actionStartVisit);
-    }
+    Navigation.findNavController(view).navigate(actionStartVisit);
   }
 
   /**
    * Add a click listener to the Start button, to replace current fragment with {@link
    * StartVisitFragment} after explicit permissions check has passed
-   *
-   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
    */
-  private void startNewVisitListener(View view) {
+  private void startNewVisitListener() {
     view.findViewById(R.id.button_start_visit).setOnClickListener(v -> {
 
-      if (checkPlayServices()) {
+      if (checkPlayServices(activity)) {
         boolean isFirstTime = PermissionHelper
             .isFirstTimeAskingPermissions(activity, ALL_PERMISSIONS_REQUIRED);
 
@@ -144,29 +133,6 @@ public class VisitFragment extends Fragment {
         ToastHelper.tShort(activity, "Play services not available");
       }
     });
-  }
-
-  /**
-   * Checks if the device has Google Play Services installed and compatible
-   *
-   * @return boolean True if the device has Google Play Services installed and compatible
-   */
-  private boolean checkPlayServices() {
-    GoogleApiAvailability googleApi = GoogleApiAvailability.getInstance();
-
-    int result = googleApi.isGooglePlayServicesAvailable(activity);
-
-    if (result == ConnectionResult.SUCCESS) {
-      return true;
-    } else if (googleApi.isUserResolvableError(result)) {
-      Dialog dialog = googleApi.getErrorDialog(activity, result, PLAY_SERVICES_ERROR_CODE,
-          task -> ToastHelper.tShort(activity, "Dialog is cancelled"));
-      dialog.show();
-    } else {
-      ToastHelper.tShort(activity, "Play services are required by this application");
-    }
-
-    return false;
   }
 
   /**
@@ -237,69 +203,30 @@ public class VisitFragment extends Fragment {
         && permissionsNeverAsked != permissionGranted;
 
     int permissionToRequest
-        = isFirstTime ? ALL_PERMISSIONS_CODE
+        = isFirstTime ? permissionNotGranted
         : isAllPermissionsAllowed ? NO_PERMISSIONS_CODE
             : anyNeverAskChecked ? permissionsNeverAsked | permissionNotGranted
                 : permissionNotGranted;
-
-    PermissionCodeResponse codeResponse = PermissionHelper.PERMISSIONS_MAP.get(permissionToRequest);
 
     String message = "To capture and upload photos with location tag, allow Photour access to your "
         + "device's %s. "
         + (anyNeverAskChecked ? "Tap Settings > Permissions, and turn %s." : "");
 
-    message = String
-        .format(message, codeResponse.getRationaleName(), codeResponse.getRationaleNameOn());
-
     if (isAllPermissionsAllowed) {
       checkRequiredPermissions(permissionToRequest);
     } else {
-      int titleLayout = codeResponse.getLayout();
+      AlertDialogHelper alertDialog = new AlertDialogHelper(activity, message);
+      alertDialog.initAlertDialog(permissionToRequest);
 
-      buildDialog(titleLayout, message, permissionToRequest, anyNeverAskChecked);
+      if (anyNeverAskChecked) {
+        alertDialog.buildSettingsDialog();
+      } else {
+        alertDialog.buildContinueDialog(() -> {
+          PermissionHelper.setFirstTimeAskingPermissions(activity, ALL_PERMISSIONS_REQUIRED);
+          checkRequiredPermissions(permissionToRequest);
+        });
+      }
     }
-  }
-
-  /**
-   * 1. If shouldShowSettingsDialog is true, then the user has checked "Never ask again" for any
-   * permissions. The dialog should show Settings as positive button that brings the user to
-   * application settings page to enable permissions
-   *
-   * 2. If shouldShowSettingsDialog is false, then the user has not checked "Never ask again" for
-   * any permissions. The dialog should show Continue as positive button that keeps asking the user
-   * to grant permissions
-   *
-   * @param titleLayout The layout ID for the ImageView
-   * @param message The message of the dialog
-   * @param permissionToRequest The permission request code
-   * @param shouldShowSettingsDialog True if the user has checked "Never ask again" for any
-   * permissions
-   */
-  private void buildDialog(
-      int titleLayout,
-      String message,
-      int permissionToRequest,
-      boolean shouldShowSettingsDialog
-  ) {
-    AlertDialog.Builder builder = new Builder(activity);
-    builder.setMessage(message);
-    builder.setCustomTitle(activity.getLayoutInflater().inflate(titleLayout, null));
-
-    builder
-        .setPositiveButton(shouldShowSettingsDialog ? "SETTINGS" : "CONTINUE", (dialog, which) -> {
-          if (shouldShowSettingsDialog) {
-            Uri uri = new Uri.Builder()
-                .scheme("package")
-                .opaquePart(activity.getPackageName())
-                .build();
-            startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, uri));
-          } else {
-            PermissionHelper.setFirstTimeAskingPermissions(activity, ALL_PERMISSIONS_REQUIRED);
-            checkRequiredPermissions(permissionToRequest);
-          }
-        }).setNegativeButton("NOT NOW", (dialog, which) -> dialog.dismiss());
-
-    builder.create().show();
   }
 
   /**
@@ -344,13 +271,10 @@ public class VisitFragment extends Fragment {
 
     PermissionCodeResponse codeResponse = PermissionHelper.PERMISSIONS_MAP.get(requestCode);
 
-    String result = allPermissionsGranted ? "granted" : "denied";
-
-    String message
-        = requestCode == ALL_PERMISSIONS_CODE
-        ? "Required permissions "
+    String message = requestCode == ALL_PERMISSIONS_CODE ? "Required permissions "
         : (codeResponse.getResponseResult());
-    message += result;
+
+    message += allPermissionsGranted ? "granted" : "denied";
 
     if (allPermissionsGranted) {
       checkDeviceLocation(activity, this, this::navigateToStartVisit);
@@ -377,7 +301,7 @@ public class VisitFragment extends Fragment {
       // The user has pressed OK on the dialog
       navigateToStartVisit();
     } else {
-      ToastHelper.tShort(activity, "Device location is off");
+      ToastHelper.tShort(activity, "Device location is off (High accuracy mode required)");
     }
   }
 }

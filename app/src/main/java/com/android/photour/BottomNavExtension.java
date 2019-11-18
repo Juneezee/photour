@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
 import android.util.SparseArray;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
@@ -13,9 +12,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -23,18 +20,59 @@ import java.util.Objects;
  * Manages the various graphs needed for a [BottomNavigationView]. Modified and converted to Java
  * from sample provided by Google https://github.com/android/architecture-components-samples
  *
- * Modified and coverted to Java from sample provided by Google
- * https://github.com/android/architecture-components-samples
  * @author Zer Jun Eng, Jia Hua Ng
  */
 public class BottomNavExtension extends BottomNavigationView {
 
-    private String selectedItemTag;
-    private String firstFragmentTag;
-    private boolean isOnFirstFragment;
+  private String selectedItemTag;
+  private String firstFragmentTag;
+  private boolean isOnFirstFragment;
 
-    public BottomNavExtension(@NonNull Context context) {
-        super(context);
+  public BottomNavExtension(@NonNull Context context) {
+    super(context);
+  }
+
+  public BottomNavExtension(@NonNull Context context, @Nullable AttributeSet attrs) {
+    super(context, attrs);
+  }
+
+  public BottomNavExtension(@NonNull Context context, @Nullable AttributeSet attrs,
+      int defStyleAttr) {
+    super(context, attrs, defStyleAttr);
+  }
+
+  public LiveData<NavController> setupWithNavController(List<Integer> navGraphIds,
+      FragmentManager fragmentManager, int containerId, Intent intent) {
+
+    // Map of tags
+    SparseArray<String> graphIdToTagMap = new SparseArray<>();
+    // Result. Mutable live data with the selected controlled
+    MutableLiveData<NavController> selectedNavController = new MutableLiveData<>();
+    int firstFragmentGraphId = 0;
+
+    // First create a NavHostFragment for each NavGraph ID
+    for (int i = 0; i < navGraphIds.size(); i++) {
+      String fragmentTag = getFragmentTag(i);
+
+      // Find or create the Navigation host fragment
+      NavHostFragment navHostFragment = obtainNavHostFragment(
+          fragmentManager, fragmentTag, navGraphIds.get(i), containerId);
+
+      // Obtain its id
+      int graphId = navHostFragment.getNavController().getGraph().getId();
+      if (i == 0) {
+        firstFragmentGraphId = graphId;
+      }
+
+      // Save to the map
+      graphIdToTagMap.append(graphId, fragmentTag);
+
+      if (this.getSelectedItemId() == graphId) {
+        selectedNavController.setValue(navHostFragment.getNavController());
+        attachNavHostFragment(fragmentManager, navHostFragment, i == 0);
+      } else {
+        detachNavHostFragment(fragmentManager, navHostFragment);
+      }
     }
 
     selectedItemTag = graphIdToTagMap.get(this.getSelectedItemId());
@@ -145,10 +183,11 @@ public class BottomNavExtension extends BottomNavigationView {
         this.setSelectedItemId(navHostFragment.getNavController().getGraph().getId());
       }
     }
+  }
 
-    private void listenerSetSelectedItemId(int itemId) {
-        this.setSelectedItemId(itemId);
-    }
+  private void listenerSetSelectedItemId(int itemId) {
+    this.setSelectedItemId(itemId);
+  }
 
   private void detachNavHostFragment(
       FragmentManager fragmentManager,
@@ -167,6 +206,8 @@ public class BottomNavExtension extends BottomNavigationView {
     if (isPrimaryNavFragment) {
       ft.setPrimaryNavigationFragment(navHostFragment);
     }
+    ft.commitNow();
+  }
 
   private NavHostFragment obtainNavHostFragment(
       FragmentManager fragmentManager,
@@ -186,8 +227,10 @@ public class BottomNavExtension extends BottomNavigationView {
       // If the Nav Host fragment exists, return it
       return existingFragment;
     }
+  }
 
-    private String getFragmentTag(int index) {
-        return "fragment#"+index;
-    }
+  private String getFragmentTag(int index) {
+    return "fragment#" + index;
+  }
 }
+

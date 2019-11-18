@@ -12,9 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import com.android.photour.MainActivity;
 import com.android.photour.R;
-import java.util.Objects;
 
 /**
  * Fragment that display the settings of the application
@@ -58,7 +56,7 @@ public class SettingsFragment extends Fragment {
     settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
     View root = inflater.inflate(R.layout.fragment_settings, container, false);
     final TextView textView = root.findViewById(R.id.text_notifications);
-    settingsViewModel.getText().observe(this, textView::setText);
+    settingsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
     return root;
   }
 

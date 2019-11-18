@@ -39,11 +39,11 @@ public class LocationServicesHelper {
     );
     builder.setAlwaysShow(true);
 
-    LocationSettingsRequest mLocationSettingsRequest = builder.build();
+    LocationSettingsRequest locationSettingsRequest = builder.build();
 
     LocationServices
         .getSettingsClient(activity)
-        .checkLocationSettings(mLocationSettingsRequest)
+        .checkLocationSettings(locationSettingsRequest)
 
         .addOnSuccessListener(
             // Device location is turned on, and location permission granted

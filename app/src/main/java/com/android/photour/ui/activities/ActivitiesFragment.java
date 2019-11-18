@@ -8,9 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import com.android.photour.MainActivity;
 import com.android.photour.R;
-import java.util.Objects;
 
 public class ActivitiesFragment extends Fragment {
 
@@ -21,7 +19,7 @@ public class ActivitiesFragment extends Fragment {
     activitiesViewModel = new ViewModelProvider(this).get(ActivitiesViewModel.class);
     View root = inflater.inflate(R.layout.fragment_paths, container, false);
     final TextView textView = root.findViewById(R.id.text_notifications);
-    activitiesViewModel.getText().observe(this, textView::setText);
+    activitiesViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
     return root;
   }
 }

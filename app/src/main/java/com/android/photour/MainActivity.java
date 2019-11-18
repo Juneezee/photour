@@ -1,5 +1,7 @@
 package com.android.photour;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,7 +26,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
    * @param savedInstanceState The data most recently supplied in {@link #onSaveInstanceState}.
    */
   @Override
-  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+  protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
     setupBottomNavigationBar();
   }
@@ -306,3 +307,4 @@ public class MainActivity extends AppCompatActivity {
     return memoryCache.get(key);
   }
 }
+

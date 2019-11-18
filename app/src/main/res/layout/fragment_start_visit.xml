@@ -54,6 +54,8 @@
     android:drawablePadding="8dp"
     android:paddingStart="@dimen/fragment_horizontal_margin"
     android:paddingEnd="@dimen/activity_horizontal_margin"
+    android:text="hPa"
+    android:textColor="@color/colorBlack"
     app:layout_constraintBottom_toBottomOf="@id/button_stop_visit"
     app:layout_constraintStart_toEndOf="@id/thermometer"
     app:layout_constraintTop_toTopOf="@id/button_stop_visit" />
@@ -89,9 +91,9 @@
     android:layout_height="0dp"
     android:layout_marginEnd="@dimen/activity_horizontal_margin"
     android:layout_marginBottom="@dimen/activity_vertical_margin"
-    android:backgroundTint="#F7F7FF"
+    android:backgroundTint="@color/colorGhostWhite"
     android:src="@drawable/ic_photo_library"
-    app:backgroundTint="@color/colorSubtitleGray"
+    app:backgroundTint="@color/colorLightGray"
     app:borderWidth="1dp"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toStartOf="@id/fab_camera" />
@@ -102,10 +104,22 @@
     android:layout_height="0dp"
     android:layout_marginEnd="@dimen/fragment_horizontal_margin"
     android:layout_marginBottom="@dimen/activity_vertical_margin"
+    android:backgroundTint="@color/colorPrimary"
     android:src="@drawable/ic_camera"
-    app:backgroundTint="@color/colorPrimary"
     app:borderWidth="0dp"
     app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent" />
+
+  <com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/fab_mylocation"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="@dimen/fragment_horizontal_margin"
+    android:layout_marginBottom="@dimen/activity_vertical_margin"
+    android:backgroundTint="@color/colorGhostWhite"
+    android:src="@drawable/ic_my_location"
+    app:backgroundTint="@color/colorLightGray"
+    app:layout_constraintBottom_toTopOf="@id/fab_camera"
     app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

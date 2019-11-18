@@ -1,8 +1,11 @@
 package com.android.photour.ui.photos;
 
+import static com.android.photour.helper.PermissionHelper.NO_PERMISSIONS_CODE;
+import static com.android.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
+
 import android.Manifest;
+import android.Manifest.permission;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -15,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
@@ -23,40 +25,28 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.android.photour.ImageElement;
 import com.android.photour.R;
 import com.android.photour.helper.PermissionHelper;
 import com.android.photour.helper.ToastHelper;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.android.photour.helper.PermissionHelper.NO_PERMISSIONS_CODE;
-import static com.android.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
-
 public class PhotosFragment extends Fragment {
 
-  public static LruCache<String, Bitmap> mRetainedCache;
-  private Activity activity;
+  private static final String TAG = "PhotosFragment";
 
+  public static LruCache<String, Bitmap> mRetainedCache;
+  private final int IMAGE_WIDTH = 100;
+  private Activity activity;
+  private View view;
   private PhotosViewModel photosViewModel;
   private PhotoAdapter photoAdapter;
   private RecyclerView mRecyclerView;
   private FloatingActionButton sortButton;
   private TextView textView;
-
-  private static final String TAG = "PhotosFragment";
-  private final int IMAGE_WIDTH = 100;
-  private static final int PLAY_SERVICES_ERROR_CODE = 9002;
-
-  private static final String[] ALL_PERMISSIONS_REQUIRED = {
-          Manifest.permission.WRITE_EXTERNAL_STORAGE
-  };
 
   /***
    * Finds or create a PhotoFragment using FragmentManager.
@@ -74,8 +64,8 @@ public class PhotosFragment extends Fragment {
   }
 
   /**
-   * Called to have the fragment instantiate its user interface view.
-   * Permission for storage access is handled here
+   * Called to have the fragment instantiate its user interface view. Permission for storage access
+   * is handled here
    *
    * @param inflater The LayoutInflater object that can be used to inflate any views in the
    * fragment,
@@ -87,39 +77,32 @@ public class PhotosFragment extends Fragment {
    * @return View Return the View for the fragment's UI, or null.
    */
   public View onCreateView(
-          @NonNull LayoutInflater inflater,
-          ViewGroup container,
-          Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater,
+      ViewGroup container,
+      Bundle savedInstanceState
+  ) {
+
     this.activity = getActivity();
-    View root = inflater.inflate(R.layout.fragment_photos, container, false);
+    view = inflater.inflate(R.layout.fragment_photos, container, false);
 
-    if (checkPlayServices()) {
-      boolean isFirstTime = PermissionHelper
-              .isFirstTimeAskingPermissions(activity, ALL_PERMISSIONS_REQUIRED);
+    boolean isFirstTime = PermissionHelper
+        .isFirstTimeAskingPermissions(activity, permission.WRITE_EXTERNAL_STORAGE);
 
-      int permissionGranted = STORAGE_PERMISSION_CODE - permissionsNotGranted(false);
-      int permissionsNeverAsked = permissionsNotGranted(true) - permissionGranted;
+    int permissionGranted = STORAGE_PERMISSION_CODE - permissionsNotGranted(false);
+    int permissionsNeverAsked = permissionsNotGranted(true) - permissionGranted;
 
-      Log.d("Perm", "Permission granted " + permissionGranted);
-      Log.d("Perm", "Permission not granted " + (STORAGE_PERMISSION_CODE - permissionGranted));
-      Log.d("Perm", "Permission never asked " + permissionsNeverAsked);
+    // Display a dialog for permissions explanation
+    showPermissionRationale(isFirstTime, permissionGranted, permissionsNeverAsked);
 
-      // Display a dialog for permissions explanation
-      showPermissionRationale(isFirstTime, permissionGranted, permissionsNeverAsked);
-
-    } else {
-      ToastHelper.tShort(activity, "Play services not available");
-    }
-
-    //Initialise view if has access, else displays a text notice
-    textView = root.findViewById(R.id.text_notifications);
+    // Initialise view if has access, else displays a text notice
+    textView = view.findViewById(R.id.text_notifications);
     if (PermissionHelper.hasStoragePermission(activity)) {
-      initializeRecyclerView(root);
+      initializeRecyclerView(view);
     } else {
       textView.setText("Please Enable Storage Access to use this feature");
     }
 
-    return root;
+    return view;
   }
 
   /***
@@ -145,15 +128,15 @@ public class PhotosFragment extends Fragment {
     mRecyclerView = root.findViewById(R.id.grid_recycler_view);
     mRecyclerView.setHasFixedSize(true);
     mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),
-            PhotosViewModel.calculateNoOfColumns(Objects.requireNonNull(getContext()), IMAGE_WIDTH)));
+        PhotosViewModel.calculateNoOfColumns(Objects.requireNonNull(getContext()), IMAGE_WIDTH)));
 
     //Sets up adapters, photoAdapter is in charge of images, mSectionedAdapter for titles and grid
     photoAdapter = new PhotoAdapter(getContext());
     SectionedGridRecyclerViewAdapter.Section[] dummy =
-            new SectionedGridRecyclerViewAdapter.Section[sections.size()];
+        new SectionedGridRecyclerViewAdapter.Section[sections.size()];
     SectionedGridRecyclerViewAdapter mSectionedAdapter = new
-            SectionedGridRecyclerViewAdapter(getActivity(),
-            R.layout.fragment_photos_sort, R.id.sorted_title_view, mRecyclerView, photoAdapter);
+        SectionedGridRecyclerViewAdapter(getActivity(),
+        R.layout.fragment_photos_sort, R.id.sorted_title_view, mRecyclerView, photoAdapter);
 
     //set observer to image list, on calls adapters to reset
     photosViewModel.images.observe(getViewLifecycleOwner(), imageElements -> {
@@ -185,43 +168,16 @@ public class PhotosFragment extends Fragment {
    * Puts initial drawable and a listener to sort and change drawable
    */
   private void initializeSortButton() {
-    if (photosViewModel.sortMode == 0) {
-      sortButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_calendar, null));
-    } else {
-      sortButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_map, null));
-    }
+    sortButton.setImageDrawable(getResources().getDrawable(
+        photosViewModel.sortMode == 0 ? R.drawable.ic_calendar : R.drawable.ic_map_white, null));
+
     sortButton.setOnClickListener(v -> {
       photosViewModel.switchSortMode();
-      if (photosViewModel.sortMode == 0) {
-        sortButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_calendar, null));
-      } else {
-        sortButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_map, null));
-      }
+      sortButton.setImageDrawable(getResources().getDrawable(
+          photosViewModel.sortMode == 0 ? R.drawable.ic_calendar : R.drawable.ic_map_white, null));
     });
   }
 
-  /**
-   * Checks if the device has Google Play Services installed and compatible
-   *
-   * @return boolean True if the device has Google Play Services installed and compatible
-   */
-  private boolean checkPlayServices() {
-    GoogleApiAvailability googleApi = GoogleApiAvailability.getInstance();
-
-    int result = googleApi.isGooglePlayServicesAvailable(activity);
-
-    if (result == ConnectionResult.SUCCESS) {
-      return true;
-    } else if (googleApi.isUserResolvableError(result)) {
-      Dialog dialog = googleApi.getErrorDialog(activity, result, PLAY_SERVICES_ERROR_CODE,
-              task -> ToastHelper.tShort(activity, "Dialog is cancelled"));
-      dialog.show();
-    } else {
-      ToastHelper.tShort(activity, "Play services are required by this application");
-    }
-
-    return false;
-  }
 
   /**
    * Get the permissions not granted by user due to denying, or get the permissions not granted by
@@ -232,13 +188,13 @@ public class PhotosFragment extends Fragment {
    * permission and selected the Don't ask again option
    *
    * @param checkNeverAsk True if to get the permissions that are set as "Never ask again", False to
-   *                      get the permissions not granted by deny only
+   * get the permissions not granted by deny only
    * @return int The permission request code
    */
   private int permissionsNotGranted(boolean checkNeverAsk) {
     boolean storagePermission = checkNeverAsk
-            ? !shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            : PermissionHelper.hasStoragePermission(activity);
+        ? !shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        : PermissionHelper.hasStoragePermission(activity);
 
     int permissionCode = STORAGE_PERMISSION_CODE;
 
@@ -250,29 +206,30 @@ public class PhotosFragment extends Fragment {
   }
 
   private void showPermissionRationale(
-          boolean isFirstTime,
-          int permissionGranted,
-          int permissionsNeverAsked
+      boolean isFirstTime,
+      int permissionGranted,
+      int permissionsNeverAsked
   ) {
     int permissionNotGranted = STORAGE_PERMISSION_CODE - permissionGranted;
     boolean isAllPermissionsAllowed = permissionGranted == STORAGE_PERMISSION_CODE;
     boolean anyNeverAskChecked = !isFirstTime && permissionsNeverAsked != NO_PERMISSIONS_CODE
-            && permissionsNeverAsked != permissionGranted;
+        && permissionsNeverAsked != permissionGranted;
 
     int permissionToRequest
-            = isFirstTime ? STORAGE_PERMISSION_CODE
-            : isAllPermissionsAllowed ? NO_PERMISSIONS_CODE
+        = isFirstTime ? STORAGE_PERMISSION_CODE
+        : isAllPermissionsAllowed ? NO_PERMISSIONS_CODE
             : anyNeverAskChecked ? permissionsNeverAsked | permissionNotGranted
-            : permissionNotGranted;
+                : permissionNotGranted;
 
-    PermissionHelper.PermissionCodeResponse codeResponse = PermissionHelper.PERMISSIONS_MAP.get(permissionToRequest);
+    PermissionHelper.PermissionCodeResponse codeResponse = PermissionHelper.PERMISSIONS_MAP
+        .get(permissionToRequest);
 
     String message = "To access your photos, allow Photour access to your "
-            + "device's %s. "
-            + (anyNeverAskChecked ? "Tap Settings > Permissions, and turn %s." : "");
+        + "device's %s. "
+        + (anyNeverAskChecked ? "Tap Settings > Permissions, and turn %s." : "");
 
     message = String
-            .format(message, codeResponse.getRationaleName(), codeResponse.getRationaleNameOn());
+        .format(message, codeResponse.getRationaleName(), codeResponse.getRationaleNameOn());
 
     if (isAllPermissionsAllowed) {
       checkRequiredPermissions(permissionToRequest);
@@ -299,28 +256,29 @@ public class PhotosFragment extends Fragment {
    * permissions
    */
   private void buildDialog(
-          int titleLayout,
-          String message,
-          int permissionToRequest,
-          boolean shouldShowSettingsDialog
+      int titleLayout,
+      String message,
+      int permissionToRequest,
+      boolean shouldShowSettingsDialog
   ) {
     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     builder.setMessage(message);
     builder.setCustomTitle(activity.getLayoutInflater().inflate(titleLayout, null));
 
     builder
-      .setPositiveButton(shouldShowSettingsDialog ? "SETTINGS" : "CONTINUE", (dialog, which) -> {
-        if (shouldShowSettingsDialog) {
-          Uri uri = new Uri.Builder()
-                  .scheme("package")
-                  .opaquePart(activity.getPackageName())
-                  .build();
-          startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, uri));
-        } else {
-          PermissionHelper.setFirstTimeAskingPermissions(activity, ALL_PERMISSIONS_REQUIRED);
-          checkRequiredPermissions(permissionToRequest);
-        }
-      }).setNegativeButton("NOT NOW", (dialog, which) -> dialog.dismiss());
+        .setPositiveButton(shouldShowSettingsDialog ? "SETTINGS" : "CONTINUE", (dialog, which) -> {
+          if (shouldShowSettingsDialog) {
+            Uri uri = new Uri.Builder()
+                .scheme("package")
+                .opaquePart(activity.getPackageName())
+                .build();
+            startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, uri));
+          } else {
+            PermissionHelper
+                .setFirstTimeAskingPermissions(activity, permission.WRITE_EXTERNAL_STORAGE);
+            checkRequiredPermissions(permissionToRequest);
+          }
+        }).setNegativeButton("NOT NOW", (dialog, which) -> dialog.dismiss());
 
     builder.create().show();
   }
@@ -333,7 +291,7 @@ public class PhotosFragment extends Fragment {
   private void checkRequiredPermissions(int permissionToRequest) {
     if (permissionToRequest != NO_PERMISSIONS_CODE) {
       // No permissions for location, camera, and storage
-      requestPermissions(ALL_PERMISSIONS_REQUIRED, permissionToRequest);
+      requestPermissions(new String[]{permission.WRITE_EXTERNAL_STORAGE}, permissionToRequest);
     }
   }
 
@@ -349,9 +307,9 @@ public class PhotosFragment extends Fragment {
    */
   @Override
   public void onRequestPermissionsResult(
-          int requestCode,
-          @NonNull String[] permissions,
-          @NonNull int[] grantResults
+      int requestCode,
+      @NonNull String[] permissions,
+      @NonNull int[] grantResults
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
@@ -361,15 +319,12 @@ public class PhotosFragment extends Fragment {
       allPermissionsGranted &= grantResult == PackageManager.PERMISSION_GRANTED;
     }
 
-    PermissionHelper.PermissionCodeResponse codeResponse = PermissionHelper.PERMISSIONS_MAP.get(requestCode);
+    PermissionHelper.PermissionCodeResponse codeResponse = PermissionHelper.PERMISSIONS_MAP
+        .get(requestCode);
 
-    String result = allPermissionsGranted ? "granted" : "denied";
-
-    String message
-            = requestCode == STORAGE_PERMISSION_CODE
-            ? "Required permissions "
-            : (codeResponse.getResponseResult());
-    message += result;
+    String message = requestCode == STORAGE_PERMISSION_CODE ? "Storage permission "
+        : (codeResponse.getResponseResult());
+    message += allPermissionsGranted ? "granted" : "denied";
 
     if (allPermissionsGranted) {
       initializeRecyclerView(null);
