@@ -13,7 +13,7 @@
 
   <item
     android:id="@+id/navigation_paths"
-    android:icon="@drawable/ic_map_black"
+    android:icon="@drawable/ic_path_black"
     android:title="@string/paths" />
 
 </menu>

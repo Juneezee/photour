@@ -49,9 +49,6 @@ public class MainActivity extends AppCompatActivity {
   private AppBarConfiguration appBarConfiguration;
   private BottomNavExtension navView;
   private Toolbar toolbar;
-  private static final int REQUEST_READ_EXTERNAL_STORAGE = 2987;
-  private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 7829;
-
 
   /**
    * Perform the required actions when the activity is created
@@ -67,8 +64,6 @@ public class MainActivity extends AppCompatActivity {
 
     toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
-
-//   checkStoragePermissions(this);
 
     final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     final int cacheSize = maxMemory / 8;
@@ -162,8 +157,6 @@ public class MainActivity extends AppCompatActivity {
       controller.observe(this, navControllerObserver);
       currentNavController = controller;
     });
-
-
 
   }
 

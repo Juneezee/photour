@@ -186,12 +186,12 @@ public class PhotosFragment extends Fragment {
    */
   private void initializeSortButton() {
     sortButton.setImageDrawable(getResources().getDrawable(
-        photosViewModel.sortMode == 0 ? R.drawable.ic_calendar : R.drawable.ic_map_white, null));
+        photosViewModel.sortMode == 0 ? R.drawable.ic_calendar : R.drawable.ic_path_white, null));
 
     sortButton.setOnClickListener(v -> {
       photosViewModel.switchSortMode();
       sortButton.setImageDrawable(getResources().getDrawable(
-          photosViewModel.sortMode == 0 ? R.drawable.ic_calendar : R.drawable.ic_map_white, null));
+          photosViewModel.sortMode == 0 ? R.drawable.ic_calendar : R.drawable.ic_path_white, null));
     });
   }
 
