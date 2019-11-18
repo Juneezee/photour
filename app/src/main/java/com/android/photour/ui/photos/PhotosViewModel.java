@@ -20,6 +20,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * A ViewModel for {@link PhotosFragment}
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class PhotosViewModel extends AndroidViewModel {
 
   private static final int QUERY_BY_DATE = 0;
@@ -132,7 +137,9 @@ public class PhotosViewModel extends AndroidViewModel {
       imageElement.addUri(contentUri);
       i++;
     }
-    images.add(imageElement);
+    if (imageElement != null) {
+      images.add(imageElement);
+    }
     query.close();
 
     return images;

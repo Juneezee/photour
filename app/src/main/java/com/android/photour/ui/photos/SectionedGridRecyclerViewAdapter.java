@@ -6,11 +6,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import java.util.Arrays;
-import java.util.Comparator;
 
+import java.util.Arrays;
+
+/**
+ * Adapter for handling sections and grid system on {@link PhotosFragment}
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class SectionedGridRecyclerViewAdapter extends
     RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -19,22 +26,25 @@ public class SectionedGridRecyclerViewAdapter extends
   private boolean mValid = true;
   private int mSectionResourceId;
   private int mTextResourceId;
-  private LayoutInflater mLayoutInflater;
   private RecyclerView.Adapter mBaseAdapter;
   private SparseArray<Section> mSections = new SparseArray<>();
-  private RecyclerView mRecyclerView;
 
+  /**
+   * Constructor class of SectionedGridRecyclerViewAdapter
+   * @param context Context of MainActivity
+   * @param sectionResourceId ID for view of section title
+   * @param textResourceId ID for view of section items
+   * @param recyclerView RecyclerView object being handled by adapter
+   * @param baseAdapter Adapter responsible for dealing with the items
+   */
+  SectionedGridRecyclerViewAdapter(Context context, int sectionResourceId,
+                                   int textResourceId, RecyclerView recyclerView,
+                                   RecyclerView.Adapter baseAdapter) {
 
-  public SectionedGridRecyclerViewAdapter(Context context, int sectionResourceId,
-      int textResourceId, RecyclerView recyclerView,
-      RecyclerView.Adapter baseAdapter) {
-
-    mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     mSectionResourceId = sectionResourceId;
     mTextResourceId = textResourceId;
     mBaseAdapter = baseAdapter;
     mContext = context;
-    mRecyclerView = recyclerView;
 
     mBaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
       @Override
@@ -62,17 +72,30 @@ public class SectionedGridRecyclerViewAdapter extends
       }
     });
 
-    final GridLayoutManager layoutManager = (GridLayoutManager) (mRecyclerView.getLayoutManager());
-    layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-      @Override
-      public int getSpanSize(int position) {
-        return (isSectionHeaderPosition(position)) ? layoutManager.getSpanCount() : 1;
-      }
-    });
+    final GridLayoutManager layoutManager = (GridLayoutManager) (recyclerView.getLayoutManager());
+    if (layoutManager != null) {
+      layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+        @Override
+        public int getSpanSize(int position) {
+          return (isSectionHeaderPosition(position)) ? layoutManager.getSpanCount() : 1;
+        }
+      });
+    }
   }
 
+  /**
+   * Called when RecyclerView needs a new RecyclerView.ViewHolder of the given type to represent an
+   * item.
+   *
+   * Checks if typeView is title or item. If is item, call mBaseAdapter to handle.
+   * @param parent he ViewGroup into which the new View will be added after it is bound to an
+   *  adapter position.
+   * @param typeView The view type of the new View.
+   * @return
+   */
+  @NonNull
   @Override
-  public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int typeView) {
+  public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int typeView) {
     if (typeView == SECTION_TYPE) {
       final View view = LayoutInflater.from(mContext).inflate(mSectionResourceId, parent, false);
       return new SectionViewHolder(view, mTextResourceId);
@@ -81,8 +104,17 @@ public class SectionedGridRecyclerViewAdapter extends
     }
   }
 
+  /**
+   * Called by RecyclerView to display the data at the specified position. This method should update
+   * the contents of the itemView to reflect the item at the given position.
+   *
+   * Checks if given position is title or item. If is item, call mBaseAdapter to handle.
+   * @param sectionViewHolder he ViewHolder which should be updated to represent the contents of the item at
+   * the given position in the data set.
+   * @param position The position of the item within the adapter's data set.
+   */
   @Override
-  public void onBindViewHolder(RecyclerView.ViewHolder sectionViewHolder, int position) {
+  public void onBindViewHolder(@NonNull RecyclerView.ViewHolder sectionViewHolder, int position) {
     if (isSectionHeaderPosition(position)) {
       ((SectionViewHolder) sectionViewHolder).title.setText(mSections.get(position).title);
     } else {
@@ -91,6 +123,12 @@ public class SectionedGridRecyclerViewAdapter extends
 
   }
 
+  /**
+   * Getter for item view type.
+   * Checks with SECTION_TYPE to see if said position is a title or item
+   * @param position position of current item on data set
+   * @return Type of item, 0 represents HEADER
+   */
   @Override
   public int getItemViewType(int position) {
     return isSectionHeaderPosition(position)
@@ -98,15 +136,15 @@ public class SectionedGridRecyclerViewAdapter extends
         : mBaseAdapter.getItemViewType(sectionedPositionToPosition(position)) + 1;
   }
 
-  public void setSections(Section[] sections) {
+  /**
+   * Accessor for sections array. Used to update data set
+   *
+   * @param sections Array of sections
+   */
+  void setSections(Section[] sections) {
     mSections.clear();
 
-    Arrays.sort(sections, new Comparator<Section>() {
-      @Override
-      public int compare(Section o, Section o1) {
-        return Integer.compare(o.firstPosition, o1.firstPosition);
-      }
-    });
+    Arrays.sort(sections, (o, o1) -> Integer.compare(o.firstPosition, o1.firstPosition));
 
     int offset = 0; // offset positions for the headers we're adding
     for (Section section : sections) {
@@ -118,18 +156,13 @@ public class SectionedGridRecyclerViewAdapter extends
     notifyDataSetChanged();
   }
 
-  public int positionToSectionedPosition(int position) {
-    int offset = 0;
-    for (int i = 0; i < mSections.size(); i++) {
-      if (mSections.valueAt(i).firstPosition > position) {
-        break;
-      }
-      ++offset;
-    }
-    return position + offset;
-  }
-
-  public int sectionedPositionToPosition(int sectionedPosition) {
+  /**
+   * Checks the position of next title
+   *
+   * @param sectionedPosition position of a current title
+   * @return position of next title
+   */
+  private int sectionedPositionToPosition(int sectionedPosition) {
     if (isSectionHeaderPosition(sectionedPosition)) {
       return RecyclerView.NO_POSITION;
     }
@@ -144,10 +177,20 @@ public class SectionedGridRecyclerViewAdapter extends
     return sectionedPosition + offset;
   }
 
-  public boolean isSectionHeaderPosition(int position) {
+  /**
+   * Checks if item in position is a title
+   * @param position position of item
+   * @return true if the item is a title
+   */
+  private boolean isSectionHeaderPosition(int position) {
     return mSections.get(position) != null;
   }
 
+  /**
+   * Getter for id of item
+   * @param position position of item
+   * @return id of item
+   */
   @Override
   public long getItemId(int position) {
     return isSectionHeaderPosition(position)
@@ -155,35 +198,45 @@ public class SectionedGridRecyclerViewAdapter extends
         : mBaseAdapter.getItemId(sectionedPositionToPosition(position));
   }
 
+  /**
+   * Getter for data set size
+   *
+   * @return data set size
+   */
   @Override
   public int getItemCount() {
     return (mValid ? mBaseAdapter.getItemCount() + mSections.size() : 0);
   }
 
+  /**
+   * Class for viewHolder
+   *
+   * @author Zer Jun Eng, Jia Hua Ng
+   */
   public static class SectionViewHolder extends RecyclerView.ViewHolder {
 
-    public TextView title;
+    TextView title;
 
-    public SectionViewHolder(View view, int mTextResourceid) {
+    SectionViewHolder(View view, int mTextResourceid) {
       super(view);
       title = view.findViewById(mTextResourceid);
     }
   }
 
-  public static class Section {
+  /**
+   * Class for section
+   */
+  static class Section {
 
     int firstPosition;
     int sectionedPosition;
     CharSequence title;
 
-    public Section(int firstPosition, CharSequence title) {
+    Section(int firstPosition, CharSequence title) {
       this.firstPosition = firstPosition;
       this.title = title;
     }
 
-    public CharSequence getTitle() {
-      return title;
-    }
   }
 
 }

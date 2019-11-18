@@ -14,7 +14,7 @@ import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 
 /**
- *
+ * Async Task that handles caching bitmaps
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */

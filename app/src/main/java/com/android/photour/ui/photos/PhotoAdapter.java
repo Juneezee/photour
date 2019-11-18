@@ -19,6 +19,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adapter for images on {@link PhotosFragment}
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
 
   private static List<Uri> items = new ArrayList<>();

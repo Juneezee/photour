@@ -22,7 +22,7 @@ import java.util.Objects;
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
-public class BottomNavExtension extends BottomNavigationView {
+public class  BottomNavExtension extends BottomNavigationView {
 
   private String selectedItemTag;
   private String firstFragmentTag;
@@ -50,6 +50,7 @@ public class BottomNavExtension extends BottomNavigationView {
     MutableLiveData<NavController> selectedNavController = new MutableLiveData<>();
     int firstFragmentGraphId = 0;
 
+    System.out.println("setting up navController");
     // First create a NavHostFragment for each NavGraph ID
     for (int i = 0; i < navGraphIds.size(); i++) {
       String fragmentTag = getFragmentTag(i);

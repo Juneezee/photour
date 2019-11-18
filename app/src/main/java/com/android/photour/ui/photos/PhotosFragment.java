@@ -5,6 +5,7 @@ import static com.android.photour.helper.PermissionHelper.STORAGE_PERMISSION_COD
 
 import android.Manifest;
 import android.Manifest.permission;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -34,14 +35,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Fragment for Photos page
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class PhotosFragment extends Fragment {
 
   private static final String TAG = "PhotosFragment";
 
   public static LruCache<String, Bitmap> mRetainedCache;
-  private final int IMAGE_WIDTH = 100;
   private Activity activity;
-  private View view;
   private PhotosViewModel photosViewModel;
   private PhotoAdapter photoAdapter;
   private RecyclerView mRecyclerView;
@@ -76,6 +80,7 @@ public class PhotosFragment extends Fragment {
    * saved state as given here.
    * @return View Return the View for the fragment's UI, or null.
    */
+  @SuppressLint("SetTextI18n")
   public View onCreateView(
       @NonNull LayoutInflater inflater,
       ViewGroup container,
@@ -83,7 +88,7 @@ public class PhotosFragment extends Fragment {
   ) {
 
     this.activity = getActivity();
-    view = inflater.inflate(R.layout.fragment_photos, container, false);
+    View view = inflater.inflate(R.layout.fragment_photos, container, false);
 
     boolean isFirstTime = PermissionHelper
         .isFirstTimeAskingPermissions(activity, permission.WRITE_EXTERNAL_STORAGE);
@@ -111,6 +116,7 @@ public class PhotosFragment extends Fragment {
    *
    * @param root View of PhotosFragment
    */
+  @SuppressLint("SetTextI18n")
   private void initializeRecyclerView(View root) {
 
     //Initialize lists for SectionedGridRecyclerViewAdapter
@@ -127,6 +133,7 @@ public class PhotosFragment extends Fragment {
     photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
     mRecyclerView = root.findViewById(R.id.grid_recycler_view);
     mRecyclerView.setHasFixedSize(true);
+    int IMAGE_WIDTH = 100;
     mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),
         PhotosViewModel.calculateNoOfColumns(Objects.requireNonNull(getContext()), IMAGE_WIDTH)));
 
@@ -135,26 +142,36 @@ public class PhotosFragment extends Fragment {
     SectionedGridRecyclerViewAdapter.Section[] dummy =
         new SectionedGridRecyclerViewAdapter.Section[sections.size()];
     SectionedGridRecyclerViewAdapter mSectionedAdapter = new
-        SectionedGridRecyclerViewAdapter(getActivity(),
+        SectionedGridRecyclerViewAdapter(Objects.requireNonNull(getActivity()),
         R.layout.fragment_photos_sort, R.id.sorted_title_view, mRecyclerView, photoAdapter);
 
     //set observer to image list, on calls adapters to reset
     photosViewModel.images.observe(getViewLifecycleOwner(), imageElements -> {
+      //resets lists
       sections.clear();
       uris.clear();
 
-      int pos = 0;
-      for (ImageElement imageElement : imageElements) {
-        sections.add(new SectionedGridRecyclerViewAdapter.Section(pos, imageElement.getTitle()));
-        pos += imageElement.getUris().size(); // add number of photos and title
-        uris.addAll(imageElement.getUris());
+      //Prompts text if no images, else load images into lists
+      if (imageElements == null || imageElements.size() == 0) {
+        textView.setText("No photos! Go make some trips!");
+      } else {
+        int pos = 0;
+        textView.setText("");
+        for (ImageElement imageElement : imageElements) {
+          sections.add(new SectionedGridRecyclerViewAdapter.Section(pos, imageElement.getTitle()));
+          pos += imageElement.getUris().size(); // add number of photos and title
+          uris.addAll(imageElement.getUris());
+        }
       }
+
+      //parses values into adapters and update view
       photoAdapter.setItems(uris);
       photoAdapter.notifyDataSetChanged();
       mSectionedAdapter.setSections(sections.toArray(dummy));
       mSectionedAdapter.notifyDataSetChanged();
       mRecyclerView.setAdapter(mSectionedAdapter);
     });
+
 
     //sets up sort button
     sortButton = root.findViewById(R.id.fab_sort);
