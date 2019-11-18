@@ -14,13 +14,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
@@ -33,7 +32,9 @@ import com.android.photour.ui.photos.PhotosFragment;
 import com.google.android.libraries.maps.MapView;
 import com.google.android.material.textfield.TextInputEditText;
 
-import static android.media.CamcorderProfile.get;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Main activity of the application
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
           return bitmap.getByteCount() / 1024;
         }
       };
-      mRetainFragment.mRetainedCache = memoryCache;
+      PhotosFragment.mRetainedCache = memoryCache;
     }
 
     if (savedInstanceState == null) {

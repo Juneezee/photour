@@ -14,11 +14,9 @@ import com.android.photour.R;
 
 public class PathsFragment extends Fragment {
 
-  private PathsViewModel pathsViewModel;
-
   public View onCreateView(@NonNull LayoutInflater inflater,
       ViewGroup container, Bundle savedInstanceState) {
-    pathsViewModel = new ViewModelProvider(this).get(PathsViewModel.class);
+    PathsViewModel pathsViewModel = new ViewModelProvider(this).get(PathsViewModel.class);
     View root = inflater.inflate(R.layout.fragment_paths, container, false);
     final TextView textView = root.findViewById(R.id.text_notifications);
     pathsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {

@@ -14,9 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.Arrays;
 import java.util.Comparator;
 
-/**
- * @author Gabriele Mariotti (gabri.mariotti@gmail.com)
- */
 public class SectionedGridRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final Context mContext;
@@ -83,7 +80,7 @@ public class SectionedGridRecyclerViewAdapter extends RecyclerView.Adapter<Recyc
 
         public SectionViewHolder(View view,int mTextResourceid) {
             super(view);
-            title = (TextView) view.findViewById(mTextResourceid);
+            title = view.findViewById(mTextResourceid);
         }
     }
 

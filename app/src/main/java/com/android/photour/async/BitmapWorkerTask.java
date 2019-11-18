@@ -21,11 +21,24 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
     WeakReference<ImageView> imageViewWeakReference;
     private Uri data = null;
 
+    /**
+     * Constructor for BitmapWorkerTask
+     *
+     * @param context context of activity
+     * @param imageView imageView that the bitmap will be set on
+     */
     public BitmapWorkerTask(Context context, ImageView imageView) {
         this.context = context;
         this.imageViewWeakReference = new WeakReference<>(imageView);
     }
 
+    /***
+     * Task being run async. Compresses the bitmap and crop it to 100x100.
+     * The bitmap is then saved in LRU cache to used in the future.
+     *
+     * @param params Uri of image that will be processed
+     * @return bitmap of the uri
+     */
     @Override
     protected Bitmap doInBackground(Uri... params) {
         Bitmap bitmap;
@@ -42,10 +55,17 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
         }
     }
 
+    /***
+     * Called when doInBackground is completed.
+     * Sets bitmap onto the imageView if it is not recycled.
+     * @param bitmap
+     */
     protected void onPostExecute(Bitmap bitmap) {
+        //Checks if this task is cancelled
         if (isCancelled()) {
             bitmap = null;
         }
+        //If bitmap did not fail and imageView is not recycled, set the bitmap
         if (imageViewWeakReference != null && bitmap != null) {
             final ImageView imageView = imageViewWeakReference.get();
             final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
@@ -55,6 +75,13 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
         }
     }
 
+    /***
+     * Checks if the task should be cancelled
+     *
+     * @param data Uri of image
+     * @param imageView ImageView of that the task is linked on
+     * @return true if tasks should be cancelled, else false
+     */
     public static boolean cancelPotentialWork(Uri data, ImageView imageView) {
         final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
 
@@ -72,6 +99,11 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
         return true;
     }
 
+    /**
+     * Get the BitmapWorkerTask related to the given ImageView
+     * @param imageView ImageView object
+     * @return
+     */
     private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
 
         if (imageView != null) {
