@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
     setupBottomNavigationBar();
 
-   checkStoragePermissions(this);
+//   checkStoragePermissions(this);
 
     final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     final int cacheSize = maxMemory / 8;

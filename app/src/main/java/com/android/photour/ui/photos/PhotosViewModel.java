@@ -67,10 +67,8 @@ public class PhotosViewModel extends AndroidViewModel {
   }
 
   public void loadImages() {
-
       List<ImageElement> imageList = queryImages();
       _images.postValue(imageList);
-      System.out.println(images.getValue());
     if (contentObserver == null) {
         contentObserver = new ContentObserver(new Handler()) {
           @Override
