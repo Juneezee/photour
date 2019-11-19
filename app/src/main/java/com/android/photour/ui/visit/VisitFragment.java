@@ -1,6 +1,5 @@
 package com.android.photour.ui.visit;
 
-import static com.android.photour.helper.LocationServicesHelper.checkDeviceLocation;
 import static com.android.photour.helper.PermissionHelper.ALL_PERMISSIONS_CODE;
 import static com.android.photour.helper.PermissionHelper.CAMERA_PERMISSION_CODE;
 import static com.android.photour.helper.PermissionHelper.LOCATION_PERMISSION_CODE;
@@ -11,7 +10,6 @@ import static com.android.photour.helper.PlayServicesHelper.checkPlayServices;
 import android.Manifest.permission;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,8 +22,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.android.photour.R;
 import com.android.photour.helper.AlertDialogHelper;
+import com.android.photour.helper.LocationServicesHelper;
 import com.android.photour.helper.PermissionHelper;
-import com.android.photour.helper.PermissionHelper.PermissionCodeResponse;
 import com.android.photour.helper.ToastHelper;
 import com.android.photour.ui.visit.VisitFragmentDirections.ActionStartVisit;
 import com.google.android.material.textfield.TextInputEditText;
@@ -44,6 +42,8 @@ public class VisitFragment extends Fragment {
       permission.CAMERA,
       permission.WRITE_EXTERNAL_STORAGE
   };
+
+  private PermissionHelper permissionHelper;
 
   private Activity activity;
   private View view;
@@ -113,11 +113,12 @@ public class VisitFragment extends Fragment {
     view.findViewById(R.id.button_start_visit).setOnClickListener(v -> {
 
       if (checkPlayServices(activity)) {
-        boolean isFirstTime = PermissionHelper
-            .isFirstTimeAskingPermissions(activity, PERMISSIONS_REQUIRED);
+        permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
 
-        int permissionGranted = ALL_PERMISSIONS_CODE - permissionsNotGranted(false);
-        int permissionsNeverAsked = permissionsNotGranted(true) - permissionGranted;
+        boolean isFirstTime = permissionHelper.isFirstTimeAskingPermissions();
+
+        int permissionGranted = ALL_PERMISSIONS_CODE - permissionsNotGranted();
+        int permissionsNeverAsked = permissionsNeverAsked();
 
         Log.d("Perm", "Permission granted " + permissionGranted);
         Log.d("Perm", "Permission not granted " + (ALL_PERMISSIONS_CODE - permissionGranted));
@@ -133,37 +134,54 @@ public class VisitFragment extends Fragment {
   }
 
   /**
-   * Get the permissions not granted by user due to denying, or get the permissions not granted by
-   * user due to "Never ask again"
+   * Get the permissions not granted by user due to denying, or
    *
-   * shouldShowRequestPermissionRationale() returns true if the user has previously denied the
-   * request, and returns false if first time, or a permission is allowed, or a user has denied a
-   * permission and selected the Don't ask again option
-   *
-   * @param checkNeverAsk True if to get the permissions that are set as "Never ask again", False to
-   * get the permissions not granted by deny only
    * @return int The permission request code
    */
-  private int permissionsNotGranted(boolean checkNeverAsk) {
-    boolean isLocationGranted = checkNeverAsk
-        ? !shouldShowRequestPermissionRationale(permission.ACCESS_FINE_LOCATION)
-        : PermissionHelper.hasLocationPermission(activity);
-    boolean isCameraGranted = checkNeverAsk
-        ? !shouldShowRequestPermissionRationale(permission.CAMERA)
-        : PermissionHelper.hasCameraPermission(activity);
-    boolean isStorageGranted = checkNeverAsk
-        ? !shouldShowRequestPermissionRationale(permission.WRITE_EXTERNAL_STORAGE)
-        : PermissionHelper.hasStoragePermission(activity);
+  private int permissionsNotGranted() {
+    boolean isLocationGranted = permissionHelper.hasLocationPermission();
+    boolean isCameraGranted = permissionHelper.hasCameraPermission();
+    boolean isStorageGranted = permissionHelper.hasStoragePermission();
 
     int permissionCode = ALL_PERMISSIONS_CODE;
+
     permissionCode -= isLocationGranted ? LOCATION_PERMISSION_CODE : 0;
     permissionCode -= isCameraGranted ? CAMERA_PERMISSION_CODE : 0;
     permissionCode -= isStorageGranted ? STORAGE_PERMISSION_CODE : 0;
 
-    return checkNeverAsk ? ALL_PERMISSIONS_CODE - permissionCode : permissionCode;
+    return permissionCode;
   }
 
   /**
+   * Get the permissions not granted by user due to "Never ask again"
+   *
+   * shouldShowRequestPermissionRationale() returns true if the user has previously denied the
+   * request, and returns false if first time, orf a permission is allowed, or a user has denied a
+   * permission and selected the Don't ask again option
+   *
+   * @return int The permission request code
+   */
+  private int permissionsNeverAsked() {
+    boolean isLocationNeverAsked =
+        !permissionHelper.isFirstTimeAskingPermission(permission.ACCESS_FINE_LOCATION)
+            && !shouldShowRequestPermissionRationale(permission.ACCESS_FINE_LOCATION);
+    boolean isCameraNeverAsked = !permissionHelper.isFirstTimeAskingPermission(permission.CAMERA)
+        && !shouldShowRequestPermissionRationale(permission.CAMERA);
+    boolean isStorageNeverAsked =
+        !permissionHelper.isFirstTimeAskingPermission(permission.WRITE_EXTERNAL_STORAGE)
+            && !shouldShowRequestPermissionRationale(permission.WRITE_EXTERNAL_STORAGE);
+
+    int permissionCode = NO_PERMISSIONS_CODE;
+    permissionCode += isLocationNeverAsked ? LOCATION_PERMISSION_CODE : 0;
+    permissionCode += isCameraNeverAsked ? CAMERA_PERMISSION_CODE : 0;
+    permissionCode += isStorageNeverAsked ? STORAGE_PERMISSION_CODE : 0;
+
+    return permissionCode;
+  }
+
+  /**
+   * Show rationale when requesting the permissions required
+   *
    * @param isFirstTime True if it is the first time the application has asked for these
    * permissions
    * @param permissionGranted Permission code (constant value in {@link PermissionHelper}) of those
@@ -184,16 +202,27 @@ public class VisitFragment extends Fragment {
     int requestCode
         = isFirstTime ? permissionNotGranted
         : isAllPermissionsAllowed ? NO_PERMISSIONS_CODE
-            : anyNeverAskChecked ? permissionsNeverAsked | permissionNotGranted
+            : anyNeverAskChecked ?
+                (permissionsNeverAsked | permissionNotGranted) - permissionGranted
                 : permissionNotGranted;
 
+    permissionHelper.setRequestCode(requestCode);
+
     if (isAllPermissionsAllowed) {
-      checkRequiredPermissions(requestCode);
+      // All permissions required are granted, check whether device location is ON
+      permissionHelper.checkRequiredPermissions(this::checkDeviceLocation);
     } else {
       buildDialog(requestCode, anyNeverAskChecked);
     }
   }
 
+  /**
+   * Build an AlertDialog to display the rationale
+   *
+   * @param requestCode The permission request code
+   * @param anyNeverAskChecked True if the user has selected "Never ask again" for at least one
+   * permission
+   */
   private void buildDialog(int requestCode, boolean anyNeverAskChecked) {
     String message = "To capture and upload photos with location tag, allow Photour access to your "
         + "device's %s. "
@@ -205,25 +234,16 @@ public class VisitFragment extends Fragment {
     if (anyNeverAskChecked) {
       alertDialog.buildSettingsDialog();
     } else {
-      alertDialog
-          .buildContinueDialog(PERMISSIONS_REQUIRED, () -> checkRequiredPermissions(requestCode));
+      alertDialog.buildContinueDialog(permissionHelper, this::checkDeviceLocation);
     }
   }
 
   /**
-   * Check if the applications need to ask for permissions or not
-   *
-   * @param requestCode The permission request code
+   * If all permissions required (location, camera, storage) are granted, then check if device
+   * location is ON
    */
-  private void checkRequiredPermissions(int requestCode) {
-    if (requestCode == NO_PERMISSIONS_CODE) {
-      // All permissions required are granted, check if device location is ON
-      checkDeviceLocation(activity, this, this::navigateToStartVisit);
-
-    } else {
-      // No permissions for location, camera, and storage
-      requestPermissions(PERMISSIONS_REQUIRED, requestCode);
-    }
+  private void checkDeviceLocation() {
+    LocationServicesHelper.checkDeviceLocation(activity, this, this::navigateToStartVisit);
   }
 
   /**
@@ -244,24 +264,7 @@ public class VisitFragment extends Fragment {
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-    boolean allPermissionsGranted = true;
-
-    for (int grantResult : grantResults) {
-      allPermissionsGranted &= grantResult == PackageManager.PERMISSION_GRANTED;
-    }
-
-    PermissionCodeResponse codeResponse = PermissionHelper.CODE_RESPONSE.get(requestCode);
-
-    String message = requestCode == ALL_PERMISSIONS_CODE ? "Required permissions "
-        : (codeResponse.getResponseResult());
-
-    message += allPermissionsGranted ? "granted" : "denied";
-
-    if (allPermissionsGranted) {
-      checkDeviceLocation(activity, this, this::navigateToStartVisit);
-    }
-
-    ToastHelper.tShort(activity, message);
+    permissionHelper.onRequestPermissionsResult(grantResults, this::checkDeviceLocation);
   }
 
   /**

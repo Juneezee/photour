@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.SparseArray;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import com.android.photour.R;
 
 /**
@@ -16,6 +18,11 @@ import com.android.photour.R;
  * @author Zer Jun Eng, Jia Hua Ng
  */
 public class PermissionHelper {
+
+  private Activity activity;
+  private Fragment fragment;
+  private String[] permissions;
+  private int requestCode;
 
   public static final int NO_PERMISSIONS_CODE = 0;
   public static final int ALL_PERMISSIONS_CODE = 111;
@@ -49,17 +56,38 @@ public class PermissionHelper {
   };
 
   /**
+   * Constructor for PermissionHelper class
+   *
+   * @param activity The current activity
+   * @param fragment The fragment that is requesting the permissions
+   * @param permissions The String array of permissions to check
+   */
+  public PermissionHelper(Activity activity, Fragment fragment, String[] permissions) {
+    this.activity = activity;
+    this.fragment = fragment;
+    this.permissions = permissions;
+  }
+
+  /**
+   * Set the permission request code
+   *
+   * @param requestCode The permission request code
+   */
+  public void setRequestCode(int requestCode) {
+    this.requestCode = requestCode;
+  }
+
+  /**
    * 1. Check if device version is Marshmallow (API 23) and above. Used in deciding to ask runtime
    * permission
    *
    * 2. Check if the specific permission has been granted or not
    *
-   * @param activity The current activity
    * @param permission The permission to check
    * @return boolean True if the current device is Android M or above and the specific permission
    * has been granted
    */
-  private static boolean shouldAskPermission(Activity activity, String permission) {
+  private boolean shouldAskPermission(String permission) {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
         activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED;
   }
@@ -67,21 +95,19 @@ public class PermissionHelper {
   /**
    * Check for CAMERA permission
    *
-   * @param activity The current activity
    * @param listener A {@link PermissionAskListener} instance for callback
    */
-  public static void checkCameraPermission(Activity activity, PermissionAskListener listener) {
-    checkPermission(activity, permission.CAMERA, listener);
+  public void checkCameraPermission(PermissionAskListener listener) {
+    checkPermission(permission.CAMERA, listener);
   }
 
   /**
    * Check for WRITE_EXTERNAL_STORAGE permission
    *
-   * @param activity The current activity
    * @param listener A {@link PermissionAskListener} instance for callback
    */
-  public static void checkStoragePermission(Activity activity, PermissionAskListener listener) {
-    checkPermission(activity, permission.WRITE_EXTERNAL_STORAGE, listener);
+  public void checkStoragePermission(PermissionAskListener listener) {
+    checkPermission(permission.WRITE_EXTERNAL_STORAGE, listener);
   }
 
   /**
@@ -93,16 +119,14 @@ public class PermissionHelper {
    *
    * 2B. The user denied permission earlier WITH checking "Never ask again".
    *
-   * @param activity The current activity
    * @param permission The permission to check
    * @param listener A {@link PermissionAskListener} instance for callback
    */
-  private static void checkPermission(Activity activity, String permission,
-      PermissionAskListener listener) {
+  private void checkPermission(String permission, PermissionAskListener listener) {
     /*
      * If permission is not granted
      */
-    if (shouldAskPermission(activity, permission)) {
+    if (shouldAskPermission(permission)) {
       /*
        * If permission denied previously
        * */
@@ -112,7 +136,7 @@ public class PermissionHelper {
         /*
          * Permission denied or first time requested
          */
-        if (isFirstTimeAskingPermissions(activity, permission)) {
+        if (isFirstTimeAskingPermissions()) {
           listener.onPermissionAsk();
         } else {
           /*
@@ -126,18 +150,66 @@ public class PermissionHelper {
     }
   }
 
+  public void checkRequiredPermissions(PermissionsResultListener listener) {
+    if (requestCode == NO_PERMISSIONS_CODE) {
+      // All permissions required are granted
+      listener.onPermissionsGranted();
+    } else {
+      // The permissions required are not granted, or granted partially
+      fragment.requestPermissions(permissions, requestCode);
+    }
+  }
+
+  /**
+   * Callback helper for the result from requesting permissions.
+   *
+   * @param grantResults The grant results for the corresponding permissions which is either {@link
+   * android.content.pm.PackageManager#PERMISSION_GRANTED} or {@link android.content.pm.PackageManager#PERMISSION_DENIED}.
+   * Never null.
+   * @param listener A {@link PermissionsResultListener} instance for callback
+   */
+  public void onRequestPermissionsResult(
+      @NonNull int[] grantResults,
+      PermissionsResultListener listener
+  ) {
+    boolean allPermissionsGranted = true;
+
+    for (int grantResult : grantResults) {
+      allPermissionsGranted &= grantResult == PackageManager.PERMISSION_GRANTED;
+    }
+
+    PermissionCodeResponse codeResponse = CODE_RESPONSE.get(requestCode);
+
+    String message = requestCode == ALL_PERMISSIONS_CODE ? "Required permissions "
+        : codeResponse.getResponseResult();
+    message += allPermissionsGranted ? "granted" : "denied";
+
+    if (allPermissionsGranted) {
+      listener.onPermissionsGranted();
+    }
+
+    ToastHelper.tShort(activity, message);
+  }
+
+  /**
+   * Check if the application is requesting the specific permission for the first time
+   *
+   * @return boolean True if the application is asking the specific permission for the first time
+   */
+  public boolean isFirstTimeAskingPermission(String permission) {
+    return activity.getPreferences(MODE_PRIVATE).getBoolean(permission, true);
+  }
+
   /**
    * Check if the application is requesting the array of permissions for the first time
    *
-   * @param activity The current activity
-   * @param permissions The array of permissions to check
    * @return boolean True if the application is asking the array of permissions for the first time
    */
-  public static boolean isFirstTimeAskingPermissions(Activity activity, String... permissions) {
-    boolean isFirstTime = false;
+  public boolean isFirstTimeAskingPermissions() {
+    boolean isFirstTime = true;
 
     for (String permission : permissions) {
-      isFirstTime |= activity.getPreferences(MODE_PRIVATE).getBoolean(permission, true);
+      isFirstTime &= activity.getPreferences(MODE_PRIVATE).getBoolean(permission, true);
     }
 
     return isFirstTime;
@@ -145,15 +217,12 @@ public class PermissionHelper {
 
   /**
    * Set the "firstTime" attribute of the array of permissions to false in MainActivity.xml
-   *
-   * @param activity The current activity
-   * @param permissions The array of permissions to set
    */
-  public static void setFirstTimeAskingPermissions(Activity activity, String... permissions) {
+  void setFirstTimeAskingPermissions() {
     SharedPreferences sharedPreference = activity.getPreferences(MODE_PRIVATE);
 
     for (String permission : permissions) {
-      if  (isFirstTimeAskingPermissions(activity, permission)) {
+      if (isFirstTimeAskingPermission(permission)) {
         sharedPreference.edit().putBoolean(permission, false).apply();
       }
     }
@@ -162,31 +231,28 @@ public class PermissionHelper {
   /**
    * Check if the application has access to location
    *
-   * @param activity The current activity
    * @return boolean True if the application has location permission
    */
-  public static boolean hasLocationPermission(Activity activity) {
-    return !shouldAskPermission(activity, permission.ACCESS_FINE_LOCATION);
+  public boolean hasLocationPermission() {
+    return !shouldAskPermission(permission.ACCESS_FINE_LOCATION);
   }
 
   /**
    * Check if the application has access to camera
    *
-   * @param activity The current activity
    * @return boolean True if the application has camera permission
    */
-  public static boolean hasCameraPermission(Activity activity) {
-    return !shouldAskPermission(activity, permission.CAMERA);
+  public boolean hasCameraPermission() {
+    return !shouldAskPermission(permission.CAMERA);
   }
 
   /**
    * Check if the application has access to storage
    *
-   * @param activity The current activity
    * @return boolean True if the application has storage permission
    */
-  public static boolean hasStoragePermission(Activity activity) {
-    return !shouldAskPermission(activity, permission.WRITE_EXTERNAL_STORAGE);
+  public boolean hasStoragePermission() {
+    return !shouldAskPermission(permission.WRITE_EXTERNAL_STORAGE);
   }
 
   /**
@@ -226,6 +292,19 @@ public class PermissionHelper {
      * Callback on permission granted
      */
     void onPermissionGranted();
+  }
+
+  /**
+   * An interface to handle the success event of onRequestPermissionsResult
+   *
+   * @author Zer Jun Eng, Jia Hua Ng
+   */
+  public interface PermissionsResultListener {
+
+    /**
+     * Callback on all permissions granted
+     */
+    void onPermissionsGranted();
   }
 
   /**

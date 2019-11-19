@@ -29,8 +29,11 @@ public class LocationServicesHelper {
    * @param fragment The fragment that calls this method
    * @param listener A {@link LocationServicesListener} instance for callback
    */
-  public static void checkDeviceLocation(Activity activity, Fragment fragment,
-      LocationServicesListener listener) {
+  public static void checkDeviceLocation(
+      Activity activity,
+      Fragment fragment,
+      LocationServicesListener listener
+  ) {
     LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
     builder.addLocationRequest(LocationRequest.create()
         .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)

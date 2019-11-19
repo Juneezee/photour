@@ -7,6 +7,7 @@ import android.provider.Settings;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AlertDialog.Builder;
 import com.android.photour.helper.PermissionHelper.PermissionCodeResponse;
+import com.android.photour.helper.PermissionHelper.PermissionsResultListener;
 
 /**
  * Helper class for creating AlertDialog that shows rationale for permissions request
@@ -35,10 +36,10 @@ public class AlertDialogHelper {
   /**
    * Initialise the alert dialog with title layout and formatted message
    *
-   * @param permissionToRequest The permissions to request
+   * @param requestCode The permission request code
    */
-  public void initAlertDialog(int permissionToRequest) {
-    PermissionCodeResponse codeResponse = PermissionHelper.CODE_RESPONSE.get(permissionToRequest);
+  public void initAlertDialog(int requestCode) {
+    PermissionCodeResponse codeResponse = PermissionHelper.CODE_RESPONSE.get(requestCode);
     titleLayout = codeResponse.getLayout();
 
     message = String
@@ -50,7 +51,7 @@ public class AlertDialogHelper {
   /**
    * Initialise the builder, settings necessary elements
    */
-  private void initBuilder() {
+  public void initBuilder() {
     builder = new Builder(activity);
     builder.setMessage(message);
     builder.setCustomTitle(activity.getLayoutInflater().inflate(titleLayout, null));
@@ -76,18 +77,20 @@ public class AlertDialogHelper {
    *
    * When the OK button is clicked. onSuccess listener is activated
    *
-   * @param permissionsRequested The permissions requested
+   * @param permissionHelper A {@link PermissionHelper} instance
    * @param listener A {@link AlertDialogListener} instance for callback
    */
-  public void buildContinueDialog(String[] permissionsRequested, AlertDialogListener listener) {
+  public void buildContinueDialog(PermissionHelper permissionHelper, AlertDialogListener listener) {
     builder.setPositiveButton("CONTINUE", (dialog, which) -> {
-      PermissionHelper.setFirstTimeAskingPermissions(activity, permissionsRequested);
-      listener.onSuccess();
+      permissionHelper.setFirstTimeAskingPermissions();
+      permissionHelper.checkRequiredPermissions(listener::onSuccess);
     });
     builder.create().show();
   }
 
   /**
+   * Listener interface for handling OK click event of the dialog
+   *
    * @author Zer Jun Eng, Jia Hua Ng
    */
   public interface AlertDialogListener {

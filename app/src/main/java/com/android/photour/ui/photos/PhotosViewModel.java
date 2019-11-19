@@ -27,8 +27,8 @@ import java.util.Locale;
  */
 public class PhotosViewModel extends AndroidViewModel {
 
-  private static final int QUERY_BY_DATE = 0;
-  private static final int QUERY_BY_TRIPS = 1;
+  public static final int QUERY_BY_DATE = 0;
+  public static final int QUERY_BY_TRIPS = 1;
   public int sortMode;
   // Statics for readwrite images
   private MutableLiveData<List<ImageElement>> _images = new MutableLiveData<List<ImageElement>>();
@@ -159,8 +159,10 @@ public class PhotosViewModel extends AndroidViewModel {
   /**
    * alternates sortMode and calls loadImages() to reset data set
    */
-  public void switchSortMode() {
-    sortMode = sortMode == QUERY_BY_TRIPS ? QUERY_BY_DATE : QUERY_BY_TRIPS;
-    loadImages();
+  public void switchSortMode(int type) {
+    if (sortMode != type) {
+      sortMode = type;
+      loadImages();
+    }
   }
 }

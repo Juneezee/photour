@@ -35,7 +35,7 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
     this.imageViewWeakReference = new WeakReference<>(imageView);
   }
 
-  /***
+  /**
    * Task being run async. Compresses the bitmap and crop it to 100x100.
    * The bitmap is then saved in LRU cache to used in the future.
    *
@@ -58,7 +58,7 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
     }
   }
 
-  /***
+  /**
    * Called when doInBackground is completed.
    * Sets bitmap onto the imageView if it is not recycled.
    *
@@ -79,7 +79,7 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
     }
   }
 
-  /***
+  /**
    * Checks if the task should be cancelled
    *
    * @param data Uri of image
