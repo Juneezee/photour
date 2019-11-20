@@ -53,7 +53,7 @@ public class PhotosViewModel extends AndroidViewModel {
   /**
    * Get the placeholder text to display when no photos are available
    *
-   * @return The placeholder text
+   * @return LiveData<String> The placeholder text
    */
   public LiveData<String> getPlaceholderText() {
     return placeholderText;
@@ -106,7 +106,7 @@ public class PhotosViewModel extends AndroidViewModel {
    * Uses Mediastore query to get all images from a given folder according to the sort
    * configuration.
    *
-   * @return lists of ImageElement, each representing a section in the gallery
+   * @return List lists of ImageElement, each representing a section in the gallery
    */
   private List<ImageElement> queryImages() {
     List<ImageElement> images = new ArrayList<>();
@@ -171,7 +171,7 @@ public class PhotosViewModel extends AndroidViewModel {
    * Helper class to get name of folder from whole path
    *
    * @param dir Full directory path
-   * @return folder name where the file sits
+   * @return String folder name where the file sits
    */
   private String getPath(String dir) {
     String[] temp = dir.split("/");

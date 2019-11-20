@@ -160,7 +160,7 @@ public class SectionedGridRecyclerViewAdapter extends
    * Checks the position of next title
    *
    * @param sectionedPosition position of a current title
-   * @return position of next title
+   * @return int position of next title
    */
   private int sectionedPositionToPosition(int sectionedPosition) {
     if (isSectionHeaderPosition(sectionedPosition)) {
@@ -180,7 +180,7 @@ public class SectionedGridRecyclerViewAdapter extends
   /**
    * Checks if item in position is a title
    * @param position position of item
-   * @return true if the item is a title
+   * @return boolean True if the item is a title
    */
   private boolean isSectionHeaderPosition(int position) {
     return mSections.get(position) != null;
@@ -189,7 +189,7 @@ public class SectionedGridRecyclerViewAdapter extends
   /**
    * Getter for id of item
    * @param position position of item
-   * @return id of item
+   * @return long ID of the item
    */
   @Override
   public long getItemId(int position) {
@@ -201,7 +201,7 @@ public class SectionedGridRecyclerViewAdapter extends
   /**
    * Getter for data set size
    *
-   * @return data set size
+   * @return int Size of the data set
    */
   @Override
   public int getItemCount() {

@@ -80,7 +80,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
    * @param resUri Uri of the image
    * @param reqWidth required width
    * @param reqHeight required height
-   * @return the compressed bitmap
+   * @return Bitmap the compressed bitmap
    * @throws FileNotFoundException thrown if Uri for image is invalid
    * @see <a href="https://developer.android.com/topic/performance/graphics/load-bitmap"></a>
    */
@@ -135,7 +135,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
   @NonNull
   @Override
   public ImageCard onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_image,
+    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image,
         parent, false);
     return new ImageCard(v);
   }
@@ -176,7 +176,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
   /**
    * Getter for data set size
    *
-   * @return data set size
+   * @return int Size of the data set
    */
   @Override
   public int getItemCount() {

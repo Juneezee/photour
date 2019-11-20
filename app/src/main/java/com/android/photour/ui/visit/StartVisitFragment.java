@@ -1,10 +1,8 @@
 package com.android.photour.ui.visit;
 
-import static android.content.Context.MODE_PRIVATE;
 import static com.android.photour.helper.LocationServicesHelper.checkDeviceLocation;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -21,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import com.android.photour.MainActivity;
 import com.android.photour.R;
+import com.android.photour.databinding.FragmentStartVisitBinding;
 import com.android.photour.sensor.Accelerometer;
 import com.android.photour.sensor.Barometer;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -40,6 +39,7 @@ import java.util.Objects;
  */
 public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
+  private FragmentStartVisitBinding binding;
   private VisitViewModel visitViewModel;
   private Activity activity;
   private View view;
@@ -56,11 +56,23 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   private Accelerometer accelerometer;
   private Barometer barometer;
 
-  // The entry point to the Fused Location Provider.
+  // The entry point to the Map Fragment, Google Map, Fused Location Provider.
+  private SupportMapFragment supportMapFragment;
+  private GoogleMap googleMap;
   private FusedLocationProviderClient fusedLocationProviderClient;
 
-  private GoogleMap googleMap;
-  private SupportMapFragment supportMapFragment;
+  /**
+   * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
+   * and before {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+   *
+   * @param savedInstanceState If the fragment is being re-created from a previous saved state, this
+   * is the state.
+   */
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    activity = getActivity();
+  }
 
   /**
    * Called to have the fragment instantiate its user interface view.
@@ -78,11 +90,17 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   public View onCreateView(
       @NonNull LayoutInflater inflater,
       ViewGroup container,
-      Bundle savedInstanceState) {
-
-    activity = getActivity();
+      Bundle savedInstanceState
+  ) {
     visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
-    view = inflater.inflate(R.layout.fragment_start_visit, container, false);
+
+    binding = FragmentStartVisitBinding.inflate(inflater, container, false);
+    binding.setLifecycleOwner(this);
+    binding.setTitle(visitViewModel);
+    binding.setTemperature(visitViewModel);
+    binding.setPressure(visitViewModel);
+
+    view = binding.getRoot();
 
     fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
 
@@ -104,12 +122,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     // Add click listener to stop button
     stopVisitListener();
 
-    // Retrieve the new visit title from VisitFragment
-    TextView tv = view.findViewById(R.id.new_visit_title);
-    String newVisitTitle = StartVisitFragmentArgs.fromBundle(Objects.requireNonNull(getArguments()))
-        .getNewVisitTitle();
-    tv.setSelected(true);
-    tv.setText(newVisitTitle.isEmpty() ? "Untitled trip" : newVisitTitle);
+    initStartNewVisitTitle();
 
     // Prevent mini-slutter when the start button is pressed the first time
     if (savedInstanceState == null) {
@@ -118,7 +131,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
       initGoogleMap();
     }
 
-    // Initialise chronometer
     initChronometer();
   }
 
@@ -133,6 +145,22 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   }
 
   /**
+   * Initialise the start new visit title
+   */
+  private void initStartNewVisitTitle() {
+    // Retrieve the new visit title from VisitFragment
+    TextView textNewVisit = view.findViewById(R.id.new_visit_title);
+
+    // For horizontal scrolling effect, put in FrameLayout so chronometer won't reset the scroll
+    textNewVisit.setSelected(true);
+
+    if (getArguments() != null) {
+      String newVisitTitle = StartVisitFragmentArgs.fromBundle(getArguments()).getNewVisitTitle();
+      visitViewModel.setNewVisitTitle(newVisitTitle);
+    }
+  }
+
+  /**
    * Initialise the chronometer
    */
   private void initChronometer() {
@@ -143,11 +171,9 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
       long startTime = SystemClock.elapsedRealtime();
       visitViewModel.setElapsedTime(startTime);
       chronometer.setBase(startTime);
-      System.out.println("Not Retained");
     } else {
       // Otherwise the ViewModel has been retained, set the chronometer's base to the original
       // starting time.
-      System.out.println("Retained");
       chronometer.setBase(visitViewModel.getElapsedTime());
     }
 
@@ -180,12 +206,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     this.googleMap.getUiSettings().setMyLocationButtonEnabled(false);
 
     if (isFirstTime) {
-      LatLng lastLocation = getLastLocationFromPrefs();
-
-      if (lastLocation != null) {
-        this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, ZOOM_LEVEL));
-      }
-
       zoomToCurrentLocation(false);
     }
 
@@ -218,8 +238,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
 
-        storeLastLocationInPrefs((float) latitude, (float) longitude);
-
         CameraUpdate cameraUpdate = CameraUpdateFactory
             .newLatLngZoom(new LatLng(latitude, longitude), ZOOM_LEVEL);
 
@@ -231,32 +249,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
       }
     }).addOnFailureListener(e ->
         checkDeviceLocation(activity, this, () -> zoomToCurrentLocation(true)));
-  }
-
-  /**
-   * Get the latitude and longitude of last known location from MainActivity.xml
-   *
-   * @return LatLng A LatLng instance of the last known location
-   */
-  private LatLng getLastLocationFromPrefs() {
-    SharedPreferences sharedPreference = activity.getPreferences(MODE_PRIVATE);
-
-    double latitude = sharedPreference.getFloat("latitude", 0);
-    double longitude = sharedPreference.getFloat("longitude", 0);
-
-    return latitude == 0 && longitude == 0 ? null : new LatLng(latitude, longitude);
-  }
-
-  /**
-   * Store the latitude and longitude of last known location into MainActivity.xml
-   *
-   * @param latitude The latitude of last known location
-   * @param longitude The longitude of last know location
-   */
-  private void storeLastLocationInPrefs(float latitude, float longitude) {
-    SharedPreferences sharedPreference = activity.getPreferences(MODE_PRIVATE);
-    sharedPreference.edit().putFloat("latitude", latitude).apply();
-    sharedPreference.edit().putFloat("longitude", longitude).apply();
   }
 
   /**
@@ -303,6 +295,15 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   public void onResume() {
     super.onResume();
     ((MainActivity) activity).setToolbarVisibility(false);
+  }
+
+  /**
+   * Called when the Fragment is no longer resumed.  This is generally tied to Activity.onPause() of
+   * the containing Activity's lifecycle.
+   */
+  @Override
+  public void onPause() {
+    super.onPause();
   }
 
   /**

@@ -371,7 +371,7 @@ public class PermissionHelper {
     /**
      * Get the layout to use for the permission request code
      *
-     * @return The layout to use in the alert dialog title
+     * @return int The layout to use in the alert dialog title
      */
     public int getLayout() {
       return layout;
@@ -380,7 +380,7 @@ public class PermissionHelper {
     /**
      * Get the name of the permissions to show on the rationale dialog
      *
-     * @return The name of the permissions to show on the rationale dialog
+     * @return String The name of the permissions to show on the rationale dialog
      */
     String getRationaleName() {
       return rationaleName;
@@ -389,7 +389,7 @@ public class PermissionHelper {
     /**
      * Get the name of th permissions + "ON" to show on the rationale dialog
      *
-     * @return The name of the permissions + "ON" to show on the rationale dialog
+     * @return String The name of the permissions + "ON" to show on the rationale dialog
      */
     String getRationaleNameOn() {
       return rationaleNameOn;
@@ -398,7 +398,7 @@ public class PermissionHelper {
     /**
      * Get the response result to show on Toast
      *
-     * @return The name of the permission with first letter capitalised to show on Toast
+     * @return String The name of the permission with first letter capitalised to show on Toast
      */
     String getResponseResult() {
       return rationaleName.substring(0, 1).toUpperCase() + rationaleName.substring(1);

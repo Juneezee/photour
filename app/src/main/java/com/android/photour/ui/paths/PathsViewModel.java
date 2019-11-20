@@ -22,7 +22,7 @@ public class PathsViewModel extends ViewModel {
   /**
    * Get the placeholder text to display when no photos are available
    *
-   * @return The placeholder text
+   * @return LiveData<String> The placeholder text
    */
   public LiveData<String> getPlaceholderText() {
     return placeholderText;

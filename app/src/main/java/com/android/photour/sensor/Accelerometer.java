@@ -10,37 +10,53 @@ import android.util.Log;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
+/**
+ * A class for monitoring the movement of the device
+ *
+ * @author Professor Fabio Ciravegna, Zer Jun Eng, Jia Hua Ng
+ */
 public class Accelerometer {
 
   private static final String TAG = Accelerometer.class.getSimpleName();
-  private SensorEventListener mAccelerationListener = null;
-  private SensorManager mSensorManager;
-  private Sensor mAccelerometerSensor;
-  private long timePhoneWasLastRebooted = 0;
-  private long lastReportTime = 0;
+
+  private SensorEventListener accelerationListener = null;
+  private SensorManager sensorManager;
+  private Sensor accelerometer;
+
   private Barometer barometer;
+  private Ambient thermometer;
+
+  private long timePhoneWasLastRebooted;
+  private long lastReportTime = 0;
   private float lastX = 0;
   private float lastY = 0;
   private float lastZ = 0;
 
-
+  /**
+   * Constructor of the {@link Accelerometer} class
+   *
+   * @param context The context of the current application
+   * @param barometer A {@link Barometer} instance
+   */
   public Accelerometer(Context context, Barometer barometer) {
     // http://androidforums.com/threads/how-to-get-time-of-last-system-boot.548661/
     timePhoneWasLastRebooted = System.currentTimeMillis() - SystemClock.elapsedRealtime();
     this.barometer = barometer;
-    mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-    mAccelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+    accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     initAccelerometerListener();
   }
 
   /**
-   * it inits the listener and establishes the actions to take when a reading is available
+   * Initialise the listener and establishes the actions to take when a reading is available
    */
   private void initAccelerometerListener() {
     if (standardAccelerometerAvailable()) {
-      mAccelerationListener = new SensorEventListener() {
+      Log.d(TAG, "Using Accelerometer");
+      accelerationListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
           long actualTimeInMseconds =
@@ -63,9 +79,8 @@ public class Accelerometer {
             deltaZ = 0;
           }
           if (deltaX > 0 || deltaY > 0 || deltaZ > 0) {
-            Log.i(TAG,
-                mSecsToString(actualTimeInMseconds) + ": significant motion detected - x: " + deltaX
-                    + ", y: " + deltaY + ", z:" + deltaZ);
+            Log.d(TAG, mSecsToString(actualTimeInMseconds) + " : significant motion detected - x: "
+                + deltaX + ", y: " + deltaY + ", z: " + deltaZ);
             if (!barometer.isStarted()) {
               barometer.startSensingPressure(Accelerometer.this);
             }
@@ -76,42 +91,48 @@ public class Accelerometer {
           lastZ = z;
         }
 
-
         @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) { }
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
       };
+    } else {
+      Log.d(TAG, "Standard Accelerometer unavailable");
     }
   }
 
-
   /**
-   * it returns true if the sensor is available
+   * Check if accelerometer sensor is available on current device
+   *
+   * @return True if the accelerometer sensor is available on current device
    */
   public boolean standardAccelerometerAvailable() {
-    return (mAccelerometerSensor != null);
+    return accelerometer != null;
   }
 
   /**
    * it starts the pressure monitoring
    */
   public void startAccelerometerRecording() {
-    // if the sensor is null,then mSensorManager is null and we get a crash
+    // if the sensor is null,then sensorManager is null and we get a crash
     if (standardAccelerometerAvailable()) {
+      Log.d(TAG, "Starting accelerometer listener");
       // THE ACCELEROMETER receives as frequency a predefined subset of timing
       // https://developer.android.com/reference/android/hardware/SensorManager
-      mSensorManager.registerListener(mAccelerationListener, mAccelerometerSensor,
+      sensorManager.registerListener(accelerationListener, accelerometer,
           SensorManager.SENSOR_DELAY_UI);
+    } else {
+      Log.d(TAG, "Accelerometer unavailable or already active");
     }
   }
 
-
   /**
-   * this stops the barometer
+   * Stop the accelerometer, barometer, and thermometer
    */
   public void stopAccelerometer() {
     if (standardAccelerometerAvailable()) {
+      Log.d(TAG, "Stopping accelerometer listener");
       try {
-        mSensorManager.unregisterListener(mAccelerationListener);
+        sensorManager.unregisterListener(accelerationListener);
       } catch (Exception e) {
         // probably already unregistered
       }
@@ -121,23 +142,33 @@ public class Accelerometer {
   }
 
 
+  /**
+   * Get the lastReportTime, the time where a sensor last reported its reading
+   *
+   * @return long The value of lastReportTime
+   */
   public long getLastReportTime() {
     return lastReportTime;
   }
 
+  /**
+   * Set the new value of lastReportTime
+   *
+   * @param lastReportTime The new value of lastReportTime
+   */
   public void setLastReportTime(long lastReportTime) {
     this.lastReportTime = lastReportTime;
   }
 
   /**
-   * it converts a number of mseconds since 1.1.1970 (epoch) to a current string date
+   * Convert a number of miliseconds since 1.1.1970 (epoch) to a current string date
    *
-   * @param actualTimeInMseconds a time in msecs for the UTC time zone
-   * @return a time string of type HH:mm:ss such as 23:12:54.
+   * @param actualTimeInMseconds a time in miliseconds for the UTC time zone
+   * @return String A time string of type HH:mm:ss such as 23:12:54.
    */
   public static String mSecsToString(long actualTimeInMseconds) {
     Date date = new Date(actualTimeInMseconds);
-    DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+    DateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
     formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
     return (formatter.format(date));
   }

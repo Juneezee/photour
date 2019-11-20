@@ -40,7 +40,7 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
    * The bitmap is then saved in LRU cache to used in the future.
    *
    * @param params Uri of image that will be processed
-   * @return bitmap of the uri
+   * @return Bitmap bitmap of the uri
    */
   @Override
   protected Bitmap doInBackground(Uri... params) {
