@@ -37,21 +37,20 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
    */
   PhotoAdapter(Context context) {
     this.context = context;
-    this.placeholder = BitmapFactory.decodeResource(context.getResources(),
-        R.drawable.ic_logo_vertical);
+    this.placeholder = BitmapFactory
+        .decodeResource(context.getResources(), R.drawable.ic_logo_vertical);
   }
 
   /**
    * Calculate the size of bitmap that will need to be reduced to to fit the given dimension.
    * Referenced Android Developer: Loading Large Bitmaps Efficiently
    *
-   * @see <a href="https://developer.android.com/topic/performance/graphics/load-bitmap"></a>
-   *
    * @param options BitmapFactory options to perform the compression
    * @param reqWidth required width
    * @param reqHeight required height
+   * @see <a href="https://developer.android.com/topic/performance/graphics/load-bitmap"></a>
    */
-  public static int calculateInSampleSize(
+  private static int calculateInSampleSize(
       BitmapFactory.Options options, int reqWidth, int reqHeight) {
     // Raw height and width of image
     final int height = options.outHeight;
@@ -76,7 +75,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
 
   /**
    * Function to reduce bitmap size Referenced Android Developer: Loading Large Bitmaps Efficiently
-   * @see <a href="https://developer.android.com/topic/performance/graphics/load-bitmap"></a>
    *
    * @param context Context of MainActivity
    * @param resUri Uri of the image
@@ -84,6 +82,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
    * @param reqHeight required height
    * @return the compressed bitmap
    * @throws FileNotFoundException thrown if Uri for image is invalid
+   * @see <a href="https://developer.android.com/topic/performance/graphics/load-bitmap"></a>
    */
   public static Bitmap decodeSampledBitmapFromResource(Context context, Uri resUri,
       int reqWidth, int reqHeight) throws FileNotFoundException {
@@ -118,7 +117,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
    *
    * @param items List of Uri for the adapter
    */
-  public void setItems(List<Uri> items) {
+  void setItems(List<Uri> items) {
     PhotoAdapter.items = items;
   }
 
@@ -191,9 +190,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
    */
   class ImageCard extends RecyclerView.ViewHolder {
 
-    public final ImageView imageView;
+    final ImageView imageView;
 
-    public ImageCard(@NonNull View itemView) {
+    ImageCard(@NonNull View itemView) {
       super(itemView);
       imageView = itemView.findViewById(R.id.image_item);
     }

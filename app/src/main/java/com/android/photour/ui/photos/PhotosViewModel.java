@@ -27,12 +27,16 @@ import java.util.Locale;
  */
 public class PhotosViewModel extends AndroidViewModel {
 
-  public static final int QUERY_BY_DATE = 0;
-  public static final int QUERY_BY_TRIPS = 1;
-  public int sortMode;
+  static final int QUERY_BY_DATE = 0;
+  static final int QUERY_BY_PATH = 1;
+  private int sortMode;
+
+  private MutableLiveData<String> placeholderText = new MutableLiveData<>();
+
   // Statics for readwrite images
-  private MutableLiveData<List<ImageElement>> _images = new MutableLiveData<List<ImageElement>>();
+  private MutableLiveData<List<ImageElement>> _images = new MutableLiveData<>();
   public LiveData<List<ImageElement>> images = _images;
+
   //  static final List<ImageElement> ITEMS = new ArrayList<>();
   private ContentObserver contentObserver = null;
 
@@ -44,7 +48,25 @@ public class PhotosViewModel extends AndroidViewModel {
   public PhotosViewModel(@NonNull Application application) {
     super(application);
     sortMode = QUERY_BY_DATE;
-    loadImages();
+  }
+
+  /**
+   * Get the placeholder text to display when no photos are available
+   *
+   * @return The placeholder text
+   */
+  public LiveData<String> getPlaceholderText() {
+    return placeholderText;
+  }
+
+  /**
+   * Set the placeholder text as "No photos yet"
+   *
+   * @param isEmpty True to set the placeholder text as empty
+   */
+  void setPlaceholderText(boolean isEmpty) {
+    placeholderText.setValue(
+        isEmpty ? "" : "No photos yet " + new String(Character.toChars(0x1F60A)));
   }
 
   /**
@@ -54,7 +76,7 @@ public class PhotosViewModel extends AndroidViewModel {
    * @param columnWidthDp Size of column in dp
    * @return int number of columns
    */
-  public static int calculateNoOfColumns(Context context, float columnWidthDp) {
+  static int calculateNoOfColumns(Context context, float columnWidthDp) {
     DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
     float screenWidthDp = displayMetrics.widthPixels / displayMetrics.density;
     return (int) (screenWidthDp / columnWidthDp + 0.5);
@@ -157,12 +179,15 @@ public class PhotosViewModel extends AndroidViewModel {
   }
 
   /**
-   * alternates sortMode and calls loadImages() to reset data set
+   * Switch sorting mode and call loadImages() to reset data set
+   *
+   * @param type The type to sort the photos (by date or by path)
    */
-  public void switchSortMode(int type) {
+  void switchSortMode(int type) {
     if (sortMode != type) {
       sortMode = type;
       loadImages();
     }
   }
+
 }

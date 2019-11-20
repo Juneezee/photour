@@ -3,7 +3,6 @@ package com.android.photour.ui.photos;
 import static com.android.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
 import android.Manifest.permission;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -15,21 +14,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.android.photour.ImageElement;
 import com.android.photour.R;
+import com.android.photour.databinding.FragmentPhotosBinding;
 import com.android.photour.helper.AlertDialogHelper;
 import com.android.photour.helper.PermissionHelper;
 import com.android.photour.helper.PermissionHelper.PermissionAskListener;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -45,17 +42,13 @@ public class PhotosFragment extends Fragment {
 
   public static LruCache<String, Bitmap> mRetainedCache;
 
-  private static final String[] PERMISSIONS_REQUIRED = {
-      permission.WRITE_EXTERNAL_STORAGE
-  };
-
+  private static final String[] PERMISSIONS_REQUIRED = {permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
   private PhotoAdapter photoAdapter;
   private PhotosViewModel photosViewModel;
   private Activity activity;
   private View view;
-  private TextView textView;
 
   /**
    * Finds or create a PhotoFragment using FragmentManager. Used to retain state on rotation
@@ -65,10 +58,24 @@ public class PhotosFragment extends Fragment {
    */
   public static PhotosFragment findOrCreateRetainFragment(FragmentManager fm) {
     PhotosFragment fragment = (PhotosFragment) fm.findFragmentByTag(TAG);
-    if (fragment == null) {
-      fragment = new PhotosFragment();
-    }
-    return fragment;
+    return fragment == null ? new PhotosFragment() : fragment;
+  }
+
+  /**
+   * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
+   * and before {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+   *
+   * @param savedInstanceState If the fragment is being re-created from a previous saved state, this
+   * is the state.
+   */
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setHasOptionsMenu(true);
+
+    activity = getActivity();
+    permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
+    permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
   }
 
   /**
@@ -84,84 +91,34 @@ public class PhotosFragment extends Fragment {
    * saved state as given here.
    * @return View Return the View for the fragment's UI, or null.
    */
-  @SuppressLint("SetTextI18n")
   public View onCreateView(
       @NonNull LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState
   ) {
+    photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
 
-    this.activity = getActivity();
-    view = inflater.inflate(R.layout.fragment_photos, container, false);
+    FragmentPhotosBinding binding = FragmentPhotosBinding.inflate(inflater, container, false);
+    binding.setLifecycleOwner(this);
+    binding.setPlaceholder(photosViewModel);
 
-    // Initialise view if has access, else displays a text notice
-    textView = view.findViewById(R.id.text_notifications);
+    view = binding.getRoot();
 
     return view;
   }
 
   /**
-   * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} has returned,
-   * but before any saved state has been restored in to the view.
-   *
-   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
-   * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
-   * saved state as given here.
+   * Called when the Fragment is visible to the user.  This is generally tied to Activity.onStart()
+   * of the containing Activity's lifecycle.
    */
   @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  public void onStart() {
+    super.onStart();
 
-    permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
-    permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
+    photosViewModel.setPlaceholderText(permissionHelper.hasStoragePermission());
 
     // Check if storage permission is granted or not
-    permissionHelper.checkStoragePermission(new PermissionAskListener() {
-      @Override
-      public void onPermissionAsk() {
-        buildDialog(false);
-      }
-
-      @Override
-      public void onPermissionPreviouslyDenied() {
-        buildDialog(false);
-      }
-
-      @Override
-      public void onPermissionDisabled() {
-        buildDialog(true);
-      }
-
-      @Override
-      public void onPermissionGranted() {
-        initializeRecyclerView();
-      }
-    });
-
-    if (!permissionHelper.hasStoragePermission()) {
-      textView.setText("Please Enable Storage Access to use this feature");
-    }
-  }
-
-  /**
-   * Build an AlertDialog to display the rationale
-   *
-   * @param isSettingsDialog True to show "Settings" (brings user to application details setting,
-   * only when the permission is set as "Never ask again") instead of "Continue"
-   */
-  private void buildDialog(boolean isSettingsDialog) {
-    String message = "To access your photos, allow Photour access to your device's storage. "
-        + (isSettingsDialog ? "Tap Settings > Permissions, and turn Storage ON." : "");
-
-    AlertDialogHelper alertDialogHelper = new AlertDialogHelper(activity, message);
-    alertDialogHelper.initAlertDialog(STORAGE_PERMISSION_CODE);
-    alertDialogHelper.initBuilder();
-
-    if (isSettingsDialog) {
-      alertDialogHelper.buildSettingsDialog();
-    } else {
-      alertDialogHelper.buildContinueDialog(permissionHelper, this::initializeRecyclerView);
-    }
+    permissionHelper.checkStoragePermission(this::initializeRecyclerView);
   }
 
   /**
@@ -173,10 +130,10 @@ public class PhotosFragment extends Fragment {
     List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
     List<Uri> uris = new ArrayList<>();
 
-    textView.setText("");
+    photosViewModel.setPlaceholderText(true);
 
     // Sets up recycler view and view model
-    photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
+    photosViewModel.loadImages();
     RecyclerView mRecyclerView = view.findViewById(R.id.grid_recycler_view);
     mRecyclerView.setHasFixedSize(true);
     int IMAGE_WIDTH = 100;
@@ -199,10 +156,10 @@ public class PhotosFragment extends Fragment {
 
       //Prompts text if no images, else load images into lists
       if (imageElements == null || imageElements.size() == 0) {
-        textView.setText("No photos! Go make some trips!");
+        photosViewModel.setPlaceholderText(false);
       } else {
         int pos = 0;
-        textView.setText("");
+        photosViewModel.setPlaceholderText(true);
         for (ImageElement imageElement : imageElements) {
           sections.add(new SectionedGridRecyclerViewAdapter.Section(pos, imageElement.getTitle()));
           pos += imageElement.getUris().size(); // add number of photos and title
@@ -223,7 +180,6 @@ public class PhotosFragment extends Fragment {
    * Initialize the contents of the Fragment host's standard options menu.
    *
    * @param menu The options menu in which the items are placed
-   *
    * @see #setHasOptionsMenu
    * @see #onPrepareOptionsMenu
    * @see #onOptionsItemSelected
@@ -231,9 +187,17 @@ public class PhotosFragment extends Fragment {
   @Override
   public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
-    menu.findItem(R.id.menu_filter).setVisible(true);
+    menu.findItem(R.id.menu_filter).setVisible(permissionHelper.hasStoragePermission());
   }
 
+  /**
+   * This hook is called whenever an item in options menu is selected.
+   *
+   * @param item The menu item that was selected.
+   * @return boolean Return false to allow normal menu processing to proceed, true to consume it
+   * here.
+   * @see #onCreateOptionsMenu
+   */
   @Override
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
     int itemId = item.getItemId();
@@ -241,16 +205,10 @@ public class PhotosFragment extends Fragment {
     if (itemId == R.id.by_date) {
       photosViewModel.switchSortMode(PhotosViewModel.QUERY_BY_DATE);
     } else if (itemId == R.id.by_path) {
-      photosViewModel.switchSortMode(PhotosViewModel.QUERY_BY_TRIPS);
+      photosViewModel.switchSortMode(PhotosViewModel.QUERY_BY_PATH);
     }
 
     return super.onOptionsItemSelected(item);
-  }
-
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setHasOptionsMenu(true);
   }
 
   /**

@@ -49,6 +49,21 @@ public class VisitFragment extends Fragment {
   private View view;
 
   /**
+   * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
+   * and before {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+   *
+   * @param savedInstanceState If the fragment is being re-created from a previous saved state, this
+   * is the state.
+   */
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    activity = getActivity();
+    permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
+  }
+
+  /**
    * Called to have the fragment instantiate its user interface view.
    *
    * @param inflater The LayoutInflater object that can be used to inflate any views in the
@@ -65,9 +80,7 @@ public class VisitFragment extends Fragment {
       ViewGroup container,
       Bundle savedInstanceState) {
 
-    activity = getActivity();
     view = inflater.inflate(R.layout.fragment_visit, container, false);
-
     return view;
   }
 
@@ -113,10 +126,7 @@ public class VisitFragment extends Fragment {
     view.findViewById(R.id.button_start_visit).setOnClickListener(v -> {
 
       if (checkPlayServices(activity)) {
-        permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
-
         boolean isFirstTime = permissionHelper.isFirstTimeAskingPermissions();
-
         int permissionGranted = ALL_PERMISSIONS_CODE - permissionsNotGranted();
         int permissionsNeverAsked = permissionsNeverAsked();
 

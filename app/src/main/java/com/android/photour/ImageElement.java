@@ -1,8 +1,6 @@
 package com.android.photour;
 
 import android.net.Uri;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +25,8 @@ public class ImageElement {
     this.title = title;
     this.uri = uriList;
   }
-  public void addUri (Uri uri) {
+
+  public void addUri(Uri uri) {
     this.uri.add(uri);
   }
 
@@ -35,9 +34,11 @@ public class ImageElement {
     return uri;
   }
 
-  public String getTitle() { return title; }
+  public String getTitle() {
+    return title;
+  }
 
   public String toString() {
-    return title+": "+uri.toString();
+    return title + ": " + uri.toString();
   }
 }

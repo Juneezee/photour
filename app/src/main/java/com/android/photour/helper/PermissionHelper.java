@@ -33,7 +33,7 @@ public class PermissionHelper {
   private static final int LS_PERMISSION_CODE = 101; // LS: Location and Storage
   private static final int CS_PERMISSION_CODE = 11; // CS: Camera and Storage
 
-  public static final SparseArray<PermissionCodeResponse> CODE_RESPONSE = new SparseArray<PermissionCodeResponse>() {
+  static final SparseArray<PermissionCodeResponse> CODE_RESPONSE = new SparseArray<PermissionCodeResponse>() {
     {
       append(ALL_PERMISSIONS_CODE, new PermissionCodeResponse(R.layout.dialog_permission_all,
           "location, camera, and storage ", "Location ON, Camera ON, and Storage ON"));
@@ -106,8 +106,45 @@ public class PermissionHelper {
    *
    * @param listener A {@link PermissionAskListener} instance for callback
    */
-  public void checkStoragePermission(PermissionAskListener listener) {
-    checkPermission(permission.WRITE_EXTERNAL_STORAGE, listener);
+  public void checkStoragePermission(PermissionsResultListener listener) {
+    checkPermission(permission.WRITE_EXTERNAL_STORAGE, new PermissionAskListener() {
+      @Override
+      public void onPermissionAsk() {
+        buildStorageDialog(false, listener);
+      }
+
+      @Override
+      public void onPermissionDisabled() {
+        buildStorageDialog(true, listener);
+      }
+
+      @Override
+      public void onPermissionGranted() {
+        listener.onPermissionsGranted();
+      }
+    });
+  }
+
+
+  /**
+   * Build an AlertDialog to display the rationale for WRITE_EXTERNAL_PERMISSION only
+   *
+   * @param isSettingsDialog True to show "Settings" (brings user to application details setting,
+   * only when the permission is set as "Never ask again") instead of "Continue"
+   */
+  private void buildStorageDialog(boolean isSettingsDialog, PermissionsResultListener listener) {
+    String message = "To access your photos, allow Photour access to your device's storage. "
+        + (isSettingsDialog ? "Tap Settings > Permissions, and turn Storage ON." : "");
+
+    AlertDialogHelper alertDialogHelper = new AlertDialogHelper(activity, message);
+    alertDialogHelper.initAlertDialog(STORAGE_PERMISSION_CODE);
+    alertDialogHelper.initBuilder();
+
+    if (isSettingsDialog) {
+      alertDialogHelper.buildSettingsDialog();
+    } else {
+      alertDialogHelper.buildContinueDialog(this, listener);
+    }
   }
 
   /**
@@ -131,7 +168,7 @@ public class PermissionHelper {
        * If permission denied previously
        * */
       if (activity.shouldShowRequestPermissionRationale(permission)) {
-        listener.onPermissionPreviouslyDenied();
+        listener.onPermissionAsk();
       } else {
         /*
          * Permission denied or first time requested
@@ -150,6 +187,11 @@ public class PermissionHelper {
     }
   }
 
+  /**
+   * Check all the required permissions specified in <var>permissions</var>
+   *
+   * @param listener A {@link PermissionAskListener} instance for callback
+   */
   public void checkRequiredPermissions(PermissionsResultListener listener) {
     if (requestCode == NO_PERMISSIONS_CODE) {
       // All permissions required are granted
@@ -279,11 +321,6 @@ public class PermissionHelper {
     void onPermissionAsk();
 
     /**
-     * Callback on permission denied
-     */
-    void onPermissionPreviouslyDenied();
-
-    /**
      * Callback on permission "Never show again" checked and denied
      */
     void onPermissionDisabled();
@@ -345,7 +382,7 @@ public class PermissionHelper {
      *
      * @return The name of the permissions to show on the rationale dialog
      */
-    public String getRationaleName() {
+    String getRationaleName() {
       return rationaleName;
     }
 
@@ -354,7 +391,7 @@ public class PermissionHelper {
      *
      * @return The name of the permissions + "ON" to show on the rationale dialog
      */
-    public String getRationaleNameOn() {
+    String getRationaleNameOn() {
       return rationaleNameOn;
     }
 
@@ -363,7 +400,7 @@ public class PermissionHelper {
      *
      * @return The name of the permission with first letter capitalised to show on Toast
      */
-    public String getResponseResult() {
+    String getResponseResult() {
       return rationaleName.substring(0, 1).toUpperCase() + rationaleName.substring(1);
     }
   }

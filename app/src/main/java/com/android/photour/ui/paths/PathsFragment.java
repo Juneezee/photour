@@ -14,19 +14,34 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.android.photour.R;
+import com.android.photour.databinding.FragmentPathsBinding;
 import com.android.photour.helper.AlertDialogHelper;
 import com.android.photour.helper.PermissionHelper;
 import com.android.photour.helper.PermissionHelper.PermissionAskListener;
 
 public class PathsFragment extends Fragment {
 
-  private static final String[] PERMISSIONS_REQUIRED = {
-      permission.WRITE_EXTERNAL_STORAGE
-  };
-
+  private static final String[] PERMISSIONS_REQUIRED = {permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
+  private PathsViewModel pathsViewModel;
   private Activity activity;
+
+  /**
+   * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
+   * and before {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+   *
+   * @param savedInstanceState If the fragment is being re-created from a previous saved state, this
+   * is the state.
+   */
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    activity = getActivity();
+    permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
+    permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
+  }
 
   /**
    * Called to have the fragment instantiate its user interface view. Permission for storage access
@@ -46,75 +61,46 @@ public class PathsFragment extends Fragment {
       ViewGroup container,
       Bundle savedInstanceState
   ) {
+    pathsViewModel = new ViewModelProvider(this).get(PathsViewModel.class);
+    FragmentPathsBinding binding = FragmentPathsBinding.inflate(inflater, container, false);
+    binding.setLifecycleOwner(this);
+    binding.setPlaceholder(pathsViewModel);
 
-    this.activity = getActivity();
-
-    PathsViewModel pathsViewModel = new ViewModelProvider(this).get(PathsViewModel.class);
-    View root = inflater.inflate(R.layout.fragment_paths, container, false);
-    final TextView textView = root.findViewById(R.id.text_notifications);
-    pathsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
-    return root;
+    return binding.getRoot();
   }
 
   /**
-   * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} has returned,
-   * but before any saved state has been restored in to the view.
-   *
-   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
-   * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
-   * saved state as given here.
+   * Called when the Fragment is visible to the user.  This is generally tied to Activity.onStart()
+   * of the containing Activity's lifecycle.
    */
   @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  public void onStart() {
+    super.onStart();
 
-    permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
-    permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
+    pathsViewModel.setPlaceholderText(permissionHelper.hasStoragePermission());
 
     // Check if storage permission is granted or not
-    permissionHelper.checkStoragePermission(new PermissionAskListener() {
-      @Override
-      public void onPermissionAsk() {
-        buildDialog(false);
-      }
-
-      @Override
-      public void onPermissionPreviouslyDenied() {
-        buildDialog(false);
-      }
-
-      @Override
-      public void onPermissionDisabled() {
-        buildDialog(true);
-      }
-
-      @Override
-      public void onPermissionGranted() {
-
-      }
-    });
+    permissionHelper.checkStoragePermission(() -> {});
   }
 
   /**
-   * Build an AlertDialog to display the rationale
+   * Callback for the result from requesting permissions. This method is invoked for every call on
+   * {@link #requestPermissions(String[], int)}.
    *
-   * @param isSettingsDialog True to show "Settings" (brings user to application details setting,
-   * only when the permission is set as "Never ask again") instead of "Continue"
+   * @param requestCode The request code passed in {@link #requestPermissions(String[], int)}.
+   * @param permissions The requested permissions. Never null.
+   * @param grantResults The grant results for the corresponding permissions which is either {@link
+   * android.content.pm.PackageManager#PERMISSION_GRANTED} or {@link android.content.pm.PackageManager#PERMISSION_DENIED}.
+   * Never null.
    */
-  private void buildDialog(boolean isSettingsDialog) {
-    String message =
-        "To access your paths and photos, allow Photour access to your device's storage. "
-            + (isSettingsDialog ? "Tap Settings > Permissions, and turn Storage ON." : "");
+  @Override
+  public void onRequestPermissionsResult(
+      int requestCode,
+      @NonNull String[] permissions,
+      @NonNull int[] grantResults
+  ) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-    AlertDialogHelper alertDialogHelper = new AlertDialogHelper(activity, message);
-    alertDialogHelper.initAlertDialog(STORAGE_PERMISSION_CODE);
-    alertDialogHelper.initBuilder();
-
-    if (isSettingsDialog) {
-      alertDialogHelper.buildSettingsDialog();
-    } else {
-      alertDialogHelper.buildContinueDialog(permissionHelper, () -> {
-      });
-    }
+    permissionHelper.onRequestPermissionsResult(grantResults, () -> {});
   }
 }

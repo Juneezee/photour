@@ -51,7 +51,7 @@ public class AlertDialogHelper {
   /**
    * Initialise the builder, settings necessary elements
    */
-  public void initBuilder() {
+  void initBuilder() {
     builder = new Builder(activity);
     builder.setMessage(message);
     builder.setCustomTitle(activity.getLayoutInflater().inflate(titleLayout, null));
@@ -78,26 +78,16 @@ public class AlertDialogHelper {
    * When the OK button is clicked. onSuccess listener is activated
    *
    * @param permissionHelper A {@link PermissionHelper} instance
-   * @param listener A {@link AlertDialogListener} instance for callback
+   * @param listener A {@link PermissionsResultListener} instance for callback
    */
-  public void buildContinueDialog(PermissionHelper permissionHelper, AlertDialogListener listener) {
+  public void buildContinueDialog(
+      PermissionHelper permissionHelper,
+      PermissionsResultListener listener
+  ) {
     builder.setPositiveButton("CONTINUE", (dialog, which) -> {
       permissionHelper.setFirstTimeAskingPermissions();
-      permissionHelper.checkRequiredPermissions(listener::onSuccess);
+      permissionHelper.checkRequiredPermissions(listener);
     });
     builder.create().show();
-  }
-
-  /**
-   * Listener interface for handling OK click event of the dialog
-   *
-   * @author Zer Jun Eng, Jia Hua Ng
-   */
-  public interface AlertDialogListener {
-
-    /**
-     * Callback on positive button clicked by user
-     */
-    void onSuccess();
   }
 }
