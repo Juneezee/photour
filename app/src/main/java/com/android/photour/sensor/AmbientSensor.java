@@ -11,19 +11,19 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 /**
- * A class for monitoring the barometric pressure of the environment
+ * A class for monitoring the ambientSensor temperature (not device temperature) of the environment
  *
- * @author Professor Fabio Ciravegna
+ * @author Zer Jun Eng, Jia Hua Ng
  */
-public class Barometer {
+public class AmbientSensor {
 
-  private static final String TAG = Barometer.class.getSimpleName();
-  private static final long BAROMETER_READING_FREQUENCY = 20000; // Reads every 20 seconds
+  private static final String TAG = AmbientSensor.class.getSimpleName();
+  private static final long AMBIENT_READING_FREQUENCY = 20000; // Reads every 20 seconds
   private static final long STOPPING_THRESHOLD = 20000; // Stop after inactive for 20 seconds
 
-  private SensorEventListener pressureListener = null;
+  private SensorEventListener temperatureListener = null;
   private SensorManager sensorManager;
-  private Sensor barometer;
+  private Sensor ambientSensor;
 
   private Accelerometer accelerometer;
 
@@ -32,55 +32,56 @@ public class Barometer {
   private long timePhoneWasLastRebooted;
   private long lastReportTime = 0;
 
-  private MutableLiveData<Float> pressure = new MutableLiveData<>();
+  private MutableLiveData<Float> temperature = new MutableLiveData<>();
   private boolean started;
 
   /**
-   * Constructor for the {@link Barometer} class
+   * Constructor for the {@link AmbientSensor} class
    *
    * @param context The context of the current application
    */
-  Barometer(Context context) {
-    // http://androidforums.com/threads/how-to-get-time-of-last-system-boot.548661/
+  AmbientSensor(Context context) {
     timePhoneWasLastRebooted = System.currentTimeMillis() - SystemClock.elapsedRealtime();
-    samplingRateNano = BAROMETER_READING_FREQUENCY * 1000000;
-    samplingRateInMSecs = BAROMETER_READING_FREQUENCY;
+    samplingRateNano = AMBIENT_READING_FREQUENCY * 1000000;
+    samplingRateInMSecs = AMBIENT_READING_FREQUENCY;
     sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 
     if (sensorManager != null) {
-      barometer = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+      ambientSensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
     }
 
-    initBarometerListener();
+    initThermometerListener();
   }
 
   /**
    * Initialise the listener and establishes the actions to take when a reading is available
    */
-  private void initBarometerListener() {
-    if (standardPressureSensorAvailable()) {
-      Log.d(TAG, "Using Barometer");
-      pressureListener = new SensorEventListener() {
+  private void initThermometerListener() {
+    if (standardAmbientSensorAvailable()) {
+      Log.d(TAG, "Using AmbientSensor Sensor");
+
+      temperatureListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
-          onBarometerChanged(event);
+          onAmbientSensorChanged(event);
         }
 
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
       };
+
     } else {
-      Log.d(TAG, "Standard Barometer unavailable");
+      Log.d(TAG, "Standard AmbientSensor Sensor unavailable");
     }
   }
 
   /**
-   * When the reading of barometer has changed, store the value and update the last report time
+   * When the reading of ambient sensor has changed, store the value and update last report time
    *
    * @param event A {@link SensorEvent} instance
    */
-  private void onBarometerChanged(SensorEvent event) {
+  private void onAmbientSensorChanged(SensorEvent event) {
     long diff = event.timestamp - lastReportTime;
     // time is in nanoseconds it represents the set reference times the first time we come here
     // set event timestamp to current time in milliseconds
@@ -88,11 +89,11 @@ public class Barometer {
     // the following operation avoids reporting too many events too quickly - the sensor may always
     // misbehave and start sending data very quickly
     if (diff >= samplingRateNano) {
-      pressure.setValue(event.values[0]);
+      temperature.setValue(event.values[0]);
       int accuracy = event.accuracy;
       lastReportTime = event.timestamp;
 
-      Log.d(TAG, "Barometric pressure: " + pressure.getValue() + "\t\tAccuracy: " + accuracy);
+      Log.d(TAG, "Temperature: " + temperature.getValue() + "\t\tAccuracy: " + accuracy);
 
       // if we have not see any movement on the side of the accelerometer, let's stop
       long actualTimeInMSecs =
@@ -100,40 +101,42 @@ public class Barometer {
       long timeLag = actualTimeInMSecs - accelerometer.getLastReportTime();
 
       if (timeLag > STOPPING_THRESHOLD) {
-        stopBarometer();
+        stopAmbientSensor();
       }
     }
   }
 
   /**
-   * Start monitoring the barometric pressure
+   * Start monitoring the ambientSensor temperature
    *
    * @param accelerometer A {@link Accelerometer} instance
    */
-  void startSensingPressure(Accelerometer accelerometer) {
+  void startSensingTemperature(Accelerometer accelerometer) {
     this.accelerometer = accelerometer;
+
     // if the sensor is null, then sensorManager is null and we get a crash
-    if (standardPressureSensorAvailable()) {
-      Log.d(TAG, "Starting Barometer listener");
+    if (standardAmbientSensorAvailable()) {
+      Log.d(TAG, "Starting AmbientSensor listener");
+
       // delay is in microseconds (1millisecond=1000 microseconds)
       // it does not seem to work though
       //stopBarometer();
       // otherwise we stop immediately because
-      sensorManager.registerListener(pressureListener, barometer,
+      sensorManager.registerListener(temperatureListener, ambientSensor,
           (int) (samplingRateInMSecs * 1000));
       setStarted(true);
     } else {
-      Log.d(TAG, "Barometer unavailable or already active");
+      Log.d(TAG, "AmbientSensor unavailable or already active");
     }
   }
 
   /**
-   * Get the value of barometric pressure
+   * Get the value of ambient temperature
    *
-   * @return LiveData<Float> The current barometric pressure in hPa
+   * @return LiveData<Float> The current ambient temperature
    */
-  public LiveData<Float> getPressure() {
-    return pressure;
+  public LiveData<Float> getTemperature() {
+    return temperature;
   }
 
   /**
@@ -141,29 +144,31 @@ public class Barometer {
    *
    * @return boolean True if the device has barometer
    */
-  private boolean standardPressureSensorAvailable() {
-    return barometer != null;
+  private boolean standardAmbientSensorAvailable() {
+    return ambientSensor != null;
   }
 
   /**
-   * Stop the barometer
+   * Stop the ambient sensor
    */
-  void stopBarometer() {
-    if (standardPressureSensorAvailable()) {
-      Log.d(TAG, "Stopping Barometer listener");
+  void stopAmbientSensor() {
+    if (standardAmbientSensorAvailable()) {
+      Log.d(TAG, "Stopping AmbientSensor listener");
+
       try {
-        sensorManager.unregisterListener(pressureListener);
+        sensorManager.unregisterListener(temperatureListener);
       } catch (Exception e) {
         // probably already unregistered
       }
     }
+
     setStarted(false);
   }
 
   /**
-   * Check if the barometer is started on the current device
+   * Check if the ambientSensor temperature sensor is started on the current device
    *
-   * @return boolean True if the barometer is started
+   * @return boolean True if the ambientSensor temperature sensor is started
    */
   boolean isStarted() {
     return started;

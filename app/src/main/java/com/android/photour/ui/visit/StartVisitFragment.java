@@ -9,6 +9,7 @@ import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
@@ -21,7 +22,6 @@ import com.android.photour.MainActivity;
 import com.android.photour.R;
 import com.android.photour.databinding.FragmentStartVisitBinding;
 import com.android.photour.sensor.Accelerometer;
-import com.android.photour.sensor.Barometer;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.libraries.maps.CameraUpdate;
@@ -30,7 +30,6 @@ import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
 import com.google.android.libraries.maps.model.LatLng;
-import java.util.Objects;
 
 /**
  * Fragment to create when new visit has started
@@ -42,7 +41,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   private FragmentStartVisitBinding binding;
   private VisitViewModel visitViewModel;
   private Activity activity;
-  private View view;
 
   private static final int ZOOM_LEVEL = 17;
 
@@ -54,10 +52,8 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
   // Sensors
   private Accelerometer accelerometer;
-  private Barometer barometer;
 
-  // The entry point to the Map Fragment, Google Map, Fused Location Provider.
-  private SupportMapFragment supportMapFragment;
+  // The entry point to the Google Map, Fused Location Provider.
   private GoogleMap googleMap;
   private FusedLocationProviderClient fusedLocationProviderClient;
 
@@ -94,17 +90,17 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   ) {
     visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
 
+    accelerometer = new Accelerometer(activity);
+
     binding = FragmentStartVisitBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
     binding.setTitle(visitViewModel);
-    binding.setTemperature(visitViewModel);
-    binding.setPressure(visitViewModel);
-
-    view = binding.getRoot();
+    binding.setTemperature(accelerometer.getAmbientSensor());
+    binding.setPressure(accelerometer.getBarometer());
 
     fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
 
-    return view;
+    return binding.getRoot();
   }
 
   /**
@@ -139,9 +135,9 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    * VisitFragment}
    */
   private void stopVisitListener() {
-    final Button stopButton = view.findViewById(R.id.button_stop_visit);
+    final Button stopButton = binding.buttonStopVisit;
     stopButton.setOnClickListener(
-        v -> Navigation.findNavController(view).navigate(R.id.action_stop_visit));
+        v -> Navigation.findNavController(binding.getRoot()).navigate(R.id.action_stop_visit));
   }
 
   /**
@@ -149,7 +145,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    */
   private void initStartNewVisitTitle() {
     // Retrieve the new visit title from VisitFragment
-    TextView textNewVisit = view.findViewById(R.id.new_visit_title);
+    TextView textNewVisit = binding.newVisitTitle;
 
     // For horizontal scrolling effect, put in FrameLayout so chronometer won't reset the scroll
     textNewVisit.setSelected(true);
@@ -164,7 +160,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    * Initialise the chronometer
    */
   private void initChronometer() {
-    Chronometer chronometer = view.findViewById(R.id.chronometer);
+    Chronometer chronometer = binding.chronometer;
 
     if (visitViewModel.getElapsedTime() == null) {
       // If the elapsed time is not defined, it's a new ViewModel so set it.
@@ -184,8 +180,13 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    * Initialise Google Map
    */
   private void initGoogleMap() {
-    view.findViewById(R.id.viewstub_map).setVisibility(View.VISIBLE);
-    supportMapFragment = (SupportMapFragment) getChildFragmentManager()
+    // Inflate SupportMapFragment
+    ViewStub viewStub = binding.viewstubMap.getViewStub();
+    if (viewStub != null) {
+      viewStub.inflate();
+    }
+
+    SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager()
         .findFragmentById(R.id.map_fragment);
 
     if (supportMapFragment != null) {
@@ -217,11 +218,12 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    * Add permission and location services check to the click listener
    */
   private void setLocationButton() {
-    View myLocation = view.findViewById(R.id.fab_mylocation);
+    View myLocation = binding.fabMylocation;
 
     // Permission and location services check
-    myLocation.setOnClickListener(
-        v -> checkDeviceLocation(activity, this, () -> zoomToCurrentLocation(true)));
+    myLocation.setOnClickListener(v ->
+        checkDeviceLocation(activity, this, () -> zoomToCurrentLocation(true))
+    );
   }
 
   /**
@@ -235,11 +237,9 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
         // The location is likely to be null when location services is faulty, request again
         checkDeviceLocation(activity, this, () -> zoomToCurrentLocation(true));
       } else {
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
 
-        CameraUpdate cameraUpdate = CameraUpdateFactory
-            .newLatLngZoom(new LatLng(latitude, longitude), ZOOM_LEVEL);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
+            new LatLng(location.getLatitude(), location.getLongitude()), ZOOM_LEVEL);
 
         if (animate) {
           googleMap.animateCamera(cameraUpdate);
@@ -294,6 +294,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   @Override
   public void onResume() {
     super.onResume();
+    accelerometer.startAccelerometerRecording();
     ((MainActivity) activity).setToolbarVisibility(false);
   }
 
@@ -304,6 +305,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   @Override
   public void onPause() {
     super.onPause();
+    accelerometer.stopAccelerometer();
   }
 
   /**

@@ -7,11 +7,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.SystemClock;
 import android.util.Log;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * A class for monitoring the movement of the device
@@ -27,7 +22,7 @@ public class Accelerometer {
   private Sensor accelerometer;
 
   private Barometer barometer;
-  private Ambient thermometer;
+  private AmbientSensor ambientSensor;
 
   private long timePhoneWasLastRebooted;
   private long lastReportTime = 0;
@@ -39,14 +34,19 @@ public class Accelerometer {
    * Constructor of the {@link Accelerometer} class
    *
    * @param context The context of the current application
-   * @param barometer A {@link Barometer} instance
    */
-  public Accelerometer(Context context, Barometer barometer) {
+  public Accelerometer(Context context) {
+    this.barometer = new Barometer(context);
+    this.ambientSensor = new AmbientSensor(context);
+
     // http://androidforums.com/threads/how-to-get-time-of-last-system-boot.548661/
     timePhoneWasLastRebooted = System.currentTimeMillis() - SystemClock.elapsedRealtime();
-    this.barometer = barometer;
     sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-    accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+    if (sensorManager != null) {
+      accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    }
+
     initAccelerometerListener();
   }
 
@@ -59,36 +59,7 @@ public class Accelerometer {
       accelerationListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
-          long actualTimeInMseconds =
-              timePhoneWasLastRebooted + (long) (event.timestamp / 1000000.0);
-          float x = event.values[0];
-          float y = event.values[1];
-          float z = event.values[2];
-
-          float deltaX = Math.abs(lastX - event.values[0]);
-          float deltaY = Math.abs(lastY - event.values[1]);
-          float deltaZ = Math.abs(lastZ - event.values[2]);
-          // if the change is below 2, it is just plain noise
-          if (deltaX < 2) {
-            deltaX = 0;
-          }
-          if (deltaY < 2) {
-            deltaY = 0;
-          }
-          if (deltaZ < 2) {
-            deltaZ = 0;
-          }
-          if (deltaX > 0 || deltaY > 0 || deltaZ > 0) {
-            Log.d(TAG, mSecsToString(actualTimeInMseconds) + " : significant motion detected - x: "
-                + deltaX + ", y: " + deltaY + ", z: " + deltaZ);
-            if (!barometer.isStarted()) {
-              barometer.startSensingPressure(Accelerometer.this);
-            }
-            setLastReportTime(actualTimeInMseconds);
-          }
-          lastX = x;
-          lastY = y;
-          lastZ = z;
+          onAcceleratorChanged(event);
         }
 
         @Override
@@ -101,21 +72,60 @@ public class Accelerometer {
   }
 
   /**
-   * Check if accelerometer sensor is available on current device
+   * When the reading of accelerometer has changed, start barometer and ambient sensor if necessary
    *
-   * @return True if the accelerometer sensor is available on current device
+   * @param event A {@link SensorEvent} instance
    */
-  public boolean standardAccelerometerAvailable() {
-    return accelerometer != null;
+  private void onAcceleratorChanged(SensorEvent event) {
+    float x = event.values[0];
+    float y = event.values[1];
+    float z = event.values[2];
+    float deltaX = Math.abs(lastX - event.values[0]);
+    float deltaY = Math.abs(lastY - event.values[1]);
+    float deltaZ = Math.abs(lastZ - event.values[2]);
+
+    // if the change is below 2, it is just plain noise
+    if (deltaX < 2) {
+      deltaX = 0;
+    }
+
+    if (deltaY < 2) {
+      deltaY = 0;
+    }
+
+    if (deltaZ < 2) {
+      deltaZ = 0;
+    }
+
+    if (deltaX > 0 || deltaY > 0 || deltaZ > 0) {
+      Log.d(TAG, "Motion detected | x: " + deltaX + ", y: " + deltaY + ", z: " + deltaZ);
+
+      // Start barometer
+      if (!barometer.isStarted()) {
+        barometer.startSensingPressure(Accelerometer.this);
+      }
+
+      // Start ambient sensor
+      if (!ambientSensor.isStarted()) {
+        ambientSensor.startSensingTemperature(Accelerometer.this);
+      }
+
+      long actualTimeInMSecs = timePhoneWasLastRebooted + (long) (event.timestamp / 1000000.0);
+      setLastReportTime(actualTimeInMSecs);
+    }
+
+    lastX = x;
+    lastY = y;
+    lastZ = z;
   }
 
   /**
-   * it starts the pressure monitoring
+   * Start monitoring the accelerator movement
    */
   public void startAccelerometerRecording() {
     // if the sensor is null,then sensorManager is null and we get a crash
     if (standardAccelerometerAvailable()) {
-      Log.d(TAG, "Starting accelerometer listener");
+      Log.d(TAG, "Starting Accelerometer listener");
       // THE ACCELEROMETER receives as frequency a predefined subset of timing
       // https://developer.android.com/reference/android/hardware/SensorManager
       sensorManager.registerListener(accelerationListener, accelerometer,
@@ -126,28 +136,55 @@ public class Accelerometer {
   }
 
   /**
+   * Get the {@link Barometer} instance
+   *
+   * @return Barometer A {@link Barometer} instance
+   */
+  public Barometer getBarometer() {
+    return barometer;
+  }
+
+  /**
+   * Get the {@link AmbientSensor} instance
+   *
+   * @return A {@link AmbientSensor} instance
+   */
+  public AmbientSensor getAmbientSensor() {
+    return ambientSensor;
+  }
+
+  /**
+   * Check if accelerometer sensor is available on current device
+   *
+   * @return True if the accelerometer sensor is available on current device
+   */
+  private boolean standardAccelerometerAvailable() {
+    return accelerometer != null;
+  }
+
+  /**
    * Stop the accelerometer, barometer, and thermometer
    */
   public void stopAccelerometer() {
     if (standardAccelerometerAvailable()) {
-      Log.d(TAG, "Stopping accelerometer listener");
+      Log.d(TAG, "Stopping Accelerometer listener");
       try {
         sensorManager.unregisterListener(accelerationListener);
       } catch (Exception e) {
         // probably already unregistered
       }
     }
-    // remember to stop the barometer
+    // Stop the barometer and ambient sensor
     barometer.stopBarometer();
+    ambientSensor.stopAmbientSensor();
   }
-
 
   /**
    * Get the lastReportTime, the time where a sensor last reported its reading
    *
    * @return long The value of lastReportTime
    */
-  public long getLastReportTime() {
+  long getLastReportTime() {
     return lastReportTime;
   }
 
@@ -156,20 +193,7 @@ public class Accelerometer {
    *
    * @param lastReportTime The new value of lastReportTime
    */
-  public void setLastReportTime(long lastReportTime) {
+  private void setLastReportTime(long lastReportTime) {
     this.lastReportTime = lastReportTime;
-  }
-
-  /**
-   * Convert a number of miliseconds since 1.1.1970 (epoch) to a current string date
-   *
-   * @param actualTimeInMseconds a time in miliseconds for the UTC time zone
-   * @return String A time string of type HH:mm:ss such as 23:12:54.
-   */
-  public static String mSecsToString(long actualTimeInMseconds) {
-    Date date = new Date(actualTimeInMseconds);
-    DateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-    formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-    return (formatter.format(date));
   }
 }

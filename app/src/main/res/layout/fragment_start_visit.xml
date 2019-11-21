@@ -8,11 +8,11 @@
 
     <variable
       name="temperature"
-      type="com.android.photour.ui.visit.VisitViewModel" />
+      type="com.android.photour.sensor.AmbientSensor" />
 
     <variable
       name="pressure"
-      type="com.android.photour.ui.visit.VisitViewModel" />
+      type="com.android.photour.sensor.Barometer" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -64,7 +64,7 @@
       android:drawablePadding="8dp"
       android:paddingStart="@dimen/fragment_horizontal_margin"
       android:paddingEnd="@dimen/activity_horizontal_margin"
-      android:text="@{temperature.temperature}"
+      android:text="@{String.valueOf(temperature.temperature).concat(@string/degree)}"
       android:textColor="@color/colorBlack"
       app:layout_constraintBottom_toBottomOf="@id/button_stop_visit"
       app:layout_constraintStart_toEndOf="@id/chronometer"
@@ -78,7 +78,7 @@
       android:drawablePadding="8dp"
       android:paddingStart="@dimen/fragment_horizontal_margin"
       android:paddingEnd="@dimen/activity_horizontal_margin"
-      android:text="@{pressure.pressure}"
+      android:text="@{String.valueOf(pressure.pressure) + ` hPa`}"
       android:textColor="@color/colorBlack"
       app:layout_constraintBottom_toBottomOf="@id/button_stop_visit"
       app:layout_constraintStart_toEndOf="@id/thermometer"
