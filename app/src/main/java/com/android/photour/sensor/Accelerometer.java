@@ -101,13 +101,13 @@ public class Accelerometer {
       Log.d(TAG, "Motion detected | x: " + deltaX + ", y: " + deltaY + ", z: " + deltaZ);
 
       // Start barometer
-      if (!barometer.isStarted()) {
-        barometer.startSensingPressure(Accelerometer.this);
+      if (barometer.isNotStarted()) {
+        barometer.startSensingValue(Accelerometer.this);
       }
 
       // Start ambient sensor
-      if (!ambientSensor.isStarted()) {
-        ambientSensor.startSensingTemperature(Accelerometer.this);
+      if (ambientSensor.isNotStarted()) {
+        ambientSensor.startSensingValue(Accelerometer.this);
       }
 
       long actualTimeInMSecs = timePhoneWasLastRebooted + (long) (event.timestamp / 1000000.0);
@@ -175,8 +175,8 @@ public class Accelerometer {
       }
     }
     // Stop the barometer and ambient sensor
-    barometer.stopBarometer();
-    ambientSensor.stopAmbientSensor();
+    barometer.stopSensor();
+    ambientSensor.stopSensor();
   }
 
   /**

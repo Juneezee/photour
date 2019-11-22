@@ -23,6 +23,7 @@ import com.android.photour.R;
 import com.android.photour.databinding.FragmentStartVisitBinding;
 import com.android.photour.sensor.Accelerometer;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.libraries.maps.CameraUpdate;
 import com.google.android.libraries.maps.CameraUpdateFactory;
@@ -56,6 +57,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   // The entry point to the Google Map, Fused Location Provider.
   private GoogleMap googleMap;
   private FusedLocationProviderClient fusedLocationProviderClient;
+  private LocationCallback locationCallback;
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}

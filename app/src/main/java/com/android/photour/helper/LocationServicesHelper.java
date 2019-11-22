@@ -19,9 +19,6 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
  */
 public class LocationServicesHelper {
 
-  private static final int LOCATION_INTERVAL = 20000;
-  private static final int FAST_LOCATION_INTERVAL = 5000;
-
   /**
    * Check if the status of the device location (either ON of OFF)
    *
@@ -35,11 +32,8 @@ public class LocationServicesHelper {
       LocationServicesListener listener
   ) {
     LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-    builder.addLocationRequest(LocationRequest.create()
-        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-        .setInterval(LOCATION_INTERVAL)
-        .setFastestInterval(FAST_LOCATION_INTERVAL)
-    );
+    builder.addLocationRequest(
+        LocationRequest.create().setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY));
     builder.setAlwaysShow(true);
 
     LocationSettingsRequest locationSettingsRequest = builder.build();
