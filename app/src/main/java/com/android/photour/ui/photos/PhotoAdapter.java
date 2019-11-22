@@ -38,7 +38,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
   PhotoAdapter(Context context) {
     this.context = context;
     this.placeholder = BitmapFactory
-        .decodeResource(context.getResources(), R.drawable.ic_logo_vertical);
+        .decodeResource(context.getResources(), R.drawable.placeholder);
   }
 
   /**

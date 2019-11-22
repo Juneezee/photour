@@ -119,7 +119,7 @@ public class PhotosViewModel extends AndroidViewModel {
     };
 
     String selection = "( _data LIKE ? )";
-    String[] selectionArgs = new String[]{"%Pictures%"};
+    String[] selectionArgs = new String[]{"%DCIM%"};
 
     String sortOrder = sortMode == QUERY_BY_DATE ?
         MediaStore.Images.Media.DATE_TAKEN + " DESC" : "_data DESC";

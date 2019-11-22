@@ -19,14 +19,13 @@ import java.util.Arrays;
  * @author Zer Jun Eng, Jia Hua Ng
  */
 public class SectionedGridRecyclerViewAdapter extends
-    RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
   private static final int SECTION_TYPE = 0;
   private final Context mContext;
-  private boolean mValid = true;
   private int mSectionResourceId;
   private int mTextResourceId;
-  private RecyclerView.Adapter mBaseAdapter;
+  private PhotoAdapter mBaseAdapter;
   private SparseArray<Section> mSections = new SparseArray<>();
 
   /**
@@ -39,38 +38,14 @@ public class SectionedGridRecyclerViewAdapter extends
    */
   SectionedGridRecyclerViewAdapter(Context context, int sectionResourceId,
                                    int textResourceId, RecyclerView recyclerView,
-                                   RecyclerView.Adapter baseAdapter) {
+                                   PhotoAdapter baseAdapter) {
 
     mSectionResourceId = sectionResourceId;
     mTextResourceId = textResourceId;
     mBaseAdapter = baseAdapter;
     mContext = context;
 
-    mBaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-      @Override
-      public void onChanged() {
-        mValid = mBaseAdapter.getItemCount() > 0;
-        notifyDataSetChanged();
-      }
-
-      @Override
-      public void onItemRangeChanged(int positionStart, int itemCount) {
-        mValid = mBaseAdapter.getItemCount() > 0;
-        notifyItemRangeChanged(positionStart, itemCount);
-      }
-
-      @Override
-      public void onItemRangeInserted(int positionStart, int itemCount) {
-        mValid = mBaseAdapter.getItemCount() > 0;
-        notifyItemRangeInserted(positionStart, itemCount);
-      }
-
-      @Override
-      public void onItemRangeRemoved(int positionStart, int itemCount) {
-        mValid = mBaseAdapter.getItemCount() > 0;
-        notifyItemRangeRemoved(positionStart, itemCount);
-      }
-    });
+    mBaseAdapter.registerAdapterDataObserver(createObserver());
 
     final GridLayoutManager layoutManager = (GridLayoutManager) (recyclerView.getLayoutManager());
     if (layoutManager != null) {
@@ -84,6 +59,32 @@ public class SectionedGridRecyclerViewAdapter extends
   }
 
   /**
+   * Helper option to create adapterDataObserver
+   */
+  private RecyclerView.AdapterDataObserver createObserver() {
+    return new RecyclerView.AdapterDataObserver() {
+      @Override
+      public void onChanged() {
+        notifyDataSetChanged();
+      }
+
+      @Override
+      public void onItemRangeChanged(int positionStart, int itemCount) {
+        notifyItemRangeChanged(positionStart, itemCount);
+      }
+
+      @Override
+      public void onItemRangeInserted(int positionStart, int itemCount) {
+        notifyItemRangeInserted(positionStart, itemCount);
+      }
+
+      @Override
+      public void onItemRangeRemoved(int positionStart, int itemCount) {
+        notifyItemRangeRemoved(positionStart, itemCount);
+      }
+    };
+  };
+  /**
    * Called when RecyclerView needs a new RecyclerView.ViewHolder of the given type to represent an
    * item.
    *
@@ -91,7 +92,7 @@ public class SectionedGridRecyclerViewAdapter extends
    * @param parent he ViewGroup into which the new View will be added after it is bound to an
    *  adapter position.
    * @param typeView The view type of the new View.
-   * @return
+   * @return the created viewholder
    */
   @NonNull
   @Override
@@ -118,7 +119,7 @@ public class SectionedGridRecyclerViewAdapter extends
     if (isSectionHeaderPosition(position)) {
       ((SectionViewHolder) sectionViewHolder).title.setText(mSections.get(position).title);
     } else {
-      mBaseAdapter.onBindViewHolder(sectionViewHolder, sectionedPositionToPosition(position));
+      mBaseAdapter.onBindViewHolder((PhotoAdapter.ImageCard)sectionViewHolder, sectionedPositionToPosition(position));
     }
 
   }
@@ -132,8 +133,8 @@ public class SectionedGridRecyclerViewAdapter extends
   @Override
   public int getItemViewType(int position) {
     return isSectionHeaderPosition(position)
-        ? SECTION_TYPE
-        : mBaseAdapter.getItemViewType(sectionedPositionToPosition(position)) + 1;
+            ? SECTION_TYPE
+            : mBaseAdapter.getItemViewType(sectionedPositionToPosition(position)) + 1;
   }
 
   /**
@@ -194,8 +195,8 @@ public class SectionedGridRecyclerViewAdapter extends
   @Override
   public long getItemId(int position) {
     return isSectionHeaderPosition(position)
-        ? Integer.MAX_VALUE - mSections.indexOfKey(position)
-        : mBaseAdapter.getItemId(sectionedPositionToPosition(position));
+            ? Integer.MAX_VALUE - mSections.indexOfKey(position)
+            : mBaseAdapter.getItemId(sectionedPositionToPosition(position));
   }
 
   /**
@@ -205,7 +206,7 @@ public class SectionedGridRecyclerViewAdapter extends
    */
   @Override
   public int getItemCount() {
-    return (mValid ? mBaseAdapter.getItemCount() + mSections.size() : 0);
+    return mBaseAdapter.getItemCount() > 0 ? mBaseAdapter.getItemCount() + mSections.size() : 0;
   }
 
   /**
@@ -236,7 +237,5 @@ public class SectionedGridRecyclerViewAdapter extends
       this.firstPosition = firstPosition;
       this.title = title;
     }
-
   }
-
 }
