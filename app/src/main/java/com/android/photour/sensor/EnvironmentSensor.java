@@ -147,7 +147,7 @@ public class EnvironmentSensor {
    *
    * @return boolean True if the device has barometer
    */
-  private boolean standardSensorAvailable() {
+  public boolean standardSensorAvailable() {
     return sensor != null;
   }
 
