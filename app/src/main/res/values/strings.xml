@@ -9,7 +9,6 @@
   <string name="activities">Activities</string>
   <string name="photour_horizontal_logo">Photour horizontal logo</string>
   <string name="photour_vertical_logo">Photour vertical logo</string>
-  <string name="photo">PhotoHolder</string>
   <string name="about">About</string>
   <string name="developed_by">Developed By</string>
   <string name="jia_hua">Jia Hua Ng (acb16jhn)</string>
@@ -22,4 +21,5 @@
   <string name="sort_by_date">Sort by: Date</string>
   <string name="sort_by_path">Sort by: Path</string>
   <string name="degree"> \u00B0C</string>
+  <string name="image">Image</string>
 </resources>

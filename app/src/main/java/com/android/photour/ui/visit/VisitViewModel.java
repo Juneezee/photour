@@ -3,6 +3,7 @@ package com.android.photour.ui.visit;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import java.util.Date;
 
 /**
  * A ViewModel for {@link VisitFragment} and {@link StartVisitFragment}
@@ -12,7 +13,7 @@ import androidx.lifecycle.ViewModel;
 public class VisitViewModel extends ViewModel {
 
   private MutableLiveData<String> newVisitTitle = new MutableLiveData<>();
-
+  private Date newVisitDatetime = new Date();
   private Long elapsedTime;
 
   /**
@@ -30,7 +31,7 @@ public class VisitViewModel extends ViewModel {
    * @param newVisitTitle The new title of the new visit
    */
   void setNewVisitTitle(String newVisitTitle) {
-    this.newVisitTitle.setValue(newVisitTitle.isEmpty() ? "Untitled trip" : newVisitTitle);
+    this.newVisitTitle.setValue(newVisitTitle);
   }
 
   /**

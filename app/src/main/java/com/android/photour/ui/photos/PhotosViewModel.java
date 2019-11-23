@@ -5,7 +5,6 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -14,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
 import com.android.photour.model.ImageElement;
 import com.android.photour.model.SectionElement;
 import java.text.SimpleDateFormat;

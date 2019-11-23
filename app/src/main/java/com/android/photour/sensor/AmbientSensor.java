@@ -19,7 +19,6 @@ public class AmbientSensor extends EnvironmentSensor {
    * @param context The context of the current application
    */
   AmbientSensor(Context context) {
-    super(context, Sensor.TYPE_AMBIENT_TEMPERATURE);
-    super.setTag(TAG);
+    super(context, Sensor.TYPE_AMBIENT_TEMPERATURE, TAG);
   }
 }

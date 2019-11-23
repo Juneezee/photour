@@ -40,8 +40,9 @@ public class EnvironmentSensor {
    *
    * @param context The context of current application
    * @param sensorType The sensor type to get
+   * @param tag The tag used for debugging purposes
    */
-  EnvironmentSensor(Context context, int sensorType) {
+  EnvironmentSensor(Context context, int sensorType, String tag) {
     // http://androidforums.com/threads/how-to-get-time-of-last-system-boot.548661/
     timePhoneWasLastRebooted = System.currentTimeMillis() - SystemClock.elapsedRealtime();
     samplingRateNano = READING_FREQUENCY * 1000000;
@@ -52,16 +53,8 @@ public class EnvironmentSensor {
       sensor = sensorManager.getDefaultSensor(sensorType);
     }
 
-    initSensorListener();
-  }
-
-  /**
-   * Set the tag to use for debugging purposes
-   *
-   * @param tag The tag used for debugging purposes
-   */
-  void setTag(String tag) {
     this.tag = tag;
+    initSensorListener();
   }
 
   /**

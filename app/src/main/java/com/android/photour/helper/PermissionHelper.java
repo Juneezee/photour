@@ -6,7 +6,8 @@ import android.Manifest.permission;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -88,8 +89,8 @@ public class PermissionHelper {
    * has been granted
    */
   private boolean shouldAskPermission(String permission) {
-    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-        activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED;
+    return VERSION.SDK_INT >= VERSION_CODES.M
+        && activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED;
   }
 
   /**

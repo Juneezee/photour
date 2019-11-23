@@ -1,14 +1,8 @@
 package com.android.photour;
 
-import android.Manifest;
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.LruCache;
 import android.view.Menu;
@@ -16,23 +10,18 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
 import com.android.photour.ui.photos.PhotosFragment;
 import com.google.android.libraries.maps.MapView;
 import com.google.android.material.textfield.TextInputEditText;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

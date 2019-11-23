@@ -3,20 +3,13 @@ package com.android.photour.ui.photos;
 import android.content.Context;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.android.photour.databinding.FragmentPhotosSortBinding;
-
 import java.util.Arrays;
-
-import static android.media.CamcorderProfile.get;
 
 /**
  * Adapter for handling sections and grid system on {@link PhotosFragment}

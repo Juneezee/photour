@@ -18,7 +18,6 @@ public class Barometer extends EnvironmentSensor {
    * @param context The context of the current application
    */
   Barometer(Context context) {
-    super(context, Sensor.TYPE_PRESSURE);
-    super.setTag(TAG);
+    super(context, Sensor.TYPE_PRESSURE, TAG);
   }
 }

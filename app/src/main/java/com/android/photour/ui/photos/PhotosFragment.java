@@ -20,16 +20,13 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.android.photour.model.ImageElement;
-import com.android.photour.model.SectionElement;
 import com.android.photour.R;
 import com.android.photour.databinding.FragmentPhotosBinding;
 import com.android.photour.helper.PermissionHelper;
-
+import com.android.photour.model.ImageElement;
+import com.android.photour.model.SectionElement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Fragment for Photos page
@@ -45,10 +42,11 @@ public class PhotosFragment extends Fragment {
   private static final String[] PERMISSIONS_REQUIRED = {permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
+  private FragmentPhotosBinding binding;
+
   private PhotoAdapter photoAdapter;
   private PhotosViewModel photosViewModel;
   private Activity activity;
-  private View view;
 
   /**
    * Finds or create a PhotoFragment using FragmentManager. Used to retain state on rotation
@@ -98,13 +96,11 @@ public class PhotosFragment extends Fragment {
   ) {
     photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
 
-    FragmentPhotosBinding binding = FragmentPhotosBinding.inflate(inflater, container, false);
+    binding = FragmentPhotosBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
-    binding.setPlaceholder(photosViewModel);
+    binding.setViewModel(photosViewModel);
 
-    view = binding.getRoot();
-
-    return view;
+    return binding.getRoot();
   }
 
   /**
@@ -134,19 +130,19 @@ public class PhotosFragment extends Fragment {
 
     // Sets up recycler view and view model
     photosViewModel.loadImages();
-    RecyclerView mRecyclerView = view.findViewById(R.id.grid_recycler_view);
+    RecyclerView mRecyclerView = binding.gridRecyclerView;
     mRecyclerView.setHasFixedSize(true);
     int IMAGE_WIDTH = 100;
-    mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),
-        PhotosViewModel.calculateNoOfColumns(Objects.requireNonNull(getContext()), IMAGE_WIDTH)));
+    mRecyclerView.setLayoutManager(new GridLayoutManager(activity,
+        PhotosViewModel.calculateNoOfColumns(activity, IMAGE_WIDTH)));
 
     // Sets up adapters, photoAdapter is in charge of images, mSectionedAdapter for titles and grid
-    photoAdapter = new PhotoAdapter(getContext());
+    photoAdapter = new PhotoAdapter(activity);
     SectionedGridRecyclerViewAdapter.Section[] dummy =
         new SectionedGridRecyclerViewAdapter.Section[sections.size()];
     SectionedGridRecyclerViewAdapter mSectionedAdapter = new
-        SectionedGridRecyclerViewAdapter(Objects.requireNonNull(getActivity()),
-        R.layout.fragment_photos_sort, R.id.sorted_title_view, mRecyclerView, photoAdapter);
+        SectionedGridRecyclerViewAdapter(activity, R.layout.fragment_photos_sort,
+        R.id.sorted_title_view, mRecyclerView, photoAdapter);
 
     // set observer to image list, on calls adapters to reset
     photosViewModel.images.observe(getViewLifecycleOwner(), imageElements -> {
@@ -161,7 +157,8 @@ public class PhotosFragment extends Fragment {
         int pos = 0;
         photosViewModel.setPlaceholderText(true);
         for (SectionElement sectionElement : imageElements) {
-          sections.add(new SectionedGridRecyclerViewAdapter.Section(pos, sectionElement.getTitle()));
+          sections
+              .add(new SectionedGridRecyclerViewAdapter.Section(pos, sectionElement.getTitle()));
           pos += sectionElement.getImageElements().size(); // add number of photos and title
           elementList.addAll(sectionElement.getImageElements());
         }
@@ -187,7 +184,7 @@ public class PhotosFragment extends Fragment {
   @Override
   public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
-    menu.findItem(R.id.menu_filter).setVisible(permissionHelper.hasStoragePermission());
+    menu.findItem(R.id.menu_filter).setVisible(true);
   }
 
   /**
@@ -200,12 +197,14 @@ public class PhotosFragment extends Fragment {
    */
   @Override
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-    int itemId = item.getItemId();
+    if (permissionHelper.hasStoragePermission()) {
+      int itemId = item.getItemId();
 
-    if (itemId == R.id.by_date) {
-      photosViewModel.switchSortMode(PhotosViewModel.QUERY_BY_DATE);
-    } else if (itemId == R.id.by_path) {
-      photosViewModel.switchSortMode(PhotosViewModel.QUERY_BY_PATH);
+      if (itemId == R.id.by_date) {
+        photosViewModel.switchSortMode(PhotosViewModel.QUERY_BY_DATE);
+      } else if (itemId == R.id.by_path) {
+        photosViewModel.switchSortMode(PhotosViewModel.QUERY_BY_PATH);
+      }
     }
 
     return super.onOptionsItemSelected(item);

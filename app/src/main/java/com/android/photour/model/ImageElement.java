@@ -3,15 +3,12 @@ package com.android.photour.model;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
 import android.net.Uri;
 import android.widget.ImageView;
-
 import androidx.databinding.BindingAdapter;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-
 import com.android.photour.MainActivity;
 import com.android.photour.R;
 import com.android.photour.async.AsyncDrawable;

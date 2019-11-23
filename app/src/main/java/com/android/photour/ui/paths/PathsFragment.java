@@ -8,16 +8,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import com.android.photour.R;
 import com.android.photour.databinding.FragmentPathsBinding;
-import com.android.photour.helper.AlertDialogHelper;
 import com.android.photour.helper.PermissionHelper;
-import com.android.photour.helper.PermissionHelper.PermissionAskListener;
 
 public class PathsFragment extends Fragment {
 

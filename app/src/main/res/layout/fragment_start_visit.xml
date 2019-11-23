@@ -3,7 +3,11 @@
 
   <data>
     <variable
-      name="title"
+      name="fragment"
+      type="com.android.photour.ui.visit.StartVisitFragment" />
+
+    <variable
+      name="viewModel"
       type="com.android.photour.ui.visit.VisitViewModel" />
 
     <variable
@@ -37,7 +41,7 @@
         android:paddingTop="8dp"
         android:paddingEnd="8dp"
         android:singleLine="true"
-        android:text="@{title.newVisitTitle}"
+        android:text="@{viewModel.newVisitTitle}"
         android:textAlignment="center"
         android:textColor="@color/colorBlack"
         android:textSize="20sp" />
@@ -91,6 +95,7 @@
       android:layout_margin="@dimen/fragment_horizontal_margin"
       android:background="@drawable/rounded_button"
       android:backgroundTint="@color/colorCancel"
+      android:onClick="@{() -> fragment.onStopClick()}"
       android:text="@string/stop"
       android:textColor="@color/colorWhite"
       android:textSize="@dimen/min_text_size"
@@ -116,6 +121,7 @@
       android:layout_marginEnd="@dimen/activity_horizontal_margin"
       android:layout_marginBottom="@dimen/activity_vertical_margin"
       android:backgroundTint="@color/colorGhostWhite"
+      android:onClick="@{() -> fragment.onGalleryClick()}"
       android:src="@drawable/ic_photo_library"
       app:backgroundTint="@color/colorLightGray"
       app:borderWidth="1dp"
@@ -129,18 +135,19 @@
       android:layout_marginEnd="@dimen/fragment_horizontal_margin"
       android:layout_marginBottom="@dimen/activity_vertical_margin"
       android:backgroundTint="@color/colorPrimary"
+      android:onClick="@{() -> fragment.onCameraClick()}"
       android:src="@drawable/ic_camera"
       app:borderWidth="0dp"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/fab_mylocation"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginEnd="@dimen/fragment_horizontal_margin"
       android:layout_marginBottom="@dimen/activity_vertical_margin"
       android:backgroundTint="@color/colorGhostWhite"
+      android:onClick="@{() -> fragment.checkDeviceLocation()}"
       android:src="@drawable/ic_my_location"
       app:backgroundTint="@color/colorLightGray"
       app:layout_constraintBottom_toTopOf="@id/fab_camera"

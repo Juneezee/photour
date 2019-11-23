@@ -11,23 +11,21 @@ import android.Manifest.permission;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextClock;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
-import com.android.photour.R;
+import com.android.photour.databinding.FragmentVisitBinding;
 import com.android.photour.helper.AlertDialogHelper;
 import com.android.photour.helper.LocationServicesHelper;
 import com.android.photour.helper.PermissionHelper;
 import com.android.photour.helper.ToastHelper;
 import com.android.photour.ui.visit.VisitFragmentDirections.ActionStartVisit;
-import com.google.android.material.textfield.TextInputEditText;
-import java.util.Objects;
 
 /**
  * Fragment for New Visit page
@@ -46,7 +44,7 @@ public class VisitFragment extends Fragment {
   private PermissionHelper permissionHelper;
 
   private Activity activity;
-  private View view;
+  private FragmentVisitBinding binding;
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -80,8 +78,10 @@ public class VisitFragment extends Fragment {
       ViewGroup container,
       Bundle savedInstanceState) {
 
-    view = inflater.inflate(R.layout.fragment_visit, container, false);
-    return view;
+    binding = FragmentVisitBinding.inflate(inflater, container, false);
+    binding.setListener(this);
+
+    return binding.getRoot();
   }
 
   /**
@@ -97,50 +97,30 @@ public class VisitFragment extends Fragment {
     super.onViewCreated(view, savedInstanceState);
 
     // Set the date / time of TextClock
-    final TextClock textClock = view.findViewById(R.id.textclock);
-    textClock.setFormat24Hour("EEEE, dd MMMM yyyy\n\nHH:mm:ss");
-    textClock.setFormat12Hour("EEEE, dd MMMM yyyy\n\nh:mm:ss a");
-
-    startNewVisitListener();
-  }
-
-  /**
-   * Navigate to the start visit fragment. Condition: Device location turned on, location permission
-   * granted
-   */
-  private void navigateToStartVisit() {
-    TextInputEditText newVisitTitle = view.findViewById(R.id.new_visit_title_input);
-
-    // Pass data between destinations using safe-args
-    ActionStartVisit actionStartVisit = VisitFragmentDirections.actionStartVisit();
-    actionStartVisit.setNewVisitTitle(Objects.requireNonNull(newVisitTitle.getText()).toString());
-
-    Navigation.findNavController(view).navigate(actionStartVisit);
+    binding.textclock.setFormat24Hour("EEEE, dd MMMM yyyy\n\nHH:mm:ss");
+    binding.textclock.setFormat12Hour("EEEE, dd MMMM yyyy\n\nh:mm:ss a");
   }
 
   /**
    * Add a click listener to the Start button, to replace current fragment with {@link
    * StartVisitFragment} after explicit permissions check has passed
    */
-  private void startNewVisitListener() {
-    view.findViewById(R.id.button_start_visit).setOnClickListener(v -> {
+  public void onStartClick() {
+    if (checkPlayServices(activity)) {
+      boolean isFirstTime = permissionHelper.isFirstTimeAskingPermissions();
+      int permissionGranted = ALL_PERMISSIONS_CODE - permissionsNotGranted();
+      int permissionsNeverAsked = permissionsNeverAsked();
 
-      if (checkPlayServices(activity)) {
-        boolean isFirstTime = permissionHelper.isFirstTimeAskingPermissions();
-        int permissionGranted = ALL_PERMISSIONS_CODE - permissionsNotGranted();
-        int permissionsNeverAsked = permissionsNeverAsked();
+      Log.d("Perm", "Permission granted " + permissionGranted);
+      Log.d("Perm", "Permission not granted " + (ALL_PERMISSIONS_CODE - permissionGranted));
+      Log.d("Perm", "Permission never asked " + permissionsNeverAsked);
 
-        Log.d("Perm", "Permission granted " + permissionGranted);
-        Log.d("Perm", "Permission not granted " + (ALL_PERMISSIONS_CODE - permissionGranted));
-        Log.d("Perm", "Permission never asked " + permissionsNeverAsked);
+      // Display a dialog for permissions explanation
+      showPermissionRationale(isFirstTime, permissionGranted, permissionsNeverAsked);
 
-        // Display a dialog for permissions explanation
-        showPermissionRationale(isFirstTime, permissionGranted, permissionsNeverAsked);
-
-      } else {
-        ToastHelper.tShort(activity, "Play services not available");
-      }
-    });
+    } else {
+      ToastHelper.tShort(activity, "Play services not available");
+    }
   }
 
   /**
@@ -254,6 +234,22 @@ public class VisitFragment extends Fragment {
    */
   private void checkDeviceLocation() {
     LocationServicesHelper.checkDeviceLocation(activity, this, this::navigateToStartVisit);
+  }
+
+  /**
+   * Navigate to the start visit fragment. Condition: Device location turned on, location
+   * permission, camera permission, and storage permission granted
+   */
+  private void navigateToStartVisit() {
+    // Pass data between destinations using safe-args
+    ActionStartVisit actionStartVisit = VisitFragmentDirections.actionStartVisit();
+    Editable newVisitTitle = binding.newVisitTitleInput.getText();
+
+    if (newVisitTitle != null && !newVisitTitle.toString().isEmpty()) {
+      actionStartVisit.setNewVisitTitle(newVisitTitle.toString());
+    }
+
+    Navigation.findNavController(binding.getRoot()).navigate(actionStartVisit);
   }
 
   /**

@@ -1,8 +1,10 @@
 package com.android.photour.ui.visit;
 
-import static com.android.photour.helper.LocationServicesHelper.checkDeviceLocation;
-
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -10,20 +12,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.widget.Button;
 import android.widget.Chronometer;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import com.android.photour.MainActivity;
 import com.android.photour.R;
 import com.android.photour.databinding.FragmentStartVisitBinding;
+import com.android.photour.helper.LocationServicesHelper;
 import com.android.photour.sensor.Accelerometer;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.libraries.maps.CameraUpdate;
 import com.google.android.libraries.maps.CameraUpdateFactory;
@@ -31,6 +33,11 @@ import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
 import com.google.android.libraries.maps.model.LatLng;
+import java.io.File;
+import java.util.List;
+import pl.aprilapps.easyphotopicker.DefaultCallback;
+import pl.aprilapps.easyphotopicker.EasyImage;
+import pl.aprilapps.easyphotopicker.EasyImage.ImageSource;
 
 /**
  * Fragment to create when new visit has started
@@ -57,7 +64,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   // The entry point to the Google Map, Fused Location Provider.
   private GoogleMap googleMap;
   private FusedLocationProviderClient fusedLocationProviderClient;
-  private LocationCallback locationCallback;
+  private PendingIntent pendingIntent;
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -91,12 +98,12 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
       Bundle savedInstanceState
   ) {
     visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
-
     accelerometer = new Accelerometer(activity);
 
     binding = FragmentStartVisitBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
-    binding.setTitle(visitViewModel);
+    binding.setFragment(this);
+    binding.setViewModel(visitViewModel);
     binding.setTemperature(accelerometer.getAmbientSensor());
     binding.setPressure(accelerometer.getBarometer());
 
@@ -117,9 +124,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    // Add click listener to stop button
-    stopVisitListener();
-
     initStartNewVisitTitle();
 
     // Prevent mini-slutter when the start button is pressed the first time
@@ -130,27 +134,49 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     }
 
     initChronometer();
+    initEasyImage();
   }
 
   /**
    * Add a click listener to the Stop button, to replace current fragment with {@link
    * VisitFragment}
    */
-  private void stopVisitListener() {
-    final Button stopButton = binding.buttonStopVisit;
-    stopButton.setOnClickListener(
-        v -> Navigation.findNavController(binding.getRoot()).navigate(R.id.action_stop_visit));
+  public void onStopClick() {
+//    stopLocationUpdates();
+    Navigation.findNavController(binding.getRoot()).navigate(R.id.action_stop_visit);
+  }
+
+  /**
+   * EasyImage initialisation
+   */
+  private void initEasyImage() {
+    EasyImage.configuration(activity)
+        .setImagesFolderName("Photour")
+        .setCopyTakenPhotosToPublicGalleryAppFolder(true)
+        .setCopyPickedImagesToPublicGalleryAppFolder(false)
+        .setAllowMultiplePickInGallery(true);
+  }
+
+  /**
+   * Open camera to take image
+   */
+  public void onCameraClick() {
+    EasyImage.openCameraForImage(this, 0);
+  }
+
+  /**
+   * Open gallery to choose image
+   */
+  public void onGalleryClick() {
+    EasyImage.openGallery(this, 0);
   }
 
   /**
    * Initialise the start new visit title
    */
   private void initStartNewVisitTitle() {
-    // Retrieve the new visit title from VisitFragment
-    TextView textNewVisit = binding.newVisitTitle;
-
     // For horizontal scrolling effect, put in FrameLayout so chronometer won't reset the scroll
-    textNewVisit.setSelected(true);
+    binding.newVisitTitle.setSelected(true);
 
     if (getArguments() != null) {
       String newVisitTitle = StartVisitFragmentArgs.fromBundle(getArguments()).getNewVisitTitle();
@@ -209,23 +235,45 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     this.googleMap.getUiSettings().setMyLocationButtonEnabled(false);
 
     if (isFirstTime) {
+//      startLocationUpdates();
       zoomToCurrentLocation(false);
     }
-
-    setLocationButton();
   }
 
   /**
    * Set the position of My Location button to bottom right, above Floating Action Camera Button.
    * Add permission and location services check to the click listener
    */
-  private void setLocationButton() {
-    View myLocation = binding.fabMylocation;
-
+  public void checkDeviceLocation() {
     // Permission and location services check
-    myLocation.setOnClickListener(v ->
-        checkDeviceLocation(activity, this, () -> zoomToCurrentLocation(true))
-    );
+    LocationServicesHelper.checkDeviceLocation(activity, this, () -> zoomToCurrentLocation(true));
+  }
+
+  private MutableLiveData<LatLng> test = new MutableLiveData<>();
+
+  private void startLocationUpdates() {
+    Intent intent = new Intent(activity, LocationServiceIntent.class);
+    intent.setAction(LocationServiceIntent.ACTION_PROCESS_UPDATES);
+
+    if (VERSION.SDK_INT >= VERSION_CODES.O) {
+      pendingIntent = PendingIntent
+          .getForegroundService(activity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    } else {
+      pendingIntent = PendingIntent
+          .getService(activity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    LocationRequest locationRequest = new LocationRequest();
+    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    locationRequest.setInterval(10000);
+    locationRequest.setFastestInterval(5000);
+    locationRequest.setMaxWaitTime(15000);
+
+    fusedLocationProviderClient.requestLocationUpdates(locationRequest, pendingIntent);
+  }
+
+  private void stopLocationUpdates() {
+    fusedLocationProviderClient.removeLocationUpdates(pendingIntent);
   }
 
   /**
@@ -234,10 +282,11 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    * @param animate True for moving the camera with animation
    */
   private void zoomToCurrentLocation(boolean animate) {
+
     fusedLocationProviderClient.getLastLocation().addOnSuccessListener(activity, location -> {
       if (location == null) {
         // The location is likely to be null when location services is faulty, request again
-        checkDeviceLocation(activity, this, () -> zoomToCurrentLocation(true));
+        checkDeviceLocation();
       } else {
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
@@ -249,8 +298,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
           googleMap.moveCamera(cameraUpdate);
         }
       }
-    }).addOnFailureListener(e ->
-        checkDeviceLocation(activity, this, () -> zoomToCurrentLocation(true)));
+    }).addOnFailureListener(e -> checkDeviceLocation());
   }
 
   /**
@@ -317,5 +365,27 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   public void onStop() {
     super.onStop();
     ((MainActivity) activity).setToolbarVisibility(true);
+  }
+
+  /**
+   * Receive the result from a previous call to {@link #startActivityForResult(Intent, int)}.
+   *
+   * @param requestCode The integer request code originally supplied to startActivityForResult(),
+   * allowing you to identify who this result came from.
+   * @param resultCode The integer result code returned by the child activity through its
+   * setResult().
+   * @param data An Intent, which can return result data to the caller (various data can be attached
+   * to Intent "extras").
+   */
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+
+    EasyImage.handleActivityResult(requestCode, resultCode, data, activity, new DefaultCallback() {
+      @Override
+      public void onImagesPicked(@NonNull List<File> imageFiles, ImageSource source, int type) {
+        // CODE TODO when upload from gallery
+      }
+    });
   }
 }

@@ -2,9 +2,6 @@ package com.android.photour.model;
 
 import androidx.room.ColumnInfo;
 import androidx.room.PrimaryKey;
-
-import com.android.photour.model.ImageElement;
-
 import java.util.ArrayList;
 import java.util.List;
 
