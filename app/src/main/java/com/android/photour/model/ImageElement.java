@@ -1,12 +1,21 @@
 package com.android.photour.model;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
+import android.widget.ImageView;
 
+import androidx.databinding.BindingAdapter;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
+import com.android.photour.MainActivity;
+import com.android.photour.R;
+import com.android.photour.async.AsyncDrawable;
+import com.android.photour.async.BitmapWorkerTask;
 
 @Entity
 public class ImageElement {
@@ -35,7 +44,19 @@ public class ImageElement {
     this.barometer = barometer;
     this.ambient = ambient;
   }
-  
+
+  public ImageElement(Uri uri) {
+    this.uri = uri;
+  }
+
+  public Uri getUri() {
+    return uri;
+  }
+
+  public void setUri(Uri uri) {
+    this.uri = uri;
+  }
+
   public String getTripName() {
     return tripName;
   }
@@ -74,5 +95,41 @@ public class ImageElement {
 
   public void setAmbient(float ambient) {
     this.ambient = ambient;
+  }
+
+  @BindingAdapter({ "avatar" })
+  public static void loadImage(ImageView imageView, Uri uri) {
+    final String imageKey = uri.toString();
+    final Context context = imageView.getContext();
+    Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(imageKey);
+    if (bitmap != null) {
+        imageView.setImageBitmap(bitmap);
+      } else {
+        if (BitmapWorkerTask.cancelPotentialWork(uri, imageView)) {
+          BitmapWorkerTask task = new BitmapWorkerTask(context, imageView);
+          Bitmap placeholder = BitmapFactory
+                  .decodeResource(context.getResources(), R.drawable.placeholder);
+          final AsyncDrawable asyncDrawable =
+              new AsyncDrawable(context.getResources(), placeholder, task);
+          imageView.setImageDrawable(asyncDrawable);
+          task.execute(uri);
+        }
+      }
+//  if (items.get(position) != null) {
+//      final String imageKey = items.get(position).toString();
+//      Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(imageKey);
+//      if (bitmap != null) {
+//
+//      } else {
+//        ImageElement imageElement = items.get(position);
+//        if (BitmapWorkerTask.cancelPotentialWork(uri, holder.imageView)) {
+//          BitmapWorkerTask task = new BitmapWorkerTask(context, holder.imageView);
+//          final AsyncDrawable asyncDrawable =
+//              new AsyncDrawable(context.getResources(), placeholder, task);
+//          holder.imageView.setImageDrawable(asyncDrawable);
+//          task.execute(uri);
+//        }
+//      }
+//    }
   }
 }
