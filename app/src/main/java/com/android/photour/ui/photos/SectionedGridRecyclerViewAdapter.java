@@ -8,10 +8,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.photour.databinding.FragmentPhotosSortBinding;
+
 import java.util.Arrays;
+
+import static android.media.CamcorderProfile.get;
 
 /**
  * Adapter for handling sections and grid system on {@link PhotosFragment}
@@ -30,11 +35,12 @@ public class SectionedGridRecyclerViewAdapter extends
 
   /**
    * Constructor class of SectionedGridRecyclerViewAdapter
-   * @param context Context of MainActivity
+   *
+   * @param context           Context of MainActivity
    * @param sectionResourceId ID for view of section title
-   * @param textResourceId ID for view of section items
-   * @param recyclerView RecyclerView object being handled by adapter
-   * @param baseAdapter Adapter responsible for dealing with the items
+   * @param textResourceId    ID for view of section items
+   * @param recyclerView      RecyclerView object being handled by adapter
+   * @param baseAdapter       Adapter responsible for dealing with the items
    */
   SectionedGridRecyclerViewAdapter(Context context, int sectionResourceId,
                                    int textResourceId, RecyclerView recyclerView,
@@ -83,14 +89,18 @@ public class SectionedGridRecyclerViewAdapter extends
         notifyItemRangeRemoved(positionStart, itemCount);
       }
     };
-  };
+  }
+
+  ;
+
   /**
    * Called when RecyclerView needs a new RecyclerView.ViewHolder of the given type to represent an
    * item.
-   *
+   * <p>
    * Checks if typeView is title or item. If is item, call mBaseAdapter to handle.
-   * @param parent he ViewGroup into which the new View will be added after it is bound to an
-   *  adapter position.
+   *
+   * @param parent   The ViewGroup into which the new View will be added after it is bound to an
+   *                 adapter position.
    * @param typeView The view type of the new View.
    * @return the created viewholder
    */
@@ -98,8 +108,9 @@ public class SectionedGridRecyclerViewAdapter extends
   @Override
   public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int typeView) {
     if (typeView == SECTION_TYPE) {
-      final View view = LayoutInflater.from(mContext).inflate(mSectionResourceId, parent, false);
-      return new SectionViewHolder(view, mTextResourceId);
+      FragmentPhotosSortBinding fragmentPhotosSortBinding = DataBindingUtil.inflate(
+              LayoutInflater.from(mContext), mSectionResourceId, parent, false);
+      return new SectionViewHolder(fragmentPhotosSortBinding);
     } else {
       return mBaseAdapter.onCreateViewHolder(parent, typeView - 1);
     }
@@ -108,18 +119,20 @@ public class SectionedGridRecyclerViewAdapter extends
   /**
    * Called by RecyclerView to display the data at the specified position. This method should update
    * the contents of the itemView to reflect the item at the given position.
-   *
+   * <p>
    * Checks if given position is title or item. If is item, call mBaseAdapter to handle.
-   * @param sectionViewHolder he ViewHolder which should be updated to represent the contents of the item at
-   * the given position in the data set.
-   * @param position The position of the item within the adapter's data set.
+   *
+   * @param sectionViewHolder the ViewHolder which should be updated to represent the contents of the item at
+   *                          the given position in the data set.
+   * @param position          The position of the item within the adapter's data set.
    */
   @Override
   public void onBindViewHolder(@NonNull RecyclerView.ViewHolder sectionViewHolder, int position) {
     if (isSectionHeaderPosition(position)) {
-      ((SectionViewHolder) sectionViewHolder).title.setText(mSections.get(position).title);
+      Section section = mSections.get(position);
+      ((SectionViewHolder) sectionViewHolder).fragmentPhotosSortBinding.setTitle(section);
     } else {
-      mBaseAdapter.onBindViewHolder((PhotoAdapter.ImageCard)sectionViewHolder, sectionedPositionToPosition(position));
+      mBaseAdapter.onBindViewHolder((PhotoAdapter.ImageCard) sectionViewHolder, sectionedPositionToPosition(position));
     }
 
   }
@@ -127,6 +140,7 @@ public class SectionedGridRecyclerViewAdapter extends
   /**
    * Getter for item view type.
    * Checks with SECTION_TYPE to see if said position is a title or item
+   *
    * @param position position of current item on data set
    * @return Type of item, 0 represents HEADER
    */
@@ -180,6 +194,7 @@ public class SectionedGridRecyclerViewAdapter extends
 
   /**
    * Checks if item in position is a title
+   *
    * @param position position of item
    * @return boolean True if the item is a title
    */
@@ -189,6 +204,7 @@ public class SectionedGridRecyclerViewAdapter extends
 
   /**
    * Getter for id of item
+   *
    * @param position position of item
    * @return long ID of the item
    */
@@ -216,26 +232,31 @@ public class SectionedGridRecyclerViewAdapter extends
    */
   public static class SectionViewHolder extends RecyclerView.ViewHolder {
 
-    TextView title;
+    //    TextView title;
+    private FragmentPhotosSortBinding fragmentPhotosSortBinding;
 
-    SectionViewHolder(View view, int mTextResourceid) {
-      super(view);
-      title = view.findViewById(mTextResourceid);
+    SectionViewHolder(@NonNull FragmentPhotosSortBinding fragmentPhotosSortBinding) {
+      super(fragmentPhotosSortBinding.getRoot());
+      this.fragmentPhotosSortBinding = fragmentPhotosSortBinding;
     }
   }
 
   /**
    * Class for section
    */
-  static class Section {
+  public static class Section {
 
     int firstPosition;
     int sectionedPosition;
-    CharSequence title;
+    String title;
 
-    Section(int firstPosition, CharSequence title) {
+    Section(int firstPosition, String title) {
       this.firstPosition = firstPosition;
       this.title = title;
+    }
+
+    public String getTitle() {
+      return this.title;
     }
   }
 }

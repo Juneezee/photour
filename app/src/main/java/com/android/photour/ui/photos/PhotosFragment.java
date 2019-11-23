@@ -5,7 +5,6 @@ import static com.android.photour.helper.PermissionHelper.STORAGE_PERMISSION_COD
 import android.Manifest.permission;
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.LruCache;
 import android.view.LayoutInflater;
@@ -21,12 +20,13 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.android.photour.ImageElement;
+
+import com.android.photour.model.ImageElement;
+import com.android.photour.model.SectionElement;
 import com.android.photour.R;
 import com.android.photour.databinding.FragmentPhotosBinding;
-import com.android.photour.helper.AlertDialogHelper;
 import com.android.photour.helper.PermissionHelper;
-import com.android.photour.helper.PermissionHelper.PermissionAskListener;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -128,7 +128,7 @@ public class PhotosFragment extends Fragment {
 
     // Initialize lists for SectionedGridRecyclerViewAdapter
     List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
-    List<Uri> uris = new ArrayList<>();
+    List<ImageElement> elementList = new ArrayList<>();
 
     photosViewModel.setPlaceholderText(true);
 
@@ -152,7 +152,7 @@ public class PhotosFragment extends Fragment {
     photosViewModel.images.observe(getViewLifecycleOwner(), imageElements -> {
       //resets lists
       sections.clear();
-      uris.clear();
+      elementList.clear();
 
       //Prompts text if no images, else load images into lists
       if (imageElements == null || imageElements.size() == 0) {
@@ -160,15 +160,15 @@ public class PhotosFragment extends Fragment {
       } else {
         int pos = 0;
         photosViewModel.setPlaceholderText(true);
-        for (ImageElement imageElement : imageElements) {
-          sections.add(new SectionedGridRecyclerViewAdapter.Section(pos, imageElement.getTitle()));
-          pos += imageElement.getUris().size(); // add number of photos and title
-          uris.addAll(imageElement.getUris());
+        for (SectionElement sectionElement : imageElements) {
+          sections.add(new SectionedGridRecyclerViewAdapter.Section(pos, sectionElement.getTitle()));
+          pos += sectionElement.getImageElements().size(); // add number of photos and title
+          elementList.addAll(sectionElement.getImageElements());
         }
       }
 
       // Parses values into adapters and update view
-      photoAdapter.setItems(uris);
+      photoAdapter.setItems(elementList);
       photoAdapter.notifyDataSetChanged();
       mSectionedAdapter.setSections(sections.toArray(dummy));
       mSectionedAdapter.notifyDataSetChanged();

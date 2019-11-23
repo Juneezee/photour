@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import com.android.photour.ImageElement;
+import com.android.photour.model.SectionElement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,10 +34,10 @@ public class PhotosViewModel extends AndroidViewModel {
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
 
   // Statics for readwrite images
-  private MutableLiveData<List<ImageElement>> _images = new MutableLiveData<>();
-  public LiveData<List<ImageElement>> images = _images;
+  private MutableLiveData<List<SectionElement>> _images = new MutableLiveData<>();
+  public LiveData<List<SectionElement>> images = _images;
 
-  //  static final List<ImageElement> ITEMS = new ArrayList<>();
+  //  static final List<SectionElement> ITEMS = new ArrayList<>();
   private ContentObserver contentObserver = null;
 
   /**
@@ -87,7 +87,7 @@ public class PhotosViewModel extends AndroidViewModel {
    * viewmodel and calls this method if there is any change.
    */
   public void loadImages() {
-    List<ImageElement> imageList = queryImages();
+    List<SectionElement> imageList = queryImages();
     _images.postValue(imageList);
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {
@@ -106,10 +106,10 @@ public class PhotosViewModel extends AndroidViewModel {
    * Uses Mediastore query to get all images from a given folder according to the sort
    * configuration.
    *
-   * @return List lists of ImageElement, each representing a section in the gallery
+   * @return List lists of SectionElement, each representing a section in the gallery
    */
-  private List<ImageElement> queryImages() {
-    List<ImageElement> images = new ArrayList<>();
+  private List<SectionElement> queryImages() {
+    List<SectionElement> images = new ArrayList<>();
 
     //Columns to retrieve with query
     String[] projection = new String[]{MediaStore.Images.Media._ID,
@@ -133,9 +133,9 @@ public class PhotosViewModel extends AndroidViewModel {
     );
     int i = 0;
     String previousTitle = "";
-    ImageElement imageElement = null;
+    SectionElement sectionElement = null;
 
-    //Iterates through query and append them into ImageElement
+    //Iterates through query and append them into SectionElement
     while (i < query.getCount()) {
       query.moveToPosition(i);
       String currentTitle;
@@ -150,17 +150,17 @@ public class PhotosViewModel extends AndroidViewModel {
       Uri contentUri = ContentUris.withAppendedId(
           MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columnIndex);
       if (!previousTitle.equals(currentTitle)) {
-        if (imageElement != null) {
-          images.add(imageElement);
+        if (sectionElement != null) {
+          images.add(sectionElement);
         }
-        imageElement = new ImageElement(currentTitle);
+        sectionElement = new SectionElement(currentTitle);
         previousTitle = currentTitle;
       }
-      imageElement.addUri(contentUri);
+      sectionElement.addUri(contentUri);
       i++;
     }
-    if (imageElement != null) {
-      images.add(imageElement);
+    if (sectionElement != null) {
+      images.add(sectionElement);
     }
     query.close();
 

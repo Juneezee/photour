@@ -5,15 +5,19 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.photour.model.ImageElement;
 import com.android.photour.MainActivity;
 import com.android.photour.R;
 import com.android.photour.async.AsyncDrawable;
 import com.android.photour.async.BitmapWorkerTask;
+import com.android.photour.databinding.ItemImageBinding;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -26,7 +30,7 @@ import java.util.List;
  */
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
 
-  private static List<Uri> items = new ArrayList<>();
+  private static List<ImageElement> items = new ArrayList<>();
   final Bitmap placeholder;
   private Context context;
 
@@ -135,9 +139,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
   @NonNull
   @Override
   public ImageCard onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image,
-        parent, false);
-    return new ImageCard(v);
+    ItemImageBinding itemImageBinding = DataBindingUtil.inflate(LayoutInflater.from(
+            parent.getContext()),R.layout.item_image, parent, false);
+    return new ImageCard(itemImageBinding);
   }
 
   /**
@@ -154,9 +158,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
       final String imageKey = items.get(position).toString();
       Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(imageKey);
       if (bitmap != null) {
-        holder.imageView.setImageBitmap(bitmap);
+
       } else {
-        Uri uri = items.get(position);
+        ImageElement imageElement = items.get(position);
         if (BitmapWorkerTask.cancelPotentialWork(uri, holder.imageView)) {
           BitmapWorkerTask task = new BitmapWorkerTask(context, holder.imageView);
           final AsyncDrawable asyncDrawable =
@@ -190,11 +194,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
    */
   class ImageCard extends RecyclerView.ViewHolder {
 
-    final ImageView imageView;
+    final ItemImageBinding itemImageBinding;
 
-    ImageCard(@NonNull View itemView) {
-      super(itemView);
-      imageView = itemView.findViewById(R.id.image_item);
+    ImageCard(@NonNull ItemImageBinding itemImageBinding) {
+      super(itemImageBinding.getRoot());
+      this.itemImageBinding = itemImageBinding;
     }
   }
 
