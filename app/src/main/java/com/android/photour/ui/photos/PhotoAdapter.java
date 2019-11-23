@@ -150,6 +150,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
   public void onBindViewHolder(@NonNull ImageCard holder, int position) {
     ImageElement imageElement = items.get(position);
     holder.itemImageBinding.setImage(imageElement);
+    holder.itemImageBinding.executePendingBindings();
 
 //    if (items.get(position) != null) {
 //      final String imageKey = items.get(position).toString();

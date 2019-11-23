@@ -124,10 +124,10 @@ public class SectionedGridRecyclerViewAdapter extends
     if (isSectionHeaderPosition(position)) {
       Section section = mSections.get(position);
       ((SectionViewHolder) sectionViewHolder).fragmentPhotosSortBinding.setTitle(section);
+      ((SectionViewHolder) sectionViewHolder).fragmentPhotosSortBinding.executePendingBindings();
     } else {
       mBaseAdapter.onBindViewHolder((PhotoAdapter.ImageCard) sectionViewHolder, sectionedPositionToPosition(position));
     }
-
   }
 
   /**
