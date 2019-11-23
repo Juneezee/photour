@@ -66,12 +66,16 @@ public class PathsFragment extends Fragment {
   }
 
   /**
-   * Called when the Fragment is visible to the user.  This is generally tied to Activity.onStart()
-   * of the containing Activity's lifecycle.
+   * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} has returned,
+   * but before any saved state has been restored in to the view.
+   *
+   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+   * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
+   * saved state as given here.
    */
   @Override
-  public void onStart() {
-    super.onStart();
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
 
     pathsViewModel.setPlaceholderText(permissionHelper.hasStoragePermission());
 

@@ -49,6 +49,7 @@ public class PhotosViewModel extends AndroidViewModel {
   public PhotosViewModel(@NonNull Application application) {
     super(application);
     sortMode = QUERY_BY_DATE;
+    loadImages();
   }
 
   /**
