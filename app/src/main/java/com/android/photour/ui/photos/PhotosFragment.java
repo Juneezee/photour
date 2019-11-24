@@ -3,6 +3,7 @@ package com.android.photour.ui.photos;
 import static com.android.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
 import android.Manifest.permission;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -21,7 +23,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.android.photour.R;
-import com.android.photour.databinding.FragmentPhotosBinding;
 import com.android.photour.helper.PermissionHelper;
 import com.android.photour.model.ImageElement;
 import com.android.photour.model.SectionElement;
@@ -30,7 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Fragment for Photos page
@@ -49,19 +50,19 @@ public class PhotosFragment extends Fragment {
   private static final String[] PERMISSIONS_REQUIRED = {permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
-  private FragmentPhotosBinding binding;
-
   private PhotoAdapter photoAdapter;
   private SectionedGridRecyclerViewAdapter mSectionedAdapter;
   private PhotosViewModel photosViewModel;
   private RecyclerView mRecyclerView;
   private Activity activity;
+  private View view;
+  private TextView textView;
 
   /**
    * Finds or create a PhotoFragment using FragmentManager. Used to retain state on rotation
    *
    * @param fm FragmentManager
-   * @return A {@link PhotosFragment} fragment instance
+   * @return PhotoFragment
    */
   public static PhotosFragment findOrCreateRetainFragment(FragmentManager fm) {
     PhotosFragment fragment = (PhotosFragment) fm.findFragmentByTag(TAG);
@@ -98,18 +99,18 @@ public class PhotosFragment extends Fragment {
    * saved state as given here.
    * @return View Return the View for the fragment's UI, or null.
    */
+  @SuppressLint("SetTextI18n")
   public View onCreateView(
       @NonNull LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState
   ) {
-    photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
+    view = inflater.inflate(R.layout.fragment_photos, container, false);
 
-    binding = FragmentPhotosBinding.inflate(inflater, container, false);
-    binding.setLifecycleOwner(this);
-    binding.setViewModel(photosViewModel);
+    // Initialise view if has access, else displays a text notice
+    textView = view.findViewById(R.id.text_placeholder);
 
-    return binding.getRoot();
+    return view;
   }
 
   /**
@@ -124,7 +125,9 @@ public class PhotosFragment extends Fragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    photosViewModel.setPlaceholderText(permissionHelper.hasStoragePermission());
+    if (!permissionHelper.hasStoragePermission()) {
+      textView.setText("Please Enable Storage Access to use this feature");
+    }
 
     // Check if storage permission is granted or not
     permissionHelper.checkStoragePermission(this::initializeRecyclerView);
@@ -138,10 +141,11 @@ public class PhotosFragment extends Fragment {
     // Initialize lists for SectionedGridRecyclerViewAdapter
 
 
-    photosViewModel.setPlaceholderText(true);
+    textView.setText("");
 
     // Sets up recycler view and view model
-    mRecyclerView = binding.gridRecyclerView;
+    photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
+    RecyclerView mRecyclerView = view.findViewById(R.id.grid_recycler_view);
     mRecyclerView.setHasFixedSize(true);
     int IMAGE_WIDTH = 100;
     mRecyclerView.setLayoutManager(new GridLayoutManager(activity,
@@ -156,67 +160,21 @@ public class PhotosFragment extends Fragment {
 
     // set observer to image list, on calls adapters to reset
     photosViewModel.images.observe(getViewLifecycleOwner(), imageElements -> {
-      resetGrid(imageElements);
-    });
-  }
+      //resets lists
+      sections.clear();
+      elementList.clear();
 
-  /**
-   * Fucntion to reload recycler view. Splits ImageElements into section.
-   *
-   * @param imageElements List of ImageElements
-   */
-  private void resetGrid(List<ImageElement> imageElements) {
-
-    List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
-    List<ImageElement> elementList = new ArrayList<>();
-    SectionedGridRecyclerViewAdapter.Section[] dummy =
-            new SectionedGridRecyclerViewAdapter.Section[sections.size()];
-
-    List<SectionElement> sectionElements = sectionImages(imageElements);
-    //Prompts text if no images, else load images into lists
-    if (imageElements == null || imageElements.size() == 0) {
-      photosViewModel.setPlaceholderText(false);
-    } else {
-      int pos = 0;
-      photosViewModel.setPlaceholderText(true);
-      for (SectionElement sectionElement : sectionElements) {
-        sections
-                .add(new SectionedGridRecyclerViewAdapter.Section(pos, sectionElement.getTitle()));
-        pos += sectionElement.getImageElements().size(); // add number of photos and title
-        elementList.addAll(sectionElement.getImageElements());
-      }
-    }
-
-    // Parses values into adapters and update view
-    photoAdapter.setItems(elementList);
-    photoAdapter.notifyDataSetChanged();
-    mSectionedAdapter.setSections(sections.toArray(dummy));
-    mSectionedAdapter.notifyDataSetChanged();
-    mRecyclerView.setAdapter(mSectionedAdapter);
-  }
-
-  /**
-   * Uses Mediastore query to get all images from a given folder according to the sort
-   * configuration.
-   *
-   * @return List lists of SectionElement, each representing a section in the gallery
-   */
-  private List<SectionElement> sectionImages(List<ImageElement> images) {
-    List<SectionElement> sections = new ArrayList<>();
-
-    int i = 0;
-    String previousTitle = "";
-    SectionElement sectionElement = null;
-    if (images != null) {
-      //Iterates through query and append them into SectionElement
-      for (ImageElement imageElement : images) {
-        String currentTitle;
-        if (sortMode == QUERY_BY_DATE) {
-          Date date = imageElement.getDate();
-          SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
-          currentTitle = sdf.format(date);
-        } else {
-          currentTitle = imageElement.getTripName();
+      //Prompts text if no images, else load images into lists
+      if (imageElements == null || imageElements.size() == 0) {
+        textView.setText("No photos yet");
+      } else {
+        int pos = 0;
+        photosViewModel.setPlaceholderText(true);
+        for (SectionElement sectionElement : imageElements) {
+          sections
+              .add(new SectionedGridRecyclerViewAdapter.Section(pos, sectionElement.getTitle()));
+          pos += sectionElement.getImageElements().size(); // add number of photos and title
+          elementList.addAll(sectionElement.getImageElements());
         }
         if (!previousTitle.equals(currentTitle)) {
           if (sectionElement != null) {
