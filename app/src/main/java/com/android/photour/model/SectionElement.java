@@ -1,5 +1,6 @@
 package com.android.photour.model;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.ColumnInfo;
 import androidx.room.PrimaryKey;
 import java.util.ArrayList;
@@ -7,11 +8,11 @@ import java.util.List;
 
 public class SectionElement {
 
-  @PrimaryKey
-  public int uid;
-  @ColumnInfo(name = "title")
+//  @PrimaryKey
+//  public int uid;
+//  @ColumnInfo(name = "title")
   private String title;
-  @ColumnInfo(name = "image_element")
+//  @ColumnInfo(name = "image_element")
   private List<ImageElement> imageElements;
 
   public SectionElement(String title) {

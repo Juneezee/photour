@@ -25,8 +25,12 @@ import com.android.photour.databinding.FragmentPhotosBinding;
 import com.android.photour.helper.PermissionHelper;
 import com.android.photour.model.ImageElement;
 import com.android.photour.model.SectionElement;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Fragment for Photos page
@@ -36,6 +40,9 @@ import java.util.List;
 public class PhotosFragment extends Fragment {
 
   private static final String TAG = "PhotosFragment";
+  private static final int QUERY_BY_DATE = 0;
+  private static final int QUERY_BY_PATH = 1;
+  private int sortMode;
 
   public static LruCache<String, Bitmap> mRetainedCache;
 
@@ -45,7 +52,9 @@ public class PhotosFragment extends Fragment {
   private FragmentPhotosBinding binding;
 
   private PhotoAdapter photoAdapter;
+  private SectionedGridRecyclerViewAdapter mSectionedAdapter;
   private PhotosViewModel photosViewModel;
+  private RecyclerView mRecyclerView;
   private Activity activity;
 
   /**
@@ -125,15 +134,14 @@ public class PhotosFragment extends Fragment {
    * Initialize recycler view for photos
    */
   private void initializeRecyclerView() {
-
+    sortMode = QUERY_BY_DATE;
     // Initialize lists for SectionedGridRecyclerViewAdapter
-    List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
-    List<ImageElement> elementList = new ArrayList<>();
+
 
     photosViewModel.setPlaceholderText(true);
 
     // Sets up recycler view and view model
-    RecyclerView mRecyclerView = binding.gridRecyclerView;
+    mRecyclerView = binding.gridRecyclerView;
     mRecyclerView.setHasFixedSize(true);
     int IMAGE_WIDTH = 100;
     mRecyclerView.setLayoutManager(new GridLayoutManager(activity,
@@ -141,40 +149,99 @@ public class PhotosFragment extends Fragment {
 
     // Sets up adapters, photoAdapter is in charge of images, mSectionedAdapter for titles and grid
     photoAdapter = new PhotoAdapter(activity);
-    SectionedGridRecyclerViewAdapter.Section[] dummy =
-        new SectionedGridRecyclerViewAdapter.Section[sections.size()];
-    SectionedGridRecyclerViewAdapter mSectionedAdapter = new
+
+    mSectionedAdapter = new
         SectionedGridRecyclerViewAdapter(activity, R.layout.fragment_photos_sort,
         R.id.sorted_title_view, mRecyclerView, photoAdapter);
 
     // set observer to image list, on calls adapters to reset
     photosViewModel.images.observe(getViewLifecycleOwner(), imageElements -> {
-      //resets lists
-      sections.clear();
-      elementList.clear();
-
-      //Prompts text if no images, else load images into lists
-      if (imageElements == null || imageElements.size() == 0) {
-        photosViewModel.setPlaceholderText(false);
-      } else {
-        int pos = 0;
-        photosViewModel.setPlaceholderText(true);
-        for (SectionElement sectionElement : imageElements) {
-          sections
-              .add(new SectionedGridRecyclerViewAdapter.Section(pos, sectionElement.getTitle()));
-          pos += sectionElement.getImageElements().size(); // add number of photos and title
-          elementList.addAll(sectionElement.getImageElements());
-        }
-      }
-
-      // Parses values into adapters and update view
-      photoAdapter.setItems(elementList);
-      photoAdapter.notifyDataSetChanged();
-      mSectionedAdapter.setSections(sections.toArray(dummy));
-      mSectionedAdapter.notifyDataSetChanged();
-      mRecyclerView.setAdapter(mSectionedAdapter);
+      resetGrid(imageElements);
     });
   }
+
+  private void resetGrid(List<ImageElement> imageElements) {
+
+    List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
+    List<ImageElement> elementList = new ArrayList<>();
+    SectionedGridRecyclerViewAdapter.Section[] dummy =
+            new SectionedGridRecyclerViewAdapter.Section[sections.size()];
+
+    List<SectionElement> sectionElements = sectionImages(imageElements);
+    //Prompts text if no images, else load images into lists
+    if (imageElements == null || imageElements.size() == 0) {
+      photosViewModel.setPlaceholderText(false);
+    } else {
+      int pos = 0;
+      photosViewModel.setPlaceholderText(true);
+      for (SectionElement sectionElement : sectionElements) {
+        sections
+                .add(new SectionedGridRecyclerViewAdapter.Section(pos, sectionElement.getTitle()));
+        pos += sectionElement.getImageElements().size(); // add number of photos and title
+        elementList.addAll(sectionElement.getImageElements());
+      }
+    }
+
+    // Parses values into adapters and update view
+    photoAdapter.setItems(elementList);
+    photoAdapter.notifyDataSetChanged();
+    mSectionedAdapter.setSections(sections.toArray(dummy));
+    mSectionedAdapter.notifyDataSetChanged();
+    mRecyclerView.setAdapter(mSectionedAdapter);
+  }
+  /**
+   * Uses Mediastore query to get all images from a given folder according to the sort
+   * configuration.
+   *
+   * @return List lists of SectionElement, each representing a section in the gallery
+   */
+  private List<SectionElement> sectionImages(List<ImageElement> images) {
+    List<SectionElement> sections = new ArrayList<>();
+
+    int i = 0;
+    String previousTitle = "";
+    SectionElement sectionElement = null;
+    if (images != null) {
+      //Iterates through query and append them into SectionElement
+      for (ImageElement imageElement : images) {
+        String currentTitle;
+        if (sortMode == QUERY_BY_DATE) {
+          Date date = imageElement.getDate();
+          SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
+          currentTitle = sdf.format(date);
+        } else {
+          currentTitle = imageElement.getTripName();
+        }
+        if (!previousTitle.equals(currentTitle)) {
+          if (sectionElement != null) {
+            sections.add(sectionElement);
+          }
+          sectionElement = new SectionElement(currentTitle);
+          previousTitle = currentTitle;
+        }
+
+        sectionElement.addImageElement(imageElement);
+        i++;
+      }
+      if (sectionElement != null) {
+        sections.add(sectionElement);
+      }
+    }
+    return sections;
+  }
+
+  /**
+   * Switch sorting mode and call loadImages() to reset data set
+   *
+   * @param type The type to sort the photos (by date or by path)
+   */
+  private void switchSortMode(int type) {
+    if (sortMode != type) {
+      sortMode = type;
+      resetGrid(photosViewModel.images.getValue());
+    }
+  }
+
 
   /**
    * Initialize the contents of the Fragment host's standard options menu.
@@ -204,9 +271,9 @@ public class PhotosFragment extends Fragment {
       int itemId = item.getItemId();
 
       if (itemId == R.id.by_date) {
-        photosViewModel.switchSortMode(PhotosViewModel.QUERY_BY_DATE);
+        switchSortMode(QUERY_BY_DATE);
       } else if (itemId == R.id.by_path) {
-        photosViewModel.switchSortMode(PhotosViewModel.QUERY_BY_PATH);
+        switchSortMode(QUERY_BY_PATH);
       }
     }
 

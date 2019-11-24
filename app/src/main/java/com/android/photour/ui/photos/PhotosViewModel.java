@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
+import com.android.photour.database.ImageRepository;
 import com.android.photour.model.ImageElement;
 import com.android.photour.model.SectionElement;
 import java.text.SimpleDateFormat;
@@ -28,15 +30,12 @@ import java.util.Locale;
  */
 public class PhotosViewModel extends AndroidViewModel {
 
-  static final int QUERY_BY_DATE = 0;
-  static final int QUERY_BY_PATH = 1;
-  private int sortMode;
-
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
 
   // Statics for readwrite images
-  private MutableLiveData<List<SectionElement>> _images = new MutableLiveData<>();
-  public LiveData<List<SectionElement>> images = _images;
+  private ImageRepository imageRepository;
+//  private MutableLiveData<List<ImageElement>> _images = new MutableLiveData<>();
+  public LiveData<List<ImageElement>> images;
 
   //  static final List<SectionElement> ITEMS = new ArrayList<>();
   private ContentObserver contentObserver = null;
@@ -48,7 +47,7 @@ public class PhotosViewModel extends AndroidViewModel {
    */
   public PhotosViewModel(@NonNull Application application) {
     super(application);
-    sortMode = QUERY_BY_DATE;
+    imageRepository = new ImageRepository(application);
     loadImages();
   }
 
@@ -89,8 +88,7 @@ public class PhotosViewModel extends AndroidViewModel {
    * viewmodel and calls this method if there is any change.
    */
   public void loadImages() {
-    List<SectionElement> imageList = queryImages();
-    _images.postValue(imageList);
+   images = imageRepository.getAllImages();
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {
         @Override
@@ -104,71 +102,7 @@ public class PhotosViewModel extends AndroidViewModel {
     }
   }
 
-  /**
-   * Uses Mediastore query to get all images from a given folder according to the sort
-   * configuration.
-   *
-   * @return List lists of SectionElement, each representing a section in the gallery
-   */
-  private List<SectionElement> queryImages() {
-    List<SectionElement> images = new ArrayList<>();
 
-    //Columns to retrieve with query
-    String[] projection = new String[]{MediaStore.Images.Media._ID,
-        MediaStore.Images.Media.DISPLAY_NAME,
-        MediaStore.Images.Media.DATE_TAKEN,
-        "_data"
-    };
-
-    String selection = "( _data LIKE ? )";
-    String[] selectionArgs = new String[]{"%DCIM%"};
-
-    String sortOrder = sortMode == QUERY_BY_DATE ?
-        MediaStore.Images.Media.DATE_TAKEN + " DESC" : "_data DESC";
-
-    Cursor query = getApplication().getContentResolver().query(
-        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-        projection,
-        selection,
-        selectionArgs,
-        sortOrder
-    );
-    int i = 0;
-    String previousTitle = "";
-    SectionElement sectionElement = null;
-
-    //Iterates through query and append them into SectionElement
-    while (i < query.getCount()) {
-      query.moveToPosition(i);
-      String currentTitle;
-      if (sortMode == QUERY_BY_DATE) {
-        Date date = new Date(query.getLong(query.getColumnIndexOrThrow("datetaken")));
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
-        currentTitle = sdf.format(date);
-      } else {
-        currentTitle = getPath(query.getString(query.getColumnIndexOrThrow("_data")));
-      }
-      long columnIndex = query.getLong(query.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-      Uri contentUri = ContentUris.withAppendedId(
-          MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columnIndex);
-      if (!previousTitle.equals(currentTitle)) {
-        if (sectionElement != null) {
-          images.add(sectionElement);
-        }
-        sectionElement = new SectionElement(currentTitle);
-        previousTitle = currentTitle;
-      }
-
-      sectionElement.addImageElement(new ImageElement(contentUri ));
-      i++;
-    }
-    if (sectionElement != null) {
-      images.add(sectionElement);
-    }
-    query.close();
-
-    return images;
-  }
 
   /**
    * Helper class to get name of folder from whole path
@@ -181,16 +115,5 @@ public class PhotosViewModel extends AndroidViewModel {
     return temp[temp.length - 2];
   }
 
-  /**
-   * Switch sorting mode and call loadImages() to reset data set
-   *
-   * @param type The type to sort the photos (by date or by path)
-   */
-  void switchSortMode(int type) {
-    if (sortMode != type) {
-      sortMode = type;
-      loadImages();
-    }
-  }
 
 }

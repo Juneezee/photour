@@ -14,15 +14,19 @@ import com.android.photour.R;
 import com.android.photour.async.AsyncDrawable;
 import com.android.photour.async.BitmapWorkerTask;
 
-@Entity
+import java.util.Date;
+
+@Entity(tableName = "image_element")
 public class ImageElement {
 
-  @PrimaryKey
-  public int uid;
+  @PrimaryKey(autoGenerate = true)
+  public int id;
   @ColumnInfo(name = "uri")
-  private Uri uri;
+  private String uri;
   @ColumnInfo(name = "trip_name")
   private String tripName;
+  @ColumnInfo(name = "date")
+  private Date date;
   @ColumnInfo(name = "latitude")
   private float lat;
   @ColumnInfo(name = "longtitude")
@@ -32,7 +36,7 @@ public class ImageElement {
   @ColumnInfo(name="ambient")
   private float ambient;
 
-  public ImageElement(Uri uri, String tripName, float lat,
+  public ImageElement(String uri, String tripName, float lat,
                       float lng, float barometer, float ambient) {
     this.uri = uri;
     this.tripName = tripName;
@@ -40,18 +44,22 @@ public class ImageElement {
     this.lng = lng;
     this.barometer = barometer;
     this.ambient = ambient;
+    this.date = new Date();
   }
 
-  public ImageElement(Uri uri) {
+  public String getUri() { return uri;
+  }
+
+  public void setUri(String uri) {
     this.uri = uri;
   }
 
-  public Uri getUri() {
-    return uri;
+  public Date getDate() {
+    return date;
   }
 
-  public void setUri(Uri uri) {
-    this.uri = uri;
+  public void setDate(Date date) {
+    this.date = date;
   }
 
   public String getTripName() {
@@ -95,38 +103,21 @@ public class ImageElement {
   }
 
   @BindingAdapter({ "avatar" })
-  public static void loadImage(ImageView imageView, Uri uri) {
-    final String imageKey = uri.toString();
+  public static void loadImage(ImageView imageView, String uri) {
     final Context context = imageView.getContext();
-    Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(imageKey);
+    Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(uri);
     if (bitmap != null) {
         imageView.setImageBitmap(bitmap);
       } else {
-        if (BitmapWorkerTask.cancelPotentialWork(uri, imageView)) {
+        if (BitmapWorkerTask.cancelPotentialWork(Uri.parse(uri), imageView)) {
           BitmapWorkerTask task = new BitmapWorkerTask(context, imageView);
           Bitmap placeholder = BitmapFactory
                   .decodeResource(context.getResources(), R.drawable.placeholder);
           final AsyncDrawable asyncDrawable =
               new AsyncDrawable(context.getResources(), placeholder, task);
           imageView.setImageDrawable(asyncDrawable);
-          task.execute(uri);
+          task.execute(Uri.parse(uri));
         }
       }
-//  if (items.get(position) != null) {
-//      final String imageKey = items.get(position).toString();
-//      Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(imageKey);
-//      if (bitmap != null) {
-//
-//      } else {
-//        ImageElement imageElement = items.get(position);
-//        if (BitmapWorkerTask.cancelPotentialWork(uri, holder.imageView)) {
-//          BitmapWorkerTask task = new BitmapWorkerTask(context, holder.imageView);
-//          final AsyncDrawable asyncDrawable =
-//              new AsyncDrawable(context.getResources(), placeholder, task);
-//          holder.imageView.setImageDrawable(asyncDrawable);
-//          task.execute(uri);
-//        }
-//      }
-//    }
   }
 }
