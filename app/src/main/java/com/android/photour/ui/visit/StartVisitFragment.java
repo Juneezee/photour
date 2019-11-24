@@ -38,6 +38,7 @@ import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
 import com.google.android.libraries.maps.model.JointType;
 import com.google.android.libraries.maps.model.LatLng;
+import com.google.android.libraries.maps.model.MarkerOptions;
 import com.google.android.libraries.maps.model.PolylineOptions;
 import java.io.File;
 import java.util.ArrayList;
@@ -79,6 +80,8 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
   private ArrayList<LatLng> latLngList = new ArrayList<>();
   private ArrayList<LatLng> markerList = new ArrayList<>();
+
+  private Location currentLocation;
 
   private PendingIntent pendingIntent;
 
@@ -218,8 +221,9 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     this.googleMap.setMyLocationEnabled(true);
     this.googleMap.getUiSettings().setMyLocationButtonEnabled(false);
 
-    // Re-draw the polylines if fragment is re-created
+    // Restore polyline and markers if fragment is re-created
     drawPolyline();
+    drawMarkers();
 
     startLocationUpdates();
   }
@@ -229,9 +233,9 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     public void onLocationResult(LocationResult locationResult) {
       super.onLocationResult(locationResult);
 
-      Location location = locationResult.getLastLocation();
-      double latitude = location.getLatitude();
-      double longitude = location.getLongitude();
+      currentLocation = locationResult.getLastLocation();
+      double latitude = currentLocation.getLatitude();
+      double longitude = currentLocation.getLongitude();
 
       LatLng latLng = new LatLng(latitude, longitude);
       latLngList.add(latLng);
@@ -258,6 +262,26 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
         .jointType(JointType.BEVEL)
         .addAll(latLngList);
     googleMap.addPolyline(polylineOptions);
+  }
+
+  /**
+   * Add a marker at specific location to the map
+   *
+   * @param point A {@link LatLng} point to add
+   */
+  private void addMarkerToMap(LatLng point) {
+    googleMap.addMarker(new MarkerOptions().position(point));
+    markerList.add(point);
+  }
+
+  /**
+   * Draw all markers on map
+   */
+  private void drawMarkers() {
+    final int POINTS = markerList.size();
+    for (int i = 0; i < POINTS; i++) {
+      addMarkerToMap(markerList.get(i));
+    }
   }
 
   private void startLocationUpdates() {
@@ -380,6 +404,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   public void onSaveInstanceState(@NonNull Bundle outState) {
     outState.putLong(KEY_CHRONOMETER, visitViewModel.getElapsedTime());
     outState.putParcelableArrayList(KEY_POLYLINE, latLngList);
+    outState.putParcelableArrayList(KEY_MARKER, markerList);
     super.onSaveInstanceState(outState);
   }
 
@@ -397,8 +422,9 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     super.onViewStateRestored(savedInstanceState);
 
     if (savedInstanceState != null) {
-      // Restore polyline
+      // Restore polyline and markers
       latLngList = savedInstanceState.getParcelableArrayList(KEY_POLYLINE);
+      markerList = savedInstanceState.getParcelableArrayList(KEY_MARKER);
 
       // Restore the chronometer time
       visitViewModel.setElapsedTime(savedInstanceState.getLong(KEY_CHRONOMETER));
@@ -453,6 +479,14 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
       @Override
       public void onImagesPicked(@NonNull List<File> imageFiles, ImageSource source, int type) {
         // CODE TODO when upload from gallery
+
+        addMarkerToMap(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+
+        System.out.println("hi");
+        System.out.println(imageFiles);
+        System.out.println(source);
+        System.out.println(type);
+        System.out.println("yo");
       }
     });
   }

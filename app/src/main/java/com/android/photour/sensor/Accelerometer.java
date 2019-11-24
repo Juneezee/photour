@@ -147,7 +147,7 @@ public class Accelerometer {
   /**
    * Get the {@link AmbientSensor} instance
    *
-   * @return A {@link AmbientSensor} instance
+   * @return AmbientSensor A {@link AmbientSensor} instance
    */
   public AmbientSensor getAmbientSensor() {
     return ambientSensor;
@@ -156,7 +156,7 @@ public class Accelerometer {
   /**
    * Check if accelerometer sensor is available on current device
    *
-   * @return True if the accelerometer sensor is available on current device
+   * @return boolean True if the accelerometer sensor is available on current device
    */
   private boolean standardAccelerometerAvailable() {
     return accelerometer != null;

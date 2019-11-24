@@ -61,7 +61,7 @@ public class PhotosFragment extends Fragment {
    * Finds or create a PhotoFragment using FragmentManager. Used to retain state on rotation
    *
    * @param fm FragmentManager
-   * @return PhotoFragment
+   * @return A {@link PhotosFragment} fragment instance
    */
   public static PhotosFragment findOrCreateRetainFragment(FragmentManager fm) {
     PhotosFragment fragment = (PhotosFragment) fm.findFragmentByTag(TAG);

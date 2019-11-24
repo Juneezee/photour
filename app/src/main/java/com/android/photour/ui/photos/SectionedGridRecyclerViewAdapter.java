@@ -95,7 +95,7 @@ public class SectionedGridRecyclerViewAdapter extends
    * @param parent   The ViewGroup into which the new View will be added after it is bound to an
    *                 adapter position.
    * @param typeView The view type of the new View.
-   * @return the created viewholder
+   * @return {@link RecyclerView.ViewHolder} The created viewholder
    */
   @NonNull
   @Override
