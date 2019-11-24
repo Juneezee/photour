@@ -276,10 +276,12 @@ public class PhotosFragment extends Fragment {
     if (permissionHelper.hasStoragePermission()) {
       int itemId = item.getItemId();
 
-      if (itemId == R.id.by_date) {
-        switchSortMode(QUERY_BY_DATE);
-      } else if (itemId == R.id.by_path) {
-        switchSortMode(QUERY_BY_PATH);
+      switch (itemId) {
+        case R.id.by_date_desc:
+        case R.id.by_date_asc:
+        case R.id.by_path:
+          photosViewModel.switchSortMode(itemId);
+          break;
       }
     }
 

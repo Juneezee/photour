@@ -13,8 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
-import com.android.photour.database.ImageRepository;
+import com.android.photour.R;
 import com.android.photour.model.ImageElement;
 import com.android.photour.model.SectionElement;
 import java.text.SimpleDateFormat;
@@ -29,6 +28,8 @@ import java.util.Locale;
  * @author Zer Jun Eng, Jia Hua Ng
  */
 public class PhotosViewModel extends AndroidViewModel {
+
+  private int sortMode;
 
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
 
@@ -47,7 +48,7 @@ public class PhotosViewModel extends AndroidViewModel {
    */
   public PhotosViewModel(@NonNull Application application) {
     super(application);
-    imageRepository = new ImageRepository(application);
+    sortMode = R.id.by_date_desc;
     loadImages();
   }
 
@@ -87,8 +88,9 @@ public class PhotosViewModel extends AndroidViewModel {
    * Calls queryImages() to get all images from external storage. Sets up an Observer to observe the
    * viewmodel and calls this method if there is any change.
    */
-  public void loadImages() {
-   images = imageRepository.getAllImages();
+  private void loadImages() {
+    List<SectionElement> imageList = queryImages();
+    _images.postValue(imageList);
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {
         @Override
@@ -100,6 +102,74 @@ public class PhotosViewModel extends AndroidViewModel {
       this.getApplication().getContentResolver().registerContentObserver(
           MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, contentObserver);
     }
+  }
+
+  /**
+   * Uses Mediastore query to get all images from a given folder according to the sort
+   * configuration.
+   *
+   * @return List lists of SectionElement, each representing a section in the gallery
+   */
+  private List<SectionElement> queryImages() {
+    List<SectionElement> images = new ArrayList<>();
+
+    // Columns to retrieve with query
+    String[] projection = new String[]{MediaStore.Images.Media._ID,
+        MediaStore.Images.Media.DISPLAY_NAME,
+        MediaStore.Images.Media.DATE_TAKEN,
+        "_data"
+    };
+
+    String selection = "( _data LIKE ? )";
+    String[] selectionArgs = new String[]{"%DCIM%"};
+
+    String sortOrder =
+        sortMode == R.id.by_date_desc ? MediaStore.Images.Media.DATE_TAKEN + " DESC"
+            : sortMode == R.id.by_date_asc ? MediaStore.Images.Media.DATE_TAKEN + " ASC"
+                : "_data DESC";
+
+    Cursor query = getApplication().getContentResolver().query(
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+        projection,
+        selection,
+        selectionArgs,
+        sortOrder
+    );
+    int i = 0;
+    String previousTitle = "";
+    SectionElement sectionElement = null;
+
+    //Iterates through query and append them into SectionElement
+    while (i < query.getCount()) {
+      query.moveToPosition(i);
+      String currentTitle;
+      if (sortMode != R.id.by_path) {
+        Date date = new Date(query.getLong(query.getColumnIndexOrThrow("datetaken")));
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
+        currentTitle = sdf.format(date);
+      } else {
+        currentTitle = getPath(query.getString(query.getColumnIndexOrThrow("_data")));
+      }
+      long columnIndex = query.getLong(query.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+      Uri contentUri = ContentUris.withAppendedId(
+          MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columnIndex);
+      if (!previousTitle.equals(currentTitle)) {
+        if (sectionElement != null) {
+          images.add(sectionElement);
+        }
+        sectionElement = new SectionElement(currentTitle);
+        previousTitle = currentTitle;
+      }
+
+      sectionElement.addImageElement(new ImageElement(contentUri));
+      i++;
+    }
+    if (sectionElement != null) {
+      images.add(sectionElement);
+    }
+    query.close();
+
+    return images;
   }
 
   /**

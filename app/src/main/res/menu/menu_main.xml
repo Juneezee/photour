@@ -11,8 +11,12 @@
 
     <menu>
       <item
-        android:id="@+id/by_date"
-        android:title="@string/sort_by_date" />
+        android:id="@+id/by_date_desc"
+        android:title="@string/sort_by_newest_first" />
+
+      <item
+        android:id="@+id/by_date_asc"
+        android:title="@string/sort_by_oldest_first" />
 
       <item
         android:id="@+id/by_path"
