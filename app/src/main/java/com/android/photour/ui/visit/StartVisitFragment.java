@@ -3,10 +3,7 @@ package com.android.photour.ui.visit;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.graphics.Color;
-import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,22 +23,11 @@ import com.android.photour.R;
 import com.android.photour.databinding.FragmentStartVisitBinding;
 import com.android.photour.helper.LocationServicesHelper;
 import com.android.photour.sensor.Accelerometer;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.libraries.maps.CameraUpdate;
-import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
-import com.google.android.libraries.maps.model.JointType;
-import com.google.android.libraries.maps.model.LatLng;
-import com.google.android.libraries.maps.model.MarkerOptions;
-import com.google.android.libraries.maps.model.PolylineOptions;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
@@ -54,12 +40,10 @@ import pl.aprilapps.easyphotopicker.EasyImage.ImageSource;
  */
 public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
+  private final StartVisitMap startVisitMap = new StartVisitMap(this);
   private FragmentStartVisitBinding binding;
   private VisitViewModel visitViewModel;
   private Activity activity;
-
-  private GoogleMap googleMap;
-  private FusedLocationProviderClient fusedLocationProviderClient;
 
   // Sensors
   private Accelerometer accelerometer;
@@ -72,18 +56,22 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   private static final String KEY_POLYLINE = "polyline";
   private static final String KEY_MARKER = "marker";
 
-  // Constants for Google Map setting and location request
-  private static final int ZOOM_LEVEL = 17;
-  private static final int UPDATE_INTERVAL = 20000;
-  private static final int FASTEST_INTERVAL = 1000;
-  private static final float MIN_DISPLACEMENT = 5; // 5 metres minimum movements
 
-  private ArrayList<LatLng> latLngList = new ArrayList<>();
-  private ArrayList<LatLng> markerList = new ArrayList<>();
+  /**
+   * Get the value of isFirstTime
+   *
+   * @return boolean True if first time launching this fragment
+   */
+  boolean isFirstTime() {
+    return isFirstTime;
+  }
 
-  private Location currentLocation;
-
-  private PendingIntent pendingIntent;
+  /**
+   * Set the value of isFirstTime to false
+   */
+  void setFirstTime() {
+    isFirstTime = false;
+  }
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -127,7 +115,8 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     binding.setTemperature(accelerometer.getAmbientSensor());
     binding.setPressure(accelerometer.getBarometer());
 
-    fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
+    startVisitMap
+        .setFusedLocationProviderClient(LocationServices.getFusedLocationProviderClient(activity));
 
     return binding.getRoot();
   }
@@ -217,117 +206,14 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    */
   @Override
   public void onMapReady(GoogleMap googleMap) {
-    this.googleMap = googleMap;
-    this.googleMap.setMyLocationEnabled(true);
-    this.googleMap.getUiSettings().setMyLocationButtonEnabled(false);
-
-    // Restore polyline and markers if fragment is re-created
-    drawPolyline();
-    drawMarkers();
-
-    startLocationUpdates();
-  }
-
-  private LocationCallback locationCallback = new LocationCallback() {
-    @Override
-    public void onLocationResult(LocationResult locationResult) {
-      super.onLocationResult(locationResult);
-
-      currentLocation = locationResult.getLastLocation();
-      double latitude = currentLocation.getLatitude();
-      double longitude = currentLocation.getLongitude();
-
-      LatLng latLng = new LatLng(latitude, longitude);
-      latLngList.add(latLng);
-
-      drawPolyline();
-
-      // First location update should not animate to prevent fast zoom on initialisation
-      if (isFirstTime) {
-        isFirstTime = false;
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM_LEVEL));
-      } else {
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM_LEVEL));
-      }
-    }
-  };
-
-  /**
-   * Draw polyline on the map to represent the visit route
-   */
-  private void drawPolyline() {
-    PolylineOptions polylineOptions = new PolylineOptions()
-        .width(5)
-        .color(Color.rgb(190, 41, 236))
-        .jointType(JointType.BEVEL)
-        .addAll(latLngList);
-    googleMap.addPolyline(polylineOptions);
-  }
-
-  /**
-   * Add a marker at specific location to the map
-   *
-   * @param point A {@link LatLng} point to add
-   */
-  private void addMarkerToMap(LatLng point) {
-    googleMap.addMarker(new MarkerOptions().position(point));
-    markerList.add(point);
-  }
-
-  /**
-   * Draw all markers on map
-   */
-  private void drawMarkers() {
-    final int POINTS = markerList.size();
-    for (int i = 0; i < POINTS; i++) {
-      addMarkerToMap(markerList.get(i));
-    }
-  }
-
-  private void startLocationUpdates() {
-//    Intent intent = new Intent(activity, LocationIntentService.class);
-//    intent.setAction(LocationIntentService.ACTION_PROCESS_UPDATES);
-//
-//    if (VERSION.SDK_INT >= VERSION_CODES.O) {
-//      pendingIntent = PendingIntent
-//          .getForegroundService(activity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//    } else {
-//      pendingIntent = PendingIntent
-//          .getService(activity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//    }
-
-    LocationRequest locationRequest = new LocationRequest()
-        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-        .setInterval(UPDATE_INTERVAL)
-        .setFastestInterval(FASTEST_INTERVAL)
-        .setMaxWaitTime(UPDATE_INTERVAL)
-        .setSmallestDisplacement(MIN_DISPLACEMENT);
-
-    fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
-
-//    fusedLocationProviderClient.requestLocationUpdates(locationRequest, pendingIntent);
-  }
-
-  private void stopLocationUpdates() {
-    fusedLocationProviderClient.removeLocationUpdates(pendingIntent);
+    startVisitMap.onMapReady(googleMap);
   }
 
   /**
    * Zoom the map to the current location of the device
    */
   private void zoomToCurrentLocation() {
-    fusedLocationProviderClient.getLastLocation().addOnSuccessListener(activity, location -> {
-      if (location == null) {
-        // The location is likely to be null when location services is faulty, request again
-        onMyLocationClick();
-      } else {
-
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-            new LatLng(location.getLatitude(), location.getLongitude()), ZOOM_LEVEL);
-
-        googleMap.animateCamera(cameraUpdate);
-      }
-    }).addOnFailureListener(e -> onMyLocationClick());
+    startVisitMap.zoomToCurrentLocation();
   }
 
   /**
@@ -403,8 +289,8 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
     outState.putLong(KEY_CHRONOMETER, visitViewModel.getElapsedTime());
-    outState.putParcelableArrayList(KEY_POLYLINE, latLngList);
-    outState.putParcelableArrayList(KEY_MARKER, markerList);
+    outState.putParcelableArrayList(KEY_POLYLINE, startVisitMap.getLatLngList());
+    outState.putParcelableArrayList(KEY_MARKER, startVisitMap.getMarkerList());
     super.onSaveInstanceState(outState);
   }
 
@@ -423,8 +309,8 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
     if (savedInstanceState != null) {
       // Restore polyline and markers
-      latLngList = savedInstanceState.getParcelableArrayList(KEY_POLYLINE);
-      markerList = savedInstanceState.getParcelableArrayList(KEY_MARKER);
+      startVisitMap.setLatLngList(savedInstanceState.getParcelableArrayList(KEY_POLYLINE));
+      startVisitMap.setMarkerList(savedInstanceState.getParcelableArrayList(KEY_MARKER));
 
       // Restore the chronometer time
       visitViewModel.setElapsedTime(savedInstanceState.getLong(KEY_CHRONOMETER));
@@ -480,7 +366,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
       public void onImagesPicked(@NonNull List<File> imageFiles, ImageSource source, int type) {
         // CODE TODO when upload from gallery
 
-        addMarkerToMap(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+        startVisitMap.addCurrentLocationAsMarker();
 
         System.out.println("hi");
         System.out.println(imageFiles);
