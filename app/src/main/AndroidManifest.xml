@@ -47,7 +47,7 @@
     </activity>
 
     <service
-      android:name=".ui.visit.LocationServiceIntent"
+      android:name=".ui.visit.LocationIntentService"
       android:exported="false" />
   </application>
 

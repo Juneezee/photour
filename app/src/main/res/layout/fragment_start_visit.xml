@@ -147,7 +147,7 @@
       android:layout_marginEnd="@dimen/fragment_horizontal_margin"
       android:layout_marginBottom="@dimen/activity_vertical_margin"
       android:backgroundTint="@color/colorGhostWhite"
-      android:onClick="@{() -> fragment.checkDeviceLocation()}"
+      android:onClick="@{() -> fragment.onMyLocationClick()}"
       android:src="@drawable/ic_my_location"
       app:backgroundTint="@color/colorLightGray"
       app:layout_constraintBottom_toTopOf="@id/fab_camera"

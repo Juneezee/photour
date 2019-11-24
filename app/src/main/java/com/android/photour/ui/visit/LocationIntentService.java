@@ -2,25 +2,22 @@ package com.android.photour.ui.visit;
 
 import android.app.IntentService;
 import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Intent;
 import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationCompat.Builder;
 import com.android.photour.R;
 import com.google.android.gms.location.LocationResult;
 
-public class LocationServiceIntent extends IntentService {
+public class LocationIntentService extends IntentService {
 
   public static final String ACTION_PROCESS_UPDATES = "com.android.photour" + ".PROCESS_UPDATES";
 
   /**
    * Creates an IntentService.  Invoked by subclass's constructor.
    */
-  public LocationServiceIntent() {
-    super("LocationServiceIntent");
+  public LocationIntentService() {
+    super("LocationIntentService");
   }
 
   /**
@@ -36,9 +33,9 @@ public class LocationServiceIntent extends IntentService {
    */
   @Override
   protected void onHandleIntent(@Nullable Intent intent) {
-    Log.d("LocationServiceIntent", "onHandleIntent called");
+    Log.d("LocationIntentService", "onHandleIntent called");
 
-    startForeground(1001, getNotification());
+    startForeground(1, getNotification());
 
     if (intent != null) {
       if (ACTION_PROCESS_UPDATES.equals(intent.getAction())) {
@@ -57,24 +54,11 @@ public class LocationServiceIntent extends IntentService {
   }
 
   private Notification getNotification() {
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-      NotificationChannel notificationChannel = new NotificationChannel(
-          "default-channel",
-          "LocationChannel",
-          NotificationManager.IMPORTANCE_HIGH
-      );
-
-      NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-      manager.createNotificationChannel(notificationChannel);
-    }
-
-    NotificationCompat.Builder builder =
-        new Builder(getApplicationContext(), "default-channel")
-            .setContentTitle("Location Notification")
-            .setContentText("Location service running in background")
-            .setChannelId("default-channel")
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setAutoCancel(true);
+    NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "photour")
+        .setSmallIcon(R.drawable.ic_visit)
+        .setContentTitle("Ongoing visit")
+        .setContentText("new visit title")
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
     return builder.build();
   }
@@ -83,6 +67,6 @@ public class LocationServiceIntent extends IntentService {
   public void onDestroy() {
     super.onDestroy();
     stopForeground(false);
-    Log.d("LocationServiceIntent", "onDestroy called");
+    Log.d("LocationIntentService", "onDestroy called");
   }
 }
