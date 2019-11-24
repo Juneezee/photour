@@ -160,6 +160,11 @@ public class PhotosFragment extends Fragment {
     });
   }
 
+  /**
+   * Fucntion to reload recycler view. Splits ImageElements into section.
+   *
+   * @param imageElements List of ImageElements
+   */
   private void resetGrid(List<ImageElement> imageElements) {
 
     List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
@@ -189,6 +194,7 @@ public class PhotosFragment extends Fragment {
     mSectionedAdapter.notifyDataSetChanged();
     mRecyclerView.setAdapter(mSectionedAdapter);
   }
+
   /**
    * Uses Mediastore query to get all images from a given folder according to the sort
    * configuration.
@@ -231,7 +237,7 @@ public class PhotosFragment extends Fragment {
   }
 
   /**
-   * Switch sorting mode and call loadImages() to reset data set
+   * Switch sorting mode and call resetGrid() to reload recyclerView
    *
    * @param type The type to sort the photos (by date or by path)
    */

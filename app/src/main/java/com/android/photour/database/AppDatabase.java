@@ -20,6 +20,11 @@ import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Database class.
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 @Database(entities = {ImageElement.class}, version = 1, exportSchema = false)
 @TypeConverters({DateConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
@@ -31,6 +36,11 @@ public abstract class AppDatabase extends RoomDatabase {
           Executors.newFixedThreadPool(NUMBER_OF_THREADS);
   private Context context;
 
+  /**
+   * Initialise the database if not yet initialised, else return the database object.
+   * @param context Context of MainActivity
+   * @return AppDatabase the database object
+   */
   public static AppDatabase getDatabase(final Context context) {
     if (INSTANCE == null) {
       synchronized (AppDatabase.class) {
@@ -46,6 +56,10 @@ public abstract class AppDatabase extends RoomDatabase {
     return INSTANCE;
   }
 
+  /**
+   * Callback function to seed the database.
+   * Used for testing.
+   */
   private static RoomDatabase.Callback sRoomDatabaseCallback = new RoomDatabase.Callback() {
     @Override
     public void onOpen(@NonNull SupportSQLiteDatabase db) {
@@ -66,7 +80,7 @@ public abstract class AppDatabase extends RoomDatabase {
         };
 
         String selection = "( _data LIKE ? )";
-        String[] selectionArgs = new String[]{"%Pictures%"};
+        String[] selectionArgs = new String[]{"%Snapchat%"};
 
         String sortOrder = MediaStore.Images.Media.DATE_TAKEN + " DESC";
 

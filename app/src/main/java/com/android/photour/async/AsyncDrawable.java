@@ -6,7 +6,7 @@ import android.graphics.drawable.BitmapDrawable;
 import java.lang.ref.WeakReference;
 
 /**
- * A class for
+ * A class for referencing tasks with ImageView
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */

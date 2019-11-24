@@ -8,6 +8,11 @@ import com.android.photour.model.ImageElement;
 
 import java.util.List;
 
+/**
+ * Repository for Database
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class ImageRepository {
 
   private ImageDao imageDao;

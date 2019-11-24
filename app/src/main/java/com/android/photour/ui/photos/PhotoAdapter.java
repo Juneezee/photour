@@ -151,28 +151,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
     ImageElement imageElement = items.get(position);
     holder.itemImageBinding.setImage(imageElement);
     holder.itemImageBinding.executePendingBindings();
-
-//    if (items.get(position) != null) {
-//      final String imageKey = items.get(position).toString();
-//      Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(imageKey);
-//      if (bitmap != null) {
-//
-//      } else {
-//        ImageElement imageElement = items.get(position);
-//        if (BitmapWorkerTask.cancelPotentialWork(uri, holder.imageView)) {
-//          BitmapWorkerTask task = new BitmapWorkerTask(context, holder.imageView);
-//          final AsyncDrawable asyncDrawable =
-//              new AsyncDrawable(context.getResources(), placeholder, task);
-//          holder.imageView.setImageDrawable(asyncDrawable);
-//          task.execute(uri);
-//        }
-//      }
-//    }
-
-//      holder.imageView.setOnClickListener(view -> {
-//        // INSERT CODE TO ENTER IMAGE HERE
-//      });
-//    }
   }
 
   /**

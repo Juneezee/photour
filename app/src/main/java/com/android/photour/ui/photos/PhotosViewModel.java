@@ -102,8 +102,6 @@ public class PhotosViewModel extends AndroidViewModel {
     }
   }
 
-
-
   /**
    * Helper class to get name of folder from whole path
    *

@@ -11,6 +11,11 @@ import com.android.photour.model.ImageElement;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Data Acesss Object for Database
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 @Dao
 public interface ImageDao {
   @Query("SELECT * FROM image_element ORDER BY date DESC")
