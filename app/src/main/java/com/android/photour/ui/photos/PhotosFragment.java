@@ -153,7 +153,7 @@ public class PhotosFragment extends Fragment {
         PhotosViewModel.calculateNoOfColumns(activity, IMAGE_WIDTH)));
 
     // Sets up adapters, photoAdapter is in charge of images, mSectionedAdapter for titles and grid
-    photoAdapter = new PhotoAdapter(activity);
+    photoAdapter = new PhotoAdapter();
 
     mSectionedAdapter = new
         SectionedGridRecyclerViewAdapter(activity, R.layout.fragment_photos_sort,

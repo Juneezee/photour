@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +21,7 @@ public class BitmapHelper {
    * @return int The sample size value
    * @see <a href="https://developer.android.com/topic/performance/graphics/load-bitmap"></a>
    */
-  public static int calculateInSampleSize(
+  private static int calculateInSampleSize(
       BitmapFactory.Options options,
       int reqWidth,
       int reqHeight
@@ -56,7 +57,6 @@ public class BitmapHelper {
    * @param reqWidth required width
    * @param reqHeight required height
    * @return Bitmap the compressed bitmap
-   * @throws FileNotFoundException thrown if Uri for image is invalid
    * @see <a href="https://developer.android.com/topic/performance/graphics/load-bitmap"></a>
    */
   public static Bitmap decodeSampledBitmapFromResource(
@@ -64,7 +64,7 @@ public class BitmapHelper {
       Uri resUri,
       int reqWidth,
       int reqHeight
-  ) throws FileNotFoundException {
+  ) {
 
     // First decode with inJustDecodeBounds=true to check dimensions
     final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -72,17 +72,13 @@ public class BitmapHelper {
 
     try {
       InputStream inputStream = context.getContentResolver().openInputStream(resUri);
-      Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+      Bitmap bitmap = BitmapFactory.decodeStream(new BufferedInputStream(inputStream), null, options);
       options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
       if (options.inSampleSize > 1) {
         inputStream = context.getContentResolver().openInputStream(resUri);
         options.inJustDecodeBounds = false;
-        bitmap = BitmapFactory.decodeStream(inputStream, null, options);
-      }
-
-      if (inputStream != null) {
-        inputStream.close();
+        bitmap = BitmapFactory.decodeStream(new BufferedInputStream(inputStream), null, options);
       }
 
       return bitmap;

@@ -25,19 +25,6 @@ import java.util.List;
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
 
   private static List<ImageElement> items = new ArrayList<>();
-  final Bitmap placeholder;
-  private Context context;
-
-  /**
-   * Constructor for PhotoAdapter
-   *
-   * @param context Context of MainActivity
-   */
-  PhotoAdapter(Context context) {
-    this.context = context;
-    this.placeholder = BitmapFactory
-        .decodeResource(context.getResources(), R.drawable.placeholder);
-  }
 
   /**
    * Accessor for items

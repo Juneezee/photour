@@ -12,7 +12,7 @@ import java.lang.ref.WeakReference;
  */
 public class AsyncDrawable extends BitmapDrawable {
 
-  private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
+  private final WeakReference<BitmapTask> bitmapTaskReference;
 
   /**
    * Constructor for AsyncDrawable. Used as a reference to replace the given imageView when async
@@ -20,23 +20,23 @@ public class AsyncDrawable extends BitmapDrawable {
    *
    * @param res Resource object
    * @param bitmap Placeholder bitmap for the imageView
-   * @param bitmapWorkerTask Async task for the given imageView
+   * @param bitmapTask Async task for the given imageView
    */
   public AsyncDrawable(
       Resources res,
       Bitmap bitmap,
-      BitmapWorkerTask bitmapWorkerTask
+      BitmapTask bitmapTask
   ) {
     super(res, bitmap);
-    bitmapWorkerTaskReference = new WeakReference<>(bitmapWorkerTask);
+    bitmapTaskReference = new WeakReference<>(bitmapTask);
   }
 
   /**
-   * Getter for BitmapWorkerTask
+   * Getter for BitmapThumbnailTask
    *
-   * @return BitmapWorkerTask
+   * @return BitmapThumbnailTask
    */
-  BitmapWorkerTask getBitmapWorkerTask() {
-    return bitmapWorkerTaskReference.get();
+  BitmapTask getBitmapTask() {
+    return bitmapTaskReference.get();
   }
 }

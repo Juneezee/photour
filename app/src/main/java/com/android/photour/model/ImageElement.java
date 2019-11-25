@@ -20,13 +20,15 @@ import androidx.room.PrimaryKey;
 import com.android.photour.MainActivity;
 import com.android.photour.R;
 import com.android.photour.async.AsyncDrawable;
-import com.android.photour.async.BitmapWorkerTask;
+import com.android.photour.async.BitmapRawTask;
+import com.android.photour.async.BitmapTask;
+import com.android.photour.async.BitmapThumbnailTask;
 import com.android.photour.ui.photos.PhotosFragmentDirections;
 import com.android.photour.ui.photos.PhotosFragmentDirections.ActionViewImage;
+import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
 
@@ -123,8 +125,8 @@ public class ImageElement implements Parcelable {
     if (bitmap != null) {
       imageView.setImageBitmap(bitmap);
     } else {
-      if (BitmapWorkerTask.cancelPotentialWork(Uri.parse(uri), imageView)) {
-        BitmapWorkerTask task = new BitmapWorkerTask(context, imageView);
+      if (BitmapThumbnailTask.shouldCancelTask(Uri.parse(uri), imageView)) {
+        BitmapThumbnailTask task = new BitmapThumbnailTask(context, imageView);
         Bitmap placeholder = BitmapFactory
             .decodeResource(context.getResources(), R.drawable.placeholder);
         final AsyncDrawable asyncDrawable =
@@ -137,43 +139,18 @@ public class ImageElement implements Parcelable {
 
   @BindingAdapter({"rawImage"})
   public static void loadRawImage(ImageView imageView, String uri) {
-//    final Context context = imageView.getContext();
-//    BitmapWorkerTask task = new BitmapWorkerTask(context, imageView);
-//    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Uri.parse(uri));
+    final Context context = imageView.getContext();
 
-    new LoadImageAsync(imageView).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, uri);
+    BitmapTask bitmapRawTask = new BitmapRawTask(imageView.getContext(), imageView);
+    Bitmap placeholder = BitmapFactory
+        .decodeResource(context.getResources(), R.drawable.placeholder);
+
+    final AsyncDrawable asyncDrawable =
+        new AsyncDrawable(context.getResources(), placeholder, bitmapRawTask);
+
+    imageView.setImageDrawable(asyncDrawable);
+    bitmapRawTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Uri.parse(uri));
   }
-
-  public static class LoadImageAsync extends AsyncTask<String, Void, Bitmap> {
-
-    ImageView imageView;
-    Context context;
-
-    public LoadImageAsync(ImageView imageView) {
-      this.imageView = imageView;
-      this.context = imageView.getContext();
-    }
-
-    @Override
-    protected Bitmap doInBackground(String... strings) {
-      Process.setThreadPriority(THREAD_PRIORITY_URGENT_DISPLAY);
-
-      InputStream inputStream = null;
-      try {
-        inputStream = context.getContentResolver().openInputStream(Uri.parse(strings[0]));
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
-      }
-
-      return BitmapFactory.decodeStream(inputStream);
-    }
-
-    @Override
-    protected void onPostExecute(Bitmap bitmap) {
-      imageView.setImageBitmap(bitmap);
-    }
-  }
-
 
   /**
    * Getter for Uri
