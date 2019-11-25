@@ -84,26 +84,35 @@ public abstract class AppDatabase extends RoomDatabase {
 
         String sortOrder = MediaStore.Images.Media.DATE_TAKEN + " DESC";
 
-        Cursor query = INSTANCE.context.getContentResolver().query(
+        Cursor cursor = INSTANCE.context.getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 projection,
                 selection,
                 selectionArgs,
                 sortOrder
         );
-        int i = 0;
-        while (i < query.getCount()) {
-          query.moveToPosition(i);
-          long columnIndex = query.getLong(query.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+
+        if (cursor == null) {
+          return;
+        }
+
+        while (cursor.moveToNext()) {
+          long columnIndex = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
           Uri contentUri = ContentUris.withAppendedId(
                   MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columnIndex);
-          String pathname = getPath(query.getString(query.getColumnIndexOrThrow("_data")));
+          String pathname = getPath(cursor.getString(cursor.getColumnIndexOrThrow("_data")));
+          long dateTaken = cursor.getLong(
+                  cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN));
+          Calendar calendar = Calendar.getInstance();
+          calendar.setTimeInMillis(dateTaken);
+          Date date = calendar.getTime();
           ImageElement imageElement =
                   new ImageElement(contentUri.toString(), pathname, 53.3808641,-1.4877637, 0, 0, date);
           dao.insertImages(imageElement);
-          i++;
+
         }
-        query.close();
+
+        cursor.close();
       });
     }
   };

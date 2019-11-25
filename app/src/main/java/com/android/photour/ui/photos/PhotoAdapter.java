@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.android.photour.R;
 import com.android.photour.databinding.ItemImageBinding;
+import com.android.photour.helper.BitmapHelper;
 import com.android.photour.model.ImageElement;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -36,77 +37,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
     this.context = context;
     this.placeholder = BitmapFactory
         .decodeResource(context.getResources(), R.drawable.placeholder);
-  }
-
-  /**
-   * Calculate the size of bitmap that will need to be reduced to to fit the given dimension.
-   * Referenced Android Developer: Loading Large Bitmaps Efficiently
-   *
-   * @param options BitmapFactory options to perform the compression
-   * @param reqWidth required width
-   * @param reqHeight required height
-   * @see <a href="https://developer.android.com/topic/performance/graphics/load-bitmap"></a>
-   */
-  private static int calculateInSampleSize(
-      BitmapFactory.Options options, int reqWidth, int reqHeight) {
-    // Raw height and width of image
-    final int height = options.outHeight;
-    final int width = options.outWidth;
-    int inSampleSize = 1;
-
-    if (height > reqHeight || width > reqWidth) {
-
-      final int halfHeight = height / 2;
-      final int halfWidth = width / 2;
-
-      // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-      // height and width larger than the requested height and width.
-      while ((halfHeight / inSampleSize) >= reqHeight
-          && (halfWidth / inSampleSize) >= reqWidth) {
-        inSampleSize *= 2;
-      }
-    }
-
-    return inSampleSize;
-  }
-
-  /**
-   * Function to reduce bitmap size Referenced Android Developer: Loading Large Bitmaps Efficiently
-   *
-   * @param context Context of MainActivity
-   * @param resUri Uri of the image
-   * @param reqWidth required width
-   * @param reqHeight required height
-   * @return Bitmap the compressed bitmap
-   * @throws FileNotFoundException thrown if Uri for image is invalid
-   * @see <a href="https://developer.android.com/topic/performance/graphics/load-bitmap"></a>
-   */
-  public static Bitmap decodeSampledBitmapFromResource(Context context, Uri resUri,
-      int reqWidth, int reqHeight) throws FileNotFoundException {
-    // First decode with inJustDecodeBounds=true to check dimensions
-    final BitmapFactory.Options options = new BitmapFactory.Options();
-    options.inJustDecodeBounds = true;
-    InputStream inputStream = null;
-    try {
-      inputStream = context.getContentResolver().openInputStream(resUri);
-      Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
-      options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-      inputStream.close();
-      if (options.inSampleSize <= 1) {
-        return bitmap;
-      } else {
-        inputStream = context.getContentResolver().openInputStream(resUri);
-        options.inJustDecodeBounds = false;
-        bitmap = BitmapFactory.decodeStream(inputStream,
-            null, options);
-        inputStream.close();
-        return bitmap;
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    return null;
   }
 
   /**

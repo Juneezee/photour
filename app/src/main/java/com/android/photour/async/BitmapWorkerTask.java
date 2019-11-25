@@ -1,7 +1,5 @@
 package com.android.photour.async;
 
-import static com.android.photour.ui.photos.PhotoAdapter.decodeSampledBitmapFromResource;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -9,8 +7,10 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.widget.ImageView;
+import androidx.exifinterface.media.ExifInterface;
 import com.android.photour.MainActivity;
-import java.io.FileNotFoundException;
+import com.android.photour.helper.BitmapHelper;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 
 /**
@@ -48,11 +48,22 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
     try {
       Context contextRef = context.get();
       data = params[0];
-      bitmap = decodeSampledBitmapFromResource(contextRef, data, 100, 100);
-      bitmap = ThumbnailUtils.extractThumbnail(bitmap, 100, 100);
+
+      InputStream inputStream = contextRef.getContentResolver().openInputStream(data);
+
+      if (inputStream == null) {
+        return null;
+      }
+
+      ExifInterface exifInterface = new ExifInterface(inputStream);
+
+      bitmap = exifInterface.hasThumbnail()
+          ? exifInterface.getThumbnailBitmap()
+          : BitmapHelper.decodeSampledBitmapFromResource(contextRef, data, 100, 100);
+
       ((MainActivity) contextRef).addBitmapToMemoryCache(String.valueOf(data), bitmap);
       return bitmap;
-    } catch (FileNotFoundException e) {
+    } catch (Exception e) {
       e.printStackTrace();
       return null;
     }
