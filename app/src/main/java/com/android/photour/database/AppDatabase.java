@@ -66,54 +66,54 @@ public abstract class AppDatabase extends RoomDatabase {
       super.onOpen(db);
       // If you want to keep data through app restarts,
       // comment out the following block
-//      databaseWriteExecutor.execute(() -> {
-//
-//        // Populate the database in the background.
-//        // If you want to start with more words, just add them.
-//        ImageDao dao = INSTANCE.ImageDao();
-//        dao.deleteAll();
-//
-//        String[] projection = new String[]{MediaStore.Images.Media._ID,
-//                MediaStore.Images.Media.DISPLAY_NAME,
-//                MediaStore.Images.Media.DATE_TAKEN,
-//                "_data"
-//        };
-//
-//        String selection = "( _data LIKE ? )";
-//        String[] selectionArgs = new String[]{"%Pictures%"};
-//
-//        String sortOrder = MediaStore.Images.Media.DATE_TAKEN + " DESC";
-//
-//        Cursor cursor = INSTANCE.context.getContentResolver().query(
-//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-//                projection,
-//                selection,
-//                selectionArgs,
-//                sortOrder
-//        );
-//
-//        if (cursor == null) {
-//          return;
-//        }
-//
-//        while (cursor.moveToNext()) {
-//          long columnIndex = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-//          Uri contentUri = ContentUris.withAppendedId(
-//                  MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columnIndex);
-//          String pathname = getPath(cursor.getString(cursor.getColumnIndexOrThrow("_data")));
-//          long dateTaken = cursor.getLong(
-//                  cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN));
-//          Calendar calendar = Calendar.getInstance();
-//          calendar.setTimeInMillis(dateTaken);
-//          Date date = calendar.getTime();
-//          ImageElement imageElement =
-//                  new ImageElement(contentUri.toString(), pathname, 53.3808641,-1.4877637, 0, 0, date);
-//          dao.insertImages(imageElement);
-//
-//        }
-//
-//        cursor.close();
-//      });
+      databaseWriteExecutor.execute(() -> {
+
+        // Populate the database in the background.
+        // If you want to start with more words, just add them.
+        ImageDao dao = INSTANCE.ImageDao();
+        dao.deleteAll();
+
+        String[] projection = new String[]{MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.DATE_TAKEN,
+                "_data"
+        };
+
+        String selection = "( _data LIKE ? )";
+        String[] selectionArgs = new String[]{"%DCIM%"};
+
+        String sortOrder = MediaStore.Images.Media.DATE_TAKEN + " DESC";
+
+        Cursor cursor = INSTANCE.context.getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder
+        );
+
+        if (cursor == null) {
+          return;
+        }
+
+        while (cursor.moveToNext()) {
+          long columnIndex = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+          Uri contentUri = ContentUris.withAppendedId(
+                  MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columnIndex);
+          String pathname = getPath(cursor.getString(cursor.getColumnIndexOrThrow("_data")));
+          long dateTaken = cursor.getLong(
+                  cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN));
+          Calendar calendar = Calendar.getInstance();
+          calendar.setTimeInMillis(dateTaken);
+          Date date = calendar.getTime();
+          ImageElement imageElement =
+                  new ImageElement(contentUri.toString(), pathname, 53.3808641,-1.4877637, 0, 0, date);
+          dao.insertImages(imageElement);
+
+        }
+
+        cursor.close();
+      });
     }
   };
 

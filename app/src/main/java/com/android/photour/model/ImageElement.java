@@ -13,6 +13,7 @@ import android.os.Process;
 import android.view.View;
 import android.widget.ImageView;
 import androidx.databinding.BindingAdapter;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.navigation.Navigation;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -26,6 +27,7 @@ import com.android.photour.async.BitmapThumbnailTask;
 import com.android.photour.ui.photos.PhotosFragmentDirections;
 import com.android.photour.ui.photos.PhotosFragmentDirections.ActionViewImage;
 import java.io.BufferedInputStream;
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -142,14 +144,26 @@ public class ImageElement implements Parcelable {
     final Context context = imageView.getContext();
 
     BitmapTask bitmapRawTask = new BitmapRawTask(imageView.getContext(), imageView);
-    Bitmap placeholder = BitmapFactory
-        .decodeResource(context.getResources(), R.drawable.placeholder);
+    Bitmap placeholder;
 
-    final AsyncDrawable asyncDrawable =
-        new AsyncDrawable(context.getResources(), placeholder, bitmapRawTask);
+    try {
+      InputStream inputStream = context.getContentResolver().openInputStream(Uri.parse(uri));
+      ExifInterface exifInterface = new ExifInterface(new BufferedInputStream(inputStream));
 
-    imageView.setImageDrawable(asyncDrawable);
-    bitmapRawTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Uri.parse(uri));
+      if (exifInterface.hasThumbnail()) {
+        placeholder = exifInterface.getThumbnailBitmap();
+      } else {
+        placeholder = BitmapFactory
+            .decodeResource(context.getResources(), R.drawable.placeholder);
+      }
+
+      final AsyncDrawable asyncDrawable =
+          new AsyncDrawable(context.getResources(), placeholder, bitmapRawTask);
+
+      imageView.setImageDrawable(asyncDrawable);
+      bitmapRawTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Uri.parse(uri));
+    } catch (Exception ignored) {
+    }
   }
 
   /**
