@@ -4,6 +4,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,8 @@ import com.android.photour.model.ImageElement;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static android.os.Build.VERSION_CODES.Q;
 
 /**
  * Database class.
@@ -47,7 +50,7 @@ public abstract class AppDatabase extends RoomDatabase {
         if (INSTANCE == null) {
           INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                   AppDatabase.class, "app_database")
-//                  .addCallback(sRoomDatabaseCallback)
+                  .addCallback(sRoomDatabaseCallback)
                   .build();
           INSTANCE.context = context;
         }
@@ -76,10 +79,17 @@ public abstract class AppDatabase extends RoomDatabase {
         String[] projection = new String[]{MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.DISPLAY_NAME,
                 MediaStore.Images.Media.DATE_TAKEN,
-                "_data"
+                MediaStore.Images.Media.HEIGHT,
+                MediaStore.Images.Media.WIDTH,
+                Build.VERSION.SDK_INT >= Q ? MediaStore.Images.Media.RELATIVE_PATH :
+                "_data",
+                Build.VERSION.SDK_INT >= Q ? MediaStore.Images.Media.DISPLAY_NAME : null
         };
 
-        String selection = "( _data LIKE ? )";
+        String selection =
+                Build.VERSION.SDK_INT >= Q ? MediaStore.Images.Media.RELATIVE_PATH :
+                        "( _data LIKE ? )";
+
         String[] selectionArgs = new String[]{"%DCIM%"};
 
         String sortOrder = MediaStore.Images.Media.DATE_TAKEN + " DESC";
@@ -100,14 +110,22 @@ public abstract class AppDatabase extends RoomDatabase {
           long columnIndex = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
           Uri contentUri = ContentUris.withAppendedId(
                   MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columnIndex);
-          String pathname = getPath(cursor.getString(cursor.getColumnIndexOrThrow("_data")));
+          String uriPath = getPath(cursor.getString(cursor.getColumnIndexOrThrow("_data")));
           long dateTaken = cursor.getLong(
                   cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN));
           Calendar calendar = Calendar.getInstance();
           calendar.setTimeInMillis(dateTaken);
           Date date = calendar.getTime();
+          String relativePath;
+          if (Build.VERSION.SDK_INT >= Q) {
+            relativePath = cursor.
+                    getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.RELATIVE_PATH))+
+                    cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME));
+          } else {
+            relativePath = cursor.getString(cursor.getColumnIndexOrThrow("_data"));
+          }
           ImageElement imageElement =
-                  new ImageElement(contentUri.toString(), pathname, 53.3808641,-1.4877637, 0, 0, date);
+                  new ImageElement(contentUri.toString(), relativePath, uriPath, 53.3808641,-1.4877637, 0, 0, date);
           dao.insertImages(imageElement);
 
         }

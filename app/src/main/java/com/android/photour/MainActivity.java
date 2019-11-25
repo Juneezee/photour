@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
 
     final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-    final int cacheSize = maxMemory / 8;
+    final int cacheSize = maxMemory / 4;
 
     PhotosFragment mRetainFragment =
             PhotosFragment.findOrCreateRetainFragment(this.getSupportFragmentManager());

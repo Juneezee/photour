@@ -48,6 +48,9 @@ public class ImageElement implements Parcelable {
   @ColumnInfo(name = "uri")
   private String uri;
 
+  @ColumnInfo(name = "relative_path")
+  private String path;
+
   @ColumnInfo(name = "visit_title")
   private String visitTitle;
 
@@ -76,9 +79,10 @@ public class ImageElement implements Parcelable {
    * @param pressure pressure float
    * @param temperature temperature float
    */
-  public ImageElement(String uri, String visitTitle, double lat,
+  public ImageElement(String uri, String path, String visitTitle, double lat,
       double lng, float pressure, float temperature, Date date) {
     this.uri = uri;
+    this.path = path;
     this.visitTitle = visitTitle;
     this.lat = lat;
     this.lng = lng;
@@ -95,9 +99,10 @@ public class ImageElement implements Parcelable {
   protected ImageElement(Parcel in) {
     id = in.readInt();
     uri = in.readString();
+    path = in.readString();
     visitTitle = in.readString();
-    lat = in.readFloat();
-    lng = in.readFloat();
+    lat = in.readDouble();
+    lng = in.readDouble();
     pressure = in.readFloat();
     temperature = in.readFloat();
   }
@@ -134,7 +139,8 @@ public class ImageElement implements Parcelable {
         final AsyncDrawable asyncDrawable =
             new AsyncDrawable(context.getResources(), placeholder, task);
         imageView.setImageDrawable(asyncDrawable);
-        task.execute(Uri.parse(uri));
+//        task.execute(Uri.parse(uri));
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Uri.parse(uri));
       }
     }
   }
@@ -182,6 +188,25 @@ public class ImageElement implements Parcelable {
    */
   public void setUri(String uri) {
     this.uri = uri;
+  }
+
+  /**
+   * Getter for Path
+   *
+   * @return path String
+   */
+  public String getPath() {
+    return path;
+  }
+
+  /**
+   * Setter for Path
+   *
+   * @param path String
+   */
+
+  public void setPath(String path) {
+    this.path = path;
   }
 
   /**
@@ -252,6 +277,26 @@ public class ImageElement implements Parcelable {
     return temperature;
   }
 
+  public void setDate(Date date) {
+    this.date = date;
+  }
+
+  public void setLat(double lat) {
+    this.lat = lat;
+  }
+
+  public void setLng(double lng) {
+    this.lng = lng;
+  }
+
+  public void setPressure(float pressure) {
+    this.pressure = pressure;
+  }
+
+  public void setTemperature(float temperature) {
+    this.temperature = temperature;
+  }
+
   /**
    * Onclick listener of the image
    */
@@ -285,6 +330,7 @@ public class ImageElement implements Parcelable {
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeInt(id);
     dest.writeString(uri);
+    dest.writeString(path);
     dest.writeString(visitTitle);
     dest.writeDouble(lat);
     dest.writeDouble(lng);
