@@ -20,8 +20,8 @@ import java.lang.ref.WeakReference;
  */
 public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
 
-  Context context;
-  WeakReference<ImageView> imageViewWeakReference;
+  private WeakReference<Context> context;
+  private WeakReference<ImageView> imageViewWeakReference;
   private Uri data = null;
 
   /**
@@ -31,13 +31,13 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
    * @param imageView imageView that the bitmap will be set on
    */
   public BitmapWorkerTask(Context context, ImageView imageView) {
-    this.context = context;
+    this.context = new WeakReference<>(context);
     this.imageViewWeakReference = new WeakReference<>(imageView);
   }
 
   /**
-   * Task being run async. Compresses the bitmap and crop it to 100x100.
-   * The bitmap is then saved in LRU cache to used in the future.
+   * Task being run async. Compresses the bitmap and crop it to 100x100. The bitmap is then saved in
+   * LRU cache to used in the future.
    *
    * @param params Uri of image that will be processed
    * @return Bitmap bitmap of the uri
@@ -46,11 +46,11 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
   protected Bitmap doInBackground(Uri... params) {
     Bitmap bitmap;
     try {
+      Context contextRef = context.get();
       data = params[0];
-      bitmap = decodeSampledBitmapFromResource(
-          context, data, 100, 100);
+      bitmap = decodeSampledBitmapFromResource(contextRef, data, 100, 100);
       bitmap = ThumbnailUtils.extractThumbnail(bitmap, 100, 100);
-      ((MainActivity) context).addBitmapToMemoryCache(String.valueOf(data), bitmap);
+      ((MainActivity) contextRef).addBitmapToMemoryCache(String.valueOf(data), bitmap);
       return bitmap;
     } catch (FileNotFoundException e) {
       e.printStackTrace();
@@ -59,11 +59,14 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
   }
 
   /**
-   * Called when doInBackground is completed.
+   * Runs on the UI thread after {@link #doInBackground}. The specified result is the value returned
+   * by {@link #doInBackground}.
+   *
    * Sets bitmap onto the imageView if it is not recycled.
    *
    * @param bitmap The bitmap thumbnail created
    */
+  @Override
   protected void onPostExecute(Bitmap bitmap) {
     // Checks if this task is cancelled
     if (isCancelled()) {
@@ -84,7 +87,7 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
    *
    * @param data Uri of image
    * @param imageView ImageView of that the task is linked on
-   * @return true if tasks should be cancelled, else false
+   * @return boolean true if tasks should be cancelled, else false
    */
   public static boolean cancelPotentialWork(Uri data, ImageView imageView) {
     final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);

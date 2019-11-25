@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import com.android.photour.R;
 import com.android.photour.databinding.ItemImageBinding;
@@ -133,8 +132,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
   @NonNull
   @Override
   public ImageCard onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    ItemImageBinding itemImageBinding = DataBindingUtil.inflate(LayoutInflater.from(
-        parent.getContext()), R.layout.item_image, parent, false);
+    ItemImageBinding itemImageBinding = ItemImageBinding
+        .inflate(LayoutInflater.from(parent.getContext()), parent, false);
+
     return new ImageCard(itemImageBinding);
   }
 

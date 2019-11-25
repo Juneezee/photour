@@ -80,7 +80,7 @@ public abstract class AppDatabase extends RoomDatabase {
         };
 
         String selection = "( _data LIKE ? )";
-        String[] selectionArgs = new String[]{"%Snapchat%"};
+        String[] selectionArgs = new String[]{"%DCIM%"};
 
         String sortOrder = MediaStore.Images.Media.DATE_TAKEN + " DESC";
 
@@ -99,7 +99,7 @@ public abstract class AppDatabase extends RoomDatabase {
                   MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columnIndex);
           String pathname = getPath(query.getString(query.getColumnIndexOrThrow("_data")));
           ImageElement imageElement =
-                  new ImageElement(contentUri.toString(), pathname, 0, 0, 0, 0);
+                  new ImageElement(contentUri.toString(), pathname, 53.3808641,-1.4877637, 0, 0, date);
           dao.insertImages(imageElement);
           i++;
         }

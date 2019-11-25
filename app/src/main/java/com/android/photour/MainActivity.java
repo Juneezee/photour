@@ -206,6 +206,15 @@ public class MainActivity extends AppCompatActivity {
   }
 
   /**
+   * Set the title of the top toolbar (Action bar)
+   *
+   * @param title The title of the top toolbar (action bar)
+   */
+  public void setToolbarTitle(String title) {
+    toolbar.setTitle(title);
+  }
+
+  /**
    * Called to process touch screen event. Overridden for custom event handling
    *
    * @param ev The touch screen event

@@ -9,7 +9,23 @@
     android:id="@+id/photos"
     android:name="com.android.photour.ui.photos.PhotosFragment"
     android:label="@string/photos"
-    tools:layout="@layout/fragment_photos" />
+    tools:layout="@layout/fragment_photos">
+
+    <action
+      android:id="@+id/action_view_image"
+      app:destination="@id/image" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/image"
+    android:name="com.android.photour.ui.image.ImageFragment"
+    tools:layout="@layout/fragment_image">
+
+
+    <argument
+      android:name="image"
+      app:argType="com.android.photour.model.ImageElement" />
+  </fragment>
 
   <include app:graph="@navigation/navigation_settings" />
 

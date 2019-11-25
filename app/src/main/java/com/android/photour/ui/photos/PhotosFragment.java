@@ -3,7 +3,6 @@ package com.android.photour.ui.photos;
 import static com.android.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
 import android.Manifest.permission;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -14,7 +13,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -26,12 +24,11 @@ import com.android.photour.R;
 import com.android.photour.helper.PermissionHelper;
 import com.android.photour.model.ImageElement;
 import com.android.photour.model.SectionElement;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
+import java.util.Locale;
 
 /**
  * Fragment for Photos page
@@ -55,14 +52,17 @@ public class PhotosFragment extends Fragment {
   private PhotosViewModel photosViewModel;
   private RecyclerView mRecyclerView;
   private Activity activity;
-  private View view;
-  private TextView textView;
+  public List<ImageElement> elementList;
+
+//  public static List<ImageElement> getElementList() {
+//    return elementList;
+//  }
 
   /**
-   * Finds or create a PhotoFragment using FragmentManager. Used to retain state on rotation
+   * Finds or create a ImageFragment using FragmentManager. Used to retain state on rotation
    *
    * @param fm FragmentManager
-   * @return PhotoFragment
+   * @return ImageFragment
    */
   public static PhotosFragment findOrCreateRetainFragment(FragmentManager fm) {
     PhotosFragment fragment = (PhotosFragment) fm.findFragmentByTag(TAG);
@@ -99,7 +99,6 @@ public class PhotosFragment extends Fragment {
    * saved state as given here.
    * @return View Return the View for the fragment's UI, or null.
    */
-  @SuppressLint("SetTextI18n")
   public View onCreateView(
       @NonNull LayoutInflater inflater,
       ViewGroup container,
@@ -140,8 +139,7 @@ public class PhotosFragment extends Fragment {
     sortMode = QUERY_BY_DATE;
     // Initialize lists for SectionedGridRecyclerViewAdapter
 
-
-    textView.setText("");
+    photosViewModel.setPlaceholderText(true);
 
     // Sets up recycler view and view model
     photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
@@ -159,22 +157,72 @@ public class PhotosFragment extends Fragment {
         R.id.sorted_title_view, mRecyclerView, photoAdapter);
 
     // set observer to image list, on calls adapters to reset
-    photosViewModel.images.observe(getViewLifecycleOwner(), imageElements -> {
-      //resets lists
-      sections.clear();
-      elementList.clear();
+    photosViewModel.images.observe(getViewLifecycleOwner(), this::resetGrid);
+  }
 
-      //Prompts text if no images, else load images into lists
-      if (imageElements == null || imageElements.size() == 0) {
-        textView.setText("No photos yet");
-      } else {
-        int pos = 0;
-        photosViewModel.setPlaceholderText(true);
-        for (SectionElement sectionElement : imageElements) {
-          sections
-              .add(new SectionedGridRecyclerViewAdapter.Section(pos, sectionElement.getTitle()));
-          pos += sectionElement.getImageElements().size(); // add number of photos and title
-          elementList.addAll(sectionElement.getImageElements());
+  /**
+   * Fucntion to reload recycler view. Splits ImageElements into section.
+   *
+   * @param imageElements List of ImageElements
+   */
+
+  private void resetGrid(List<ImageElement> imageElements) {
+
+    List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
+    elementList = new ArrayList<>();
+    SectionedGridRecyclerViewAdapter.Section[] dummy =
+        new SectionedGridRecyclerViewAdapter.Section[sections.size()];
+
+    List<SectionElement> sectionElements = sectionImages(imageElements);
+    //Prompts text if no images, else load images into lists
+    if (imageElements == null || imageElements.size() == 0) {
+      photosViewModel.setPlaceholderText(false);
+    } else {
+      int pos = 0;
+      photosViewModel.setPlaceholderText(true);
+
+      for (SectionElement sectionElement : sectionElements) {
+        sections.add(new SectionedGridRecyclerViewAdapter.Section(pos, sectionElement.getTitle()));
+        pos += sectionElement.getImageElements().size(); // add number of photos and title
+
+        elementList.addAll(sectionElement.getImageElements());
+      }
+    }
+
+    // Parses values into adapters and update view
+    photoAdapter.setItems(elementList);
+    photoAdapter.notifyDataSetChanged();
+    mSectionedAdapter.setSections(sections.toArray(dummy));
+    mSectionedAdapter.notifyDataSetChanged();
+    mRecyclerView.setAdapter(mSectionedAdapter);
+  }
+
+  /**
+   * Uses Mediastore query to get all images from a given folder according to the sort
+   * configuration.
+   *
+   * @return List lists of SectionElement, each representing a section in the gallery
+   */
+  private List<SectionElement> sectionImages(List<ImageElement> images) {
+    List<SectionElement> sections = new ArrayList<>();
+
+    if (images != null) {
+      int i = photosViewModel.sortMode == R.id.by_date_asc ? images.size() - 1 : 0;
+      int limit = photosViewModel.sortMode == R.id.by_date_asc ? -1 : images.size();
+      String previousTitle = "";
+      SectionElement sectionElement = null;
+
+      //Iterates through query and append them into SectionElement
+      while (i != limit) {
+        ImageElement imageElement = images.get(i);
+        String currentTitle;
+        if (photosViewModel.sortMode == R.id.by_date_asc
+            || photosViewModel.sortMode == R.id.by_date_desc) {
+          Date date = imageElement.getDate();
+          SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
+          currentTitle = sdf.format(date);
+        } else {
+          currentTitle = imageElement.getVisitTitle();
         }
         if (!previousTitle.equals(currentTitle)) {
           if (sectionElement != null) {

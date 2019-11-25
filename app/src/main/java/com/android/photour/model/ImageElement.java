@@ -1,11 +1,19 @@
 package com.android.photour.model;
 
+import static android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.os.Process;
+import android.view.View;
 import android.widget.ImageView;
 import androidx.databinding.BindingAdapter;
+import androidx.navigation.Navigation;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -13,8 +21,14 @@ import com.android.photour.MainActivity;
 import com.android.photour.R;
 import com.android.photour.async.AsyncDrawable;
 import com.android.photour.async.BitmapWorkerTask;
-
+import com.android.photour.ui.photos.PhotosFragmentDirections;
+import com.android.photour.ui.photos.PhotosFragmentDirections.ActionViewImage;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Entity for Image Element
@@ -22,55 +36,157 @@ import java.util.Date;
  * @author Zer Jun Eng, Jia Hua Ng
  */
 @Entity(tableName = "image_element")
-public class ImageElement {
+public class ImageElement implements Parcelable {
 
   @PrimaryKey(autoGenerate = true)
   public int id;
+
   @ColumnInfo(name = "uri")
   private String uri;
-  @ColumnInfo(name = "trip_name")
-  private String tripName;
+
+  @ColumnInfo(name = "visit_title")
+  private String visitTitle;
+
   @ColumnInfo(name = "date")
   private Date date;
+
   @ColumnInfo(name = "latitude")
-  private float lat;
+  private double lat;
+
   @ColumnInfo(name = "longtitude")
-  private float lng;
-  @ColumnInfo(name="barometer")
-  private float barometer;
-  @ColumnInfo(name="ambient")
-  private float ambient;
+  private double lng;
+
+  @ColumnInfo(name = "pressure")
+  private float pressure;
+
+  @ColumnInfo(name = "temperature")
+  private float temperature;
 
   /**
    * Constructor for ImageElement
    *
    * @param uri String of Uri of the image
-   * @param tripName String of trip name
-   * @param lat latitude float
-   * @param lng longtitude float
-   * @param barometer barometer float
-   * @param ambient ambient float
+   * @param visitTitle String of visit title
+   * @param lat latitude double
+   * @param lng longtitude double
+   * @param pressure pressure float
+   * @param temperature temperature float
    */
-  public ImageElement(String uri, String tripName, float lat,
-                      float lng, float barometer, float ambient) {
+  public ImageElement(String uri, String visitTitle, double lat,
+      double lng, float pressure, float temperature, Date date) {
     this.uri = uri;
-    this.tripName = tripName;
+    this.visitTitle = visitTitle;
     this.lat = lat;
     this.lng = lng;
-    this.barometer = barometer;
-    this.ambient = ambient;
-    this.date = new Date();
+    this.pressure = pressure;
+    this.temperature = temperature;
+    this.date = date;
   }
 
   /**
+   * Constructor for allowing {@link Parcelable}
+   *
+   * @param in A {@link Parcel} object
+   */
+  protected ImageElement(Parcel in) {
+    id = in.readInt();
+    uri = in.readString();
+    visitTitle = in.readString();
+    lat = in.readFloat();
+    lng = in.readFloat();
+    pressure = in.readFloat();
+    temperature = in.readFloat();
+  }
+
+  public static final Creator<ImageElement> CREATOR = new Creator<ImageElement>() {
+    @Override
+    public ImageElement createFromParcel(Parcel in) {
+      return new ImageElement(in);
+    }
+
+    @Override
+    public ImageElement[] newArray(int size) {
+      return new ImageElement[size];
+    }
+  };
+
+  /**
+   * Function to load images for data binding
+   *
+   * @param imageView ImageView object
+   * @param uri Uri of image
+   */
+  @BindingAdapter({"imageBitmap"})
+  public static void loadImageBitmap(ImageView imageView, String uri) {
+    final Context context = imageView.getContext();
+    Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(uri);
+    if (bitmap != null) {
+      imageView.setImageBitmap(bitmap);
+    } else {
+      if (BitmapWorkerTask.cancelPotentialWork(Uri.parse(uri), imageView)) {
+        BitmapWorkerTask task = new BitmapWorkerTask(context, imageView);
+        Bitmap placeholder = BitmapFactory
+            .decodeResource(context.getResources(), R.drawable.placeholder);
+        final AsyncDrawable asyncDrawable =
+            new AsyncDrawable(context.getResources(), placeholder, task);
+        imageView.setImageDrawable(asyncDrawable);
+        task.execute(Uri.parse(uri));
+      }
+    }
+  }
+
+  @BindingAdapter({"rawImage"})
+  public static void loadRawImage(ImageView imageView, String uri) {
+//    final Context context = imageView.getContext();
+//    BitmapWorkerTask task = new BitmapWorkerTask(context, imageView);
+//    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Uri.parse(uri));
+
+    new LoadImageAsync(imageView).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, uri);
+  }
+
+  public static class LoadImageAsync extends AsyncTask<String, Void, Bitmap> {
+
+    ImageView imageView;
+    Context context;
+
+    public LoadImageAsync(ImageView imageView) {
+      this.imageView = imageView;
+      this.context = imageView.getContext();
+    }
+
+    @Override
+    protected Bitmap doInBackground(String... strings) {
+      Process.setThreadPriority(THREAD_PRIORITY_URGENT_DISPLAY);
+
+      InputStream inputStream = null;
+      try {
+        inputStream = context.getContentResolver().openInputStream(Uri.parse(strings[0]));
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      }
+
+      return BitmapFactory.decodeStream(inputStream);
+    }
+
+    @Override
+    protected void onPostExecute(Bitmap bitmap) {
+      imageView.setImageBitmap(bitmap);
+    }
+  }
+
+
+  /**
    * Getter for Uri
+   *
    * @return uri String
    */
-  public String getUri() { return uri;
+  public String getUri() {
+    return uri;
   }
 
   /**
    * Accessor for Uri
+   *
    * @param uri String of uri
    */
   public void setUri(String uri) {
@@ -79,125 +195,109 @@ public class ImageElement {
 
   /**
    * Getter for Date
+   *
    * @return date Date of image
    */
   public Date getDate() {
     return date;
   }
 
-  /**
-   * Accessor for Date
-   * @param date Date
-   */
-  public void setDate(Date date) {
-    this.date = date;
+  public String getDateInString() {
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("E, dd MMM yyyy • HH:mm", Locale.getDefault());
+    return simpleDateFormat.format(date);
   }
 
   /**
    * Getter for Trip Name
-   * @return tripName the name of the trip the image is in
+   *
+   * @return visitTitle the name of the trip the image is in
    */
-  public String getTripName() {
-    return tripName;
+  public String getVisitTitle() {
+    return visitTitle;
   }
 
   /**
    * Accessor for Trip Name
-   * @param tripName string
+   *
+   * @param visitTitle string
    */
-  public void setTripName(String tripName) {
-    this.tripName = tripName;
+  public void setVisitTitle(String visitTitle) {
+    this.visitTitle = visitTitle;
   }
 
   /**
    * Getter for Latitude
+   *
    * @return lat latitude float
    */
-  public float getLat() {
+  public double getLat() {
     return lat;
   }
 
   /**
-   * Accessor for Latitude
-   * @param lat float
-   */
-  public void setLat(float lat) {
-    this.lat = lat;
-  }
-
-  /**
    * Getter for Longtitude
+   *
    * @return lng longtitude float
    */
-  public float getLng() {
+  public double getLng() {
     return lng;
   }
 
   /**
-   * Accessor for Longtitude
-   * @param lng float
-   */
-  public void setLng(float lng) {
-    this.lng = lng;
-  }
-
-  /**
    * Getter for Barometer
-   * @return barometer float
+   *
+   * @return pressure float
    */
-  public float getBarometer() {
-    return barometer;
-  }
-
-  /**
-   * Accessor for Barometer
-   * @param barometer float
-   */
-  public void setBarometer(float barometer) {
-    this.barometer = barometer;
+  public float getPressure() {
+    return pressure;
   }
 
   /**
    * Getter for Ambient
-   * @return ambient
-   */
-  public float getAmbient() {
-    return ambient;
-  }
-
-  /**
-   * Accessor for Ambient
-   * @param ambient float
-   */
-  public void setAmbient(float ambient) {
-    this.ambient = ambient;
-  }
-
-  /**
-   * Function to load images for data binding
    *
-   * @param imageView ImageView object
-   * @param uri Uri of image
+   * @return temperature
    */
-  @BindingAdapter({ "avatar" })
-  public static void loadImage(ImageView imageView, String uri) {
-    final Context context = imageView.getContext();
-    Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(uri);
-    if (bitmap != null) {
-        imageView.setImageBitmap(bitmap);
-      } else {
-        if (BitmapWorkerTask.cancelPotentialWork(Uri.parse(uri), imageView)) {
-          BitmapWorkerTask task = new BitmapWorkerTask(context, imageView);
-          Bitmap placeholder = BitmapFactory
-                  .decodeResource(context.getResources(), R.drawable.placeholder);
-          final AsyncDrawable asyncDrawable =
-              new AsyncDrawable(context.getResources(), placeholder, task);
-          imageView.setImageDrawable(asyncDrawable);
-          task.execute(Uri.parse(uri));
-        }
-      }
+  public float getTemperature() {
+    return temperature;
   }
-//  imageView.setOnClickListener(view -> {
-//        // INSERT CODE TO ENTER IMAGE HERE
-//      });
+
+  /**
+   * Onclick listener of the image
+   */
+  public void onImageClick(View view) {
+    ActionViewImage actionViewImage = PhotosFragmentDirections.actionViewImage(this);
+    Navigation.findNavController(view).navigate(actionViewImage);
+  }
+
+  /**
+   * Describe the kinds of special objects contained in this Parcelable instance's marshaled
+   * representation. For example, if the object will include a file descriptor in the output of
+   * {@link #writeToParcel(Parcel, int)}, the return value of this method must include the {@link
+   * #CONTENTS_FILE_DESCRIPTOR} bit.
+   *
+   * @return a bitmask indicating the set of special object types marshaled by this Parcelable
+   * object instance.
+   */
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  /**
+   * Flatten this object in to a Parcel.
+   *
+   * @param dest The Parcel in which the object should be written.
+   * @param flags Additional flags about how the object should be written. May be 0 or {@link
+   * #PARCELABLE_WRITE_RETURN_VALUE}.
+   */
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeInt(id);
+    dest.writeString(uri);
+    dest.writeString(visitTitle);
+    dest.writeDouble(lat);
+    dest.writeDouble(lng);
+    dest.writeFloat(pressure);
+    dest.writeFloat(temperature);
+  }
 }

@@ -24,8 +24,8 @@ public interface ImageDao {
   @Query("SELECT * FROM image_element WHERE id IN (:ids)")
   LiveData<List<ImageElement>> loadAllByIds(int[] ids);
 
-  @Query("SELECT * FROM image_element WHERE trip_name LIKE :trip")
-  LiveData<List<ImageElement>> findByTrip(String trip);
+  @Query("SELECT * FROM image_element WHERE visit_title LIKE :visit")
+  LiveData<List<ImageElement>> findByVisit(String visit);
 
   @Query("SELECT * FROM image_element WHERE date LIKE :date")
   LiveData<List<ImageElement>> findByDate(Date date);

@@ -21,7 +21,6 @@ import java.util.ArrayList;
 public class StartVisitMap implements OnMapReadyCallback {
 
   private final StartVisitFragment startVisitFragment;
-  private final Activity activity;
 
   private GoogleMap googleMap;
   private FusedLocationProviderClient fusedLocationProviderClient;
@@ -48,7 +47,6 @@ public class StartVisitMap implements OnMapReadyCallback {
    */
   StartVisitMap(StartVisitFragment startVisitFragment) {
     this.startVisitFragment = startVisitFragment;
-    this.activity = startVisitFragment.getActivity();
 
     setLocationCallback();
   }
@@ -218,7 +216,11 @@ public class StartVisitMap implements OnMapReadyCallback {
    * Zoom the map to the current location of the device
    */
   void zoomToCurrentLocation() {
-    fusedLocationProviderClient.getLastLocation().addOnSuccessListener(activity, location -> {
+    if (startVisitFragment.getActivity() == null) {
+      return;
+    }
+
+    fusedLocationProviderClient.getLastLocation().addOnSuccessListener(startVisitFragment.getActivity(), location -> {
       if (location == null) {
         // The location is likely to be null when location services is faulty, request again
         startVisitFragment.onMyLocationClick();

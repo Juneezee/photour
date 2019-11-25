@@ -24,6 +24,16 @@ public class ImageRepository {
     imageElements = imageDao.getAll();
   }
 
+  /**
+   * Get a single image from the database
+   *
+   * @param id The ID of the image
+   * @return {@link ImageElement} An {@link ImageElement} object
+   */
+  public ImageElement getImage(int id) {
+    return null;
+  }
+
   public LiveData<List<ImageElement>> getAllImages() {
     return imageElements;
   }
