@@ -56,12 +56,17 @@ public class BitmapWorkerTask extends AsyncTask<Uri, Void, Bitmap> {
       }
 
       ExifInterface exifInterface = new ExifInterface(inputStream);
+      String idStr = data.getPath().substring(data.getPath().lastIndexOf('/') + 1);
 
       bitmap = exifInterface.hasThumbnail()
           ? exifInterface.getThumbnailBitmap()
-          : BitmapHelper.decodeSampledBitmapFromResource(contextRef, data, 100, 100);
+          : ((MainActivity)contextRef).getBitmapFromDiskCache(idStr) != null ?
+              ((MainActivity)contextRef).getBitmapFromDiskCache(idStr) :
+            BitmapHelper.decodeSampledBitmapFromResource(contextRef, data, 100, 100);
 
-      ((MainActivity) contextRef).addBitmapToMemoryCache(String.valueOf(data), bitmap);
+
+      // Add final bitmap to caches
+      ((MainActivity) contextRef).addBitmapToMemoryCache(idStr, bitmap);
       return bitmap;
     } catch (Exception e) {
       e.printStackTrace();

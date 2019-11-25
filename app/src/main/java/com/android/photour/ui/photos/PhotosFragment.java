@@ -24,9 +24,12 @@ import com.android.photour.R;
 import com.android.photour.helper.PermissionHelper;
 import com.android.photour.model.ImageElement;
 import com.android.photour.model.SectionElement;
+
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 
@@ -205,12 +208,13 @@ public class PhotosFragment extends Fragment {
    */
   private List<SectionElement> sectionImages(List<ImageElement> images) {
     List<SectionElement> sections = new ArrayList<>();
+    Hashtable<String, Integer> titles = new Hashtable<>();
 
     if (images != null) {
       int i = photosViewModel.sortMode == R.id.by_date_asc ? images.size() - 1 : 0;
       int limit = photosViewModel.sortMode == R.id.by_date_asc ? -1 : images.size();
-      String previousTitle = "";
-      SectionElement sectionElement = null;
+//      String previousTitle = "";
+//      SectionElement sectionElement = null;
 
       //Iterates through query and append them into SectionElement
       while (i != limit) {
@@ -224,19 +228,17 @@ public class PhotosFragment extends Fragment {
         } else {
           currentTitle = imageElement.getVisitTitle();
         }
-        if (!previousTitle.equals(currentTitle)) {
-          if (sectionElement != null) {
-            sections.add(sectionElement);
-          }
-          sectionElement = new SectionElement(currentTitle);
-          previousTitle = currentTitle;
+        if (!titles.containsKey(currentTitle)) {
+          sections.add(new SectionElement(currentTitle));
+          titles.put(currentTitle, sections.size()-1);
         }
 
-        sectionElement.addImageElement(imageElement);
-        i++;
-      }
-      if (sectionElement != null) {
-        sections.add(sectionElement);
+        sections.get(titles.get(currentTitle)).addImageElement(imageElement);
+        if (photosViewModel.sortMode == R.id.by_date_asc) {
+          i--;
+        } else {
+          i++;
+        }
       }
     }
     return sections;
