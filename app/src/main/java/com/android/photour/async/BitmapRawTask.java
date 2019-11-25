@@ -21,16 +21,16 @@ public class BitmapRawTask extends BitmapTask {
   }
 
   @Override
-  protected Bitmap doInBackground(Uri... params) {
+  protected Bitmap doInBackground(String... params) {
     final Context context = contextReference.get();
 
-    InputStream inputStream = null;
-    try {
-      inputStream = new BufferedInputStream(context.getContentResolver().openInputStream(params[0]));
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+//    InputStream inputStream = null;
+//    try {
+//      inputStream = new BufferedInputStream(context.getContentResolver().openInputStream(params[0]));
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//    }
 
-    return BitmapFactory.decodeStream(inputStream);
+    return BitmapFactory.decodeFile(params[0]);
   }
 }

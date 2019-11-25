@@ -22,7 +22,6 @@ public class DiskLruImageCache {
 
   private DiskLruCache mDiskCache;
   private Bitmap.CompressFormat mCompressFormat = Bitmap.CompressFormat.JPEG;
-  private int mCompressQuality = 70;
   private static final int APP_VERSION = 1;
   private static final int VALUE_COUNT = 1;
   private static final String TAG = "DiskLruImageCache";
@@ -43,6 +42,7 @@ public class DiskLruImageCache {
     OutputStream out = null;
     try {
       out = new BufferedOutputStream( editor.newOutputStream( 0 ), Utils.IO_BUFFER_SIZE );
+      int mCompressQuality = 70;
       return bitmap.compress( mCompressFormat, mCompressQuality, out );
     } finally {
       if ( out != null ) {

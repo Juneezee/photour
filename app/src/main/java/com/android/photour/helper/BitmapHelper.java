@@ -53,7 +53,7 @@ public class BitmapHelper {
    * Referenced Android Developer: Loading Large Bitmaps Efficiently
    *
    * @param context Context of MainActivity
-   * @param resUri Uri of the image
+   * @param resString Uri of the image
    * @param reqWidth required width
    * @param reqHeight required height
    * @return Bitmap the compressed bitmap
@@ -61,7 +61,7 @@ public class BitmapHelper {
    */
   public static Bitmap decodeSampledBitmapFromResource(
       Context context,
-      Uri resUri,
+      String resString,
       int reqWidth,
       int reqHeight
   ) {
@@ -71,14 +71,14 @@ public class BitmapHelper {
     options.inJustDecodeBounds = true;
 
     try {
-      InputStream inputStream = context.getContentResolver().openInputStream(resUri);
-      Bitmap bitmap = BitmapFactory.decodeStream(new BufferedInputStream(inputStream), null, options);
+//      InputStream inputStream = context.getContentResolver().openInputStream(resUri);
+      Bitmap bitmap = BitmapFactory.decodeFile(resString,options);
       options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
       if (options.inSampleSize > 1) {
-        inputStream = context.getContentResolver().openInputStream(resUri);
+//        inputStream = context.getContentResolver().openInputStream(resUri);
         options.inJustDecodeBounds = false;
-        bitmap = BitmapFactory.decodeStream(new BufferedInputStream(inputStream), null, options);
+        bitmap = BitmapFactory.decodeFile( resString, options);
       }
 
       return bitmap;

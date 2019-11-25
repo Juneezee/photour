@@ -213,8 +213,6 @@ public class PhotosFragment extends Fragment {
     if (images != null) {
       int i = photosViewModel.sortMode == R.id.by_date_asc ? images.size() - 1 : 0;
       int limit = photosViewModel.sortMode == R.id.by_date_asc ? -1 : images.size();
-//      String previousTitle = "";
-//      SectionElement sectionElement = null;
 
       //Iterates through query and append them into SectionElement
       while (i != limit) {

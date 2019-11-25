@@ -123,38 +123,37 @@ public class ImageElement implements Parcelable {
    * Function to load images for data binding
    *
    * @param imageView ImageView object
-   * @param uri Uri of image
+   * @param filepath filepath of image
    */
   @BindingAdapter({"imageBitmap"})
-  public static void loadImageBitmap(ImageView imageView, String uri) {
+  public static void loadImageBitmap(ImageView imageView, String filepath) {
     final Context context = imageView.getContext();
-    Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(uri);
+    Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(filepath);
     if (bitmap != null) {
       imageView.setImageBitmap(bitmap);
     } else {
-      if (BitmapThumbnailTask.shouldCancelTask(Uri.parse(uri), imageView)) {
+      if (BitmapThumbnailTask.shouldCancelTask(filepath, imageView)) {
         BitmapThumbnailTask task = new BitmapThumbnailTask(context, imageView);
         Bitmap placeholder = BitmapFactory
             .decodeResource(context.getResources(), R.drawable.placeholder);
         final AsyncDrawable asyncDrawable =
             new AsyncDrawable(context.getResources(), placeholder, task);
         imageView.setImageDrawable(asyncDrawable);
-//        task.execute(Uri.parse(uri));
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Uri.parse(uri));
+        // task.execute(filepath);
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath);
       }
     }
   }
 
   @BindingAdapter({"rawImage"})
-  public static void loadRawImage(ImageView imageView, String uri) {
+  public static void loadRawImage(ImageView imageView, String filepath) {
     final Context context = imageView.getContext();
 
     BitmapTask bitmapRawTask = new BitmapRawTask(imageView.getContext(), imageView);
     Bitmap placeholder;
 
     try {
-      InputStream inputStream = context.getContentResolver().openInputStream(Uri.parse(uri));
-      ExifInterface exifInterface = new ExifInterface(new BufferedInputStream(inputStream));
+      ExifInterface exifInterface = new ExifInterface(filepath);
 
       if (exifInterface.hasThumbnail()) {
         placeholder = exifInterface.getThumbnailBitmap();
@@ -167,7 +166,7 @@ public class ImageElement implements Parcelable {
           new AsyncDrawable(context.getResources(), placeholder, bitmapRawTask);
 
       imageView.setImageDrawable(asyncDrawable);
-      bitmapRawTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Uri.parse(uri));
+      bitmapRawTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath);
     } catch (Exception ignored) {
     }
   }

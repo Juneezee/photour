@@ -2,6 +2,7 @@ package com.android.photour.async;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.widget.ImageView;
 import androidx.exifinterface.media.ExifInterface;
@@ -20,7 +21,7 @@ public class BitmapThumbnailTask extends BitmapTask {
   private static final int REQ_WIDTH = 100;
   private static final int REQ_HEIGHT = 100;
 
-  private Uri data = null;
+  private String data = null;
 
   /**
    * Constructor for BitmapTask
@@ -40,20 +41,22 @@ public class BitmapThumbnailTask extends BitmapTask {
    * @return Bitmap bitmap of the uri
    */
   @Override
-  protected Bitmap doInBackground(Uri... params) {
+  protected Bitmap doInBackground(String... params) {
     Bitmap bitmap;
     try {
       Context contextRef = contextReference.get();
       data = params[0];
 
-      InputStream inputStream = contextRef.getContentResolver().openInputStream(data);
+//      InputStream inputStream = contextRef.getContentResolver().openInputStream(data);
 
-      if (inputStream == null) {
-        return null;
-      }
+//      if (inputStream == null) {
+//        return null;
+//      }
 
-      ExifInterface exifInterface = new ExifInterface(new BufferedInputStream(inputStream));
-      String idStr = data.getPath().substring(data.getPath().lastIndexOf('/') + 1);
+      ExifInterface exifInterface = new ExifInterface(data);
+      String idStr = data.substring(data.lastIndexOf('/') + 1).replaceAll("[+() .]","_")
+              .toLowerCase();
+      idStr = idStr.substring(0, Math.min(idStr.length(), 64));
 
       bitmap = exifInterface.hasThumbnail()
           ? exifInterface.getThumbnailBitmap()
@@ -61,6 +64,10 @@ public class BitmapThumbnailTask extends BitmapTask {
               ((MainActivity)contextRef).getBitmapFromDiskCache(idStr) :
               BitmapHelper.decodeSampledBitmapFromResource(contextRef, data, REQ_WIDTH, REQ_HEIGHT);
 
+      if (bitmap == null) {
+        bitmap = BitmapFactory.decodeFile(data);
+      }
+      System.out.println(idStr+": "+bitmap);
       ((MainActivity) contextRef).addBitmapToMemoryCache(idStr, bitmap);
 
       return bitmap;
@@ -77,12 +84,12 @@ public class BitmapThumbnailTask extends BitmapTask {
    * @param imageView ImageView of that the task is linked on
    * @return boolean true if tasks should be cancelled, else false
    */
-  public static boolean shouldCancelTask(Uri data, ImageView imageView) {
+  public static boolean shouldCancelTask(String data, ImageView imageView) {
     final BitmapThumbnailTask bitmapThumbnailTask = (BitmapThumbnailTask) getBitmapTask(imageView);
 
     if (bitmapThumbnailTask != null) {
-      final Uri bitmapData = bitmapThumbnailTask.data;
-      if (bitmapData != data) {
+      final String bitmapData = bitmapThumbnailTask.data;
+      if (data != null && bitmapData != null && !bitmapData.equals(data)) {
         // Cancel previous task
         bitmapThumbnailTask.cancel(true);
       } else {

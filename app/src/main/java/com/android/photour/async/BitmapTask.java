@@ -8,7 +8,7 @@ import android.os.AsyncTask;
 import android.widget.ImageView;
 import java.lang.ref.WeakReference;
 
-public class BitmapTask extends AsyncTask<Uri, Void, Bitmap> {
+public class BitmapTask extends AsyncTask<String, Void, Bitmap> {
 
   WeakReference<Context> contextReference;
   WeakReference<ImageView> imageViewWeakReference;
@@ -25,7 +25,7 @@ public class BitmapTask extends AsyncTask<Uri, Void, Bitmap> {
   }
 
   @Override
-  protected Bitmap doInBackground(Uri... params) { return null; }
+  protected Bitmap doInBackground(String... params) { return null; }
 
   /**
    * Runs on the UI thread after {@link #doInBackground}. The specified result is the value returned

@@ -50,7 +50,7 @@ public abstract class AppDatabase extends RoomDatabase {
         if (INSTANCE == null) {
           INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                   AppDatabase.class, "app_database")
-                  .addCallback(sRoomDatabaseCallback)
+//                  .addCallback(sRoomDatabaseCallback)
                   .build();
           INSTANCE.context = context;
         }
@@ -90,7 +90,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 Build.VERSION.SDK_INT >= Q ? MediaStore.Images.Media.RELATIVE_PATH :
                         "( _data LIKE ? )";
 
-        String[] selectionArgs = new String[]{"%DCIM%"};
+        String[] selectionArgs = new String[]{"%Download%"};
 
         String sortOrder = MediaStore.Images.Media.DATE_TAKEN + " DESC";
 
