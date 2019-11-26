@@ -21,6 +21,9 @@ public interface ImageDao {
   @Query("SELECT * FROM image_element ORDER BY date DESC")
   LiveData<List<ImageElement>> getAll();
 
+  @Query("SELECT visit_title FROM image_element ORDER BY date DESC")
+  LiveData<List<String>> getTrips();
+
   @Query("SELECT * FROM image_element WHERE id IN (:ids)")
   LiveData<List<ImageElement>> loadAllByIds(int[] ids);
 

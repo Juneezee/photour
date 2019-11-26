@@ -57,10 +57,6 @@ public class PhotosFragment extends Fragment {
   private Activity activity;
   public List<ImageElement> elementList;
 
-//  public static List<ImageElement> getElementList() {
-//    return elementList;
-//  }
-
   /**
    * Finds or create a ImageFragment using FragmentManager. Used to retain state on rotation
    *
@@ -139,8 +135,6 @@ public class PhotosFragment extends Fragment {
    * Initialize recycler view for photos
    */
   private void initializeRecyclerView() {
-    sortMode = QUERY_BY_DATE;
-    // Initialize lists for SectionedGridRecyclerViewAdapter
 
     photosViewModel.setPlaceholderText(true);
 

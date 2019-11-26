@@ -1,19 +1,14 @@
 package com.android.photour.ui.photos;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.android.photour.R;
+
 import com.android.photour.databinding.ItemImageBinding;
-import com.android.photour.helper.BitmapHelper;
 import com.android.photour.model.ImageElement;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,5 +89,4 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
       this.itemImageBinding = itemImageBinding;
     }
   }
-
 }

@@ -12,6 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.android.photour.databinding.FragmentPathsBinding;
 import com.android.photour.helper.PermissionHelper;
 
@@ -22,6 +25,9 @@ public class PathsFragment extends Fragment {
 
   private PathsViewModel pathsViewModel;
   private Activity activity;
+  private FragmentPathsBinding binding;
+  private RecyclerView mRecyclerView;
+  private PathAdapter pathAdapter;
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -58,7 +64,8 @@ public class PathsFragment extends Fragment {
       Bundle savedInstanceState
   ) {
     pathsViewModel = new ViewModelProvider(this).get(PathsViewModel.class);
-    FragmentPathsBinding binding = FragmentPathsBinding.inflate(inflater, container, false);
+
+    binding = FragmentPathsBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
     binding.setPlaceholder(pathsViewModel);
 
@@ -80,9 +87,19 @@ public class PathsFragment extends Fragment {
     pathsViewModel.setPlaceholderText(permissionHelper.hasStoragePermission());
 
     // Check if storage permission is granted or not
-    permissionHelper.checkStoragePermission(() -> {});
+    permissionHelper.checkStoragePermission(this::initializeRecyclerView);
   }
 
+  private void initializeRecyclerView() {
+    pathsViewModel.setPlaceholderText(true);
+
+    mRecyclerView = binding.gridRecyclerView;
+    mRecyclerView.setHasFixedSize(true);
+    mRecyclerView.setLayoutManager(new LinearLayoutManager(activity));
+
+    pathAdapter = new PathAdapter();
+    mRecyclerView.setAdapter(pathAdapter);
+  }
   /**
    * Callback for the result from requesting permissions. This method is invoked for every call on
    * {@link #requestPermissions(String[], int)}.

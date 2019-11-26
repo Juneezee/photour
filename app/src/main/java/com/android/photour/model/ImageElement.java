@@ -1,23 +1,21 @@
 package com.android.photour.model;
 
-import static android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.Process;
 import android.view.View;
 import android.widget.ImageView;
+
 import androidx.databinding.BindingAdapter;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.navigation.Navigation;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
 import com.android.photour.MainActivity;
 import com.android.photour.R;
 import com.android.photour.async.AsyncDrawable;
@@ -26,10 +24,7 @@ import com.android.photour.async.BitmapTask;
 import com.android.photour.async.BitmapThumbnailTask;
 import com.android.photour.ui.photos.PhotosFragmentDirections;
 import com.android.photour.ui.photos.PhotosFragmentDirections.ActionViewImage;
-import java.io.BufferedInputStream;
-import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
