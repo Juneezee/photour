@@ -125,7 +125,7 @@ public abstract class AppDatabase extends RoomDatabase {
             relativePath = cursor.getString(cursor.getColumnIndexOrThrow("_data"));
           }
           ImageElement imageElement =
-                  new ImageElement(contentUri.toString(), relativePath, uriPath, 53.3808641,-1.4877637, 0, 0, date);
+                  new ImageElement( relativePath, uriPath, 53.3808641,-1.4877637, 0, 0, date);
           dao.insertImages(imageElement);
 
         }

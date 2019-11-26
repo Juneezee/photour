@@ -38,9 +38,6 @@ public class ImageElement implements Parcelable {
   @PrimaryKey(autoGenerate = true)
   public int id;
 
-  @ColumnInfo(name = "uri")
-  private String uri;
-
   @ColumnInfo(name = "relative_path")
   private String path;
 
@@ -65,16 +62,14 @@ public class ImageElement implements Parcelable {
   /**
    * Constructor for ImageElement
    *
-   * @param uri String of Uri of the image
    * @param visitTitle String of visit title
    * @param lat latitude double
    * @param lng longtitude double
    * @param pressure pressure float
    * @param temperature temperature float
    */
-  public ImageElement(String uri, String path, String visitTitle, double lat,
+  public ImageElement( String path, String visitTitle, double lat,
       double lng, float pressure, float temperature, Date date) {
-    this.uri = uri;
     this.path = path;
     this.visitTitle = visitTitle;
     this.lat = lat;
@@ -91,7 +86,6 @@ public class ImageElement implements Parcelable {
    */
   protected ImageElement(Parcel in) {
     id = in.readInt();
-    uri = in.readString();
     path = in.readString();
     visitTitle = in.readString();
     lat = in.readDouble();
@@ -162,24 +156,6 @@ public class ImageElement implements Parcelable {
       bitmapRawTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath);
     } catch (Exception ignored) {
     }
-  }
-
-  /**
-   * Getter for Uri
-   *
-   * @return uri String
-   */
-  public String getUri() {
-    return uri;
-  }
-
-  /**
-   * Accessor for Uri
-   *
-   * @param uri String of uri
-   */
-  public void setUri(String uri) {
-    this.uri = uri;
   }
 
   /**
@@ -321,7 +297,6 @@ public class ImageElement implements Parcelable {
   @Override
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeInt(id);
-    dest.writeString(uri);
     dest.writeString(path);
     dest.writeString(visitTitle);
     dest.writeDouble(lat);

@@ -9,12 +9,13 @@ import android.os.Parcelable;
 import android.widget.ImageView;
 
 import androidx.databinding.BindingAdapter;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.room.ColumnInfo;
 
-import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.async.AsyncDrawable;
-import com.photour.async.BitmapThumbnailTask;
+import com.photour.async.BitmapRawTask;
+import com.photour.async.BitmapTask;
 
 public class TripElement implements Parcelable{
 
@@ -87,22 +88,28 @@ public class TripElement implements Parcelable{
    * @param filepath filepath of image
    */
   @BindingAdapter({"tripBitmap"})
-  public static void loadImageBitmap(ImageView imageView, String filepath) {
+  public static void loadRawImage(ImageView imageView, String filepath) {
     final Context context = imageView.getContext();
-    Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(filepath);
-    if (bitmap != null) {
-      imageView.setImageBitmap(bitmap);
-    } else {
-      if (BitmapThumbnailTask.shouldCancelTask(filepath, imageView)) {
-        BitmapThumbnailTask task = new BitmapThumbnailTask(context, imageView);
-        Bitmap placeholder = BitmapFactory
+
+    BitmapTask bitmapRawTask = new BitmapRawTask(imageView.getContext(), imageView);
+    Bitmap placeholder;
+
+    try {
+      ExifInterface exifInterface = new ExifInterface(filepath);
+
+      if (exifInterface.hasThumbnail()) {
+        placeholder = exifInterface.getThumbnailBitmap();
+      } else {
+        placeholder = BitmapFactory
                 .decodeResource(context.getResources(), R.drawable.placeholder);
-        final AsyncDrawable asyncDrawable =
-                new AsyncDrawable(context.getResources(), placeholder, task);
-        imageView.setImageDrawable(asyncDrawable);
-        // task.execute(filepath);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath);
       }
+
+      final AsyncDrawable asyncDrawable =
+              new AsyncDrawable(context.getResources(), placeholder, bitmapRawTask);
+
+      imageView.setImageDrawable(asyncDrawable);
+      bitmapRawTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath);
+    } catch (Exception ignored) {
     }
   }
 
