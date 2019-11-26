@@ -17,6 +17,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.photour.databinding.FragmentPathsBinding;
 import com.android.photour.helper.PermissionHelper;
+import com.android.photour.model.ImageElement;
+import com.android.photour.model.SectionElement;
+import com.android.photour.model.TripElement;
+import com.android.photour.ui.photos.SectionedGridRecyclerViewAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PathsFragment extends Fragment {
 
@@ -99,6 +106,16 @@ public class PathsFragment extends Fragment {
 
     pathAdapter = new PathAdapter();
     mRecyclerView.setAdapter(pathAdapter);
+
+    pathsViewModel.trips.observe(getViewLifecycleOwner(), this::resetRecyler);
+  }
+
+  private void resetRecyler(List<TripElement> tripElements) {
+
+    // Parses values into adapters and update view
+    pathAdapter.setItems(tripElements);
+    pathAdapter.notifyDataSetChanged();
+
   }
   /**
    * Callback for the result from requesting permissions. This method is invoked for every call on

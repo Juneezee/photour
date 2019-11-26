@@ -35,10 +35,8 @@ public class PhotosViewModel extends AndroidViewModel {
 
   // Statics for readwrite images
   private ImageRepository imageRepository;
-//  private MutableLiveData<List<ImageElement>> _images = new MutableLiveData<>();
   public LiveData<List<ImageElement>> images;
 
-  //  static final List<SectionElement> ITEMS = new ArrayList<>();
   private ContentObserver contentObserver = null;
 
   /**
