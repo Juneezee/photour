@@ -4,16 +4,18 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.View;
 import android.widget.ImageView;
+import androidx.annotation.Nullable;
 import androidx.databinding.BindingAdapter;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.navigation.Navigation;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import com.google.auto.value.AutoValue;
+import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.async.AsyncDrawable;
@@ -31,88 +33,35 @@ import java.util.Locale;
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
+@AutoValue
 @Entity(tableName = "image_element")
-public class ImageElement implements Parcelable {
+public abstract class ImageElement implements Parcelable {
 
-  @PrimaryKey(autoGenerate = true)
-  public int id;
+  @CopyAnnotations
+  @PrimaryKey
+  public abstract int id();
 
-  @ColumnInfo(name = "relative_path")
-  private String path;
+  @CopyAnnotations
+  @ColumnInfo(name = "file_path")
+  public abstract String filePath();
 
+  @CopyAnnotations
   @ColumnInfo(name = "visit_title")
-  private String visitTitle;
+  public abstract String visitTitle();
 
-  @ColumnInfo(name = "date")
-  private Date date;
+  public abstract Date date();
 
-  @ColumnInfo(name = "latitude")
-  private double lat;
+  public abstract double latitude();
 
-  @ColumnInfo(name = "longtitude")
-  private double lng;
+  public abstract double longitude();
 
-  @ColumnInfo(name = "pressure")
-  private float pressure;
+  @Nullable
+  public abstract float[] sensors();
 
-  @ColumnInfo(name = "temperature")
-  private float temperature;
-
-  /**
-   * Constructor for ImageElement
-   *
-   * @param path File path of the image
-   * @param visitTitle String of visit title
-   * @param lat latitude double
-   * @param lng longtitude double
-   * @param pressure pressure float
-   * @param temperature temperature float
-   */
-  public ImageElement(
-      String path,
-      String visitTitle,
-      double lat,
-      double lng,
-      float pressure,
-      float temperature,
-      Date date
-  ) {
-    this.path = path;
-    this.visitTitle = visitTitle;
-    this.lat = lat;
-    this.lng = lng;
-    this.pressure = pressure;
-    this.temperature = temperature;
-    this.date = date;
+  public static ImageElement create(int id, String filePath, String visitTitle, Date date,
+      double latitude, double longitude, float[] sensors) {
+    return new AutoValue_ImageElement(id, filePath, visitTitle, date, latitude, longitude, sensors);
   }
-
-  /**
-   * Constructor for allowing {@link Parcelable}
-   *
-   * @param in A {@link Parcel} object
-   */
-  protected ImageElement(Parcel in) {
-    id = in.readInt();
-    path = in.readString();
-    visitTitle = in.readString();
-    lat = in.readDouble();
-    lng = in.readDouble();
-    pressure = in.readFloat();
-    temperature = in.readFloat();
-  }
-
-  // Auto-generated, required for passing ImageElement object between navigation
-  public static final Creator<ImageElement> CREATOR = new Creator<ImageElement>() {
-    @Override
-    public ImageElement createFromParcel(Parcel in) {
-      return new ImageElement(in);
-    }
-
-    @Override
-    public ImageElement[] newArray(int size) {
-      return new ImageElement[size];
-    }
-  };
 
   /**
    * Data binding adapter for loading the thumbnail images
@@ -169,127 +118,22 @@ public class ImageElement implements Parcelable {
     }
   }
 
-  /**
-   * Getter for Path
-   *
-   * @return path String
-   */
-  public String getPath() {
-    return path;
+  public boolean hasSensorsReading() {
+    return sensors() != null;
   }
 
-  /**
-   * Setter for Path
-   *
-   * @param path String
-   */
-
-  public void setPath(String path) {
-    this.path = path;
+  public float temperature() {
+    return sensors() == null ? 0 : sensors()[0];
   }
 
-  /**
-   * Getter for Date
-   *
-   * @return date Date of image
-   */
-  public Date getDate() {
-    return date;
+  public float pressure() {
+    return sensors() == null ? 0 : sensors()[1];
   }
 
   public String getDateInString() {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("E, dd MMM yyyy • HH:mm",
         Locale.getDefault());
-    return simpleDateFormat.format(date);
-  }
-
-  /**
-   * Getter for Trip Name
-   *
-   * @return visitTitle the name of the trip the image is in
-   */
-  public String getVisitTitle() {
-    return visitTitle;
-  }
-
-  /**
-   * Accessor for Trip Name
-   *
-   * @param visitTitle string
-   */
-  public void setVisitTitle(String visitTitle) {
-    this.visitTitle = visitTitle;
-  }
-
-  /**
-   * Getter for Latitude
-   *
-   * @return double latitude
-   */
-  public double getLat() {
-    return lat;
-  }
-
-  /**
-   * Getter for Longtitude
-   *
-   * @return double longitude
-   */
-  public double getLng() {
-    return lng;
-  }
-
-  /**
-   * Getter for Barometer
-   *
-   * @return float pressure
-   */
-  public float getPressure() {
-    return pressure;
-  }
-
-  /**
-   * Getter for Ambient
-   *
-   * @return float temperature
-   */
-  public float getTemperature() {
-    return temperature;
-  }
-
-  /**
-   * Setter for date
-   *
-   * @param date New date
-   */
-  public void setDate(Date date) {
-    this.date = date;
-  }
-
-  /**
-   * Setter for latitude
-   *
-   * @param lat New latitude
-   */
-  public void setLat(double lat) {
-    this.lat = lat;
-  }
-
-  /**
-   * Setter for longitude
-   *
-   * @param lng New longitude
-   */
-  public void setLng(double lng) {
-    this.lng = lng;
-  }
-
-  public void setPressure(float pressure) {
-    this.pressure = pressure;
-  }
-
-  public void setTemperature(float temperature) {
-    this.temperature = temperature;
+    return simpleDateFormat.format(date());
   }
 
   /**
@@ -298,37 +142,5 @@ public class ImageElement implements Parcelable {
   public void onImageClick(View view) {
     ActionViewImage actionViewImage = PhotosFragmentDirections.actionViewImage(this);
     Navigation.findNavController(view).navigate(actionViewImage);
-  }
-
-  /**
-   * Describe the kinds of special objects contained in this Parcelable instance's marshaled
-   * representation. For example, if the object will include a file descriptor in the output of
-   * {@link #writeToParcel(Parcel, int)}, the return value of this method must include the {@link
-   * #CONTENTS_FILE_DESCRIPTOR} bit.
-   *
-   * @return a bitmask indicating the set of special object types marshaled by this Parcelable
-   * object instance.
-   */
-  @Override
-  public int describeContents() {
-    return 0;
-  }
-
-  /**
-   * Flatten this object in to a Parcel.
-   *
-   * @param dest The Parcel in which the object should be written.
-   * @param flags Additional flags about how the object should be written. May be 0 or {@link
-   * #PARCELABLE_WRITE_RETURN_VALUE}.
-   */
-  @Override
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeInt(id);
-    dest.writeString(path);
-    dest.writeString(visitTitle);
-    dest.writeDouble(lat);
-    dest.writeDouble(lng);
-    dest.writeFloat(pressure);
-    dest.writeFloat(temperature);
   }
 }

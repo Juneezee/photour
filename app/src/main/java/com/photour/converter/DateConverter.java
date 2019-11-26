@@ -1,12 +1,7 @@
-package com.photour.helper;
+package com.photour.converter;
 
 import androidx.room.TypeConverter;
 import java.util.Date;
-
-/**
- * Type converter for Date
- *
- */
 
 /**
  * Type converter for Date

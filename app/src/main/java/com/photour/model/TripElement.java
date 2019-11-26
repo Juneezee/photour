@@ -23,7 +23,7 @@ public class TripElement implements Parcelable{
   @ColumnInfo(name = "photoNo")
   private int photoNo;
 
-  @ColumnInfo(name = "relative_path")
+  @ColumnInfo(name = "file_path")
   private String displayPhoto;
 
   public TripElement(String tripname, int photoNo, String displayPhoto) {

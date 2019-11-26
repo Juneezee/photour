@@ -211,11 +211,11 @@ public class PhotosFragment extends Fragment {
         String currentTitle;
         if (photosViewModel.sortMode == R.id.by_date_asc
             || photosViewModel.sortMode == R.id.by_date_desc) {
-          Date date = imageElement.getDate();
+          Date date = imageElement.date();
           SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
           currentTitle = sdf.format(date);
         } else {
-          currentTitle = imageElement.getVisitTitle();
+          currentTitle = imageElement.visitTitle();
         }
         if (!titles.containsKey(currentTitle)) {
           sections.add(new SectionElement(currentTitle));

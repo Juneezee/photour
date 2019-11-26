@@ -112,7 +112,7 @@ public class ImageFragment extends Fragment implements OnMapReadyCallback {
     this.googleMap.getUiSettings().setMapToolbarEnabled(false);
 
     // TODO
-    LatLng point = new LatLng(image.getLat(), image.getLng());
+    LatLng point = new LatLng(image.latitude(), image.longitude());
     this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 15));
     this.googleMap.addMarker(new MarkerOptions().position(point));
   }

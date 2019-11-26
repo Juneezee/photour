@@ -62,12 +62,12 @@ public class BitmapHelper {
     options.inJustDecodeBounds = true;
 
     try {
-      Bitmap bitmap = BitmapFactory.decodeFile(filepath,options);
+      Bitmap bitmap = BitmapFactory.decodeFile(filepath, options);
       options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
       if (options.inSampleSize > 1) {
         options.inJustDecodeBounds = false;
-        bitmap = BitmapFactory.decodeFile( filepath, options);
+        bitmap = BitmapFactory.decodeFile(filepath, options);
       }
 
       return bitmap;
