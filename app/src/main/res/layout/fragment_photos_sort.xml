@@ -5,7 +5,7 @@
     <data>
         <variable
             name="title"
-            type="com.android.photour.ui.photos.SectionedGridRecyclerViewAdapter.Section" />
+            type="com.photour.ui.photos.SectionedGridRecyclerViewAdapter.Section" />
     </data>
 
 

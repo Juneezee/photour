@@ -762,4 +762,4 @@ fabric.properties
 !/gradle/wrapper/gradle-wrapper.jar
 
 # End of https://www.gitignore.io/api/android,androidstudio
-app/schemas/com.android.photour.database.AppDatabase/1.json
+app/schemas/com.photour.database.AppDatabase/1.json

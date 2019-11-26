@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
-  package="com.android.photour">
+  package="com.photour">
 
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
@@ -35,7 +35,8 @@
       android:value="AIzaSyA4izbO87DoWYUt_jZ069cbPNnY6uvfLIk" />
 
     <activity
-      android:name="com.android.photour.MainActivity"
+      android:name="com.photour.MainActivity"
+      android:launchMode="singleTop"
       android:theme="@style/SplashScreenTheme"
       android:windowSoftInputMode="adjustNothing">
 
@@ -47,8 +48,9 @@
     </activity>
 
     <service
-      android:name=".ui.visit.LocationIntentService"
-      android:exported="false" />
+      android:name=".ui.visit.LocationForegroundService"
+      android:exported="false"
+      android:foregroundServiceType="location" />
   </application>
 
 </manifest>

@@ -5,7 +5,7 @@
   <data>
     <variable
       name="placeholder"
-      type="com.android.photour.ui.paths.PathsViewModel" />
+      type="com.photour.ui.paths.PathsViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout

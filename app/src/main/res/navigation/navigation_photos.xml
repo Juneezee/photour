@@ -7,7 +7,7 @@
 
   <fragment
     android:id="@+id/photos"
-    android:name="com.android.photour.ui.photos.PhotosFragment"
+    android:name="com.photour.ui.photos.PhotosFragment"
     android:label="@string/photos"
     tools:layout="@layout/fragment_photos">
 
@@ -18,13 +18,13 @@
 
   <fragment
     android:id="@+id/image"
-    android:name="com.android.photour.ui.image.ImageFragment"
+    android:name="com.photour.ui.image.ImageFragment"
     tools:layout="@layout/fragment_image">
 
 
     <argument
       android:name="image"
-      app:argType="com.android.photour.model.ImageElement" />
+      app:argType="com.photour.model.ImageElement" />
   </fragment>
 
   <include app:graph="@navigation/navigation_settings" />

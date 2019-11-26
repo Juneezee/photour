@@ -4,19 +4,19 @@
   <data>
     <variable
       name="fragment"
-      type="com.android.photour.ui.visit.StartVisitFragment" />
+      type="com.photour.ui.visit.StartVisitFragment" />
 
     <variable
       name="viewModel"
-      type="com.android.photour.ui.visit.VisitViewModel" />
+      type="com.photour.ui.visit.VisitViewModel" />
 
     <variable
       name="temperature"
-      type="com.android.photour.sensor.AmbientSensor" />
+      type="com.photour.sensor.AmbientSensor" />
 
     <variable
       name="pressure"
-      type="com.android.photour.sensor.Barometer" />
+      type="com.photour.sensor.Barometer" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"

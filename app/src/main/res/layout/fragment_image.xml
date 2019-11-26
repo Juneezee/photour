@@ -5,7 +5,7 @@
   <data>
     <variable
       name="image"
-      type="com.android.photour.model.ImageElement" />
+      type="com.photour.model.ImageElement" />
   </data>
 
   <ScrollView

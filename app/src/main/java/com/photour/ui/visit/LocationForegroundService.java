@@ -1,11 +1,10 @@
-package com.android.photour.ui.visit;
+package com.photour.ui.visit;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.location.Location;
@@ -16,9 +15,8 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 import androidx.core.app.NotificationCompat;
-import androidx.navigation.NavDeepLinkBuilder;
-import com.android.photour.MainActivity;
-import com.android.photour.R;
+import com.photour.MainActivity;
+import com.photour.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -30,7 +28,7 @@ public class LocationForegroundService extends Service {
 
   private static final String TAG = LocationForegroundService.class.getSimpleName();
   private static final String CHANNEL_ID = "photour";
-  private static final String STARTED_FROM_NOTIFICATION = "com.android.photour.started_from_notification";
+  private static final String STARTED_FROM_NOTIFICATION = "com.photour.started_from_notification";
 
   // Constants for Google Map location request
   private static final int UPDATE_INTERVAL = 20000;
