@@ -15,14 +15,14 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 import androidx.core.app.NotificationCompat;
-import com.photour.MainActivity;
-import com.photour.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.libraries.maps.model.LatLng;
+import com.photour.MainActivity;
+import com.photour.R;
 
 public class LocationForegroundService extends Service {
 
@@ -44,6 +44,7 @@ public class LocationForegroundService extends Service {
    */
   private boolean changingConfiguration = false;
 
+  private StartVisitFragment startVisitFragment;
   private StartVisitMap visitMap;
   private FusedLocationProviderClient fusedLocationProviderClient;
   private LocationCallback locationCallback;
@@ -171,8 +172,8 @@ public class LocationForegroundService extends Service {
 
     NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
         .setSmallIcon(R.drawable.ic_visit)
-        .setContentTitle("Ongoing visit")
-        .setContentText("some trip")
+        .setSubText("Ongoing visit")
+        .setContentTitle(startVisitFragment.visitViewModel.getNewVisitTitle().getValue())
         .setContentIntent(pendingIntent)
         .setPriority(NotificationCompat.PRIORITY_LOW);
 
@@ -190,6 +191,7 @@ public class LocationForegroundService extends Service {
   }
 
   public void requestLocationUpdates(StartVisitFragment startVisitFragment) {
+    this.startVisitFragment = startVisitFragment;
     this.visitMap = startVisitFragment.startVisitMap;
 
     Log.d(TAG, "Requesting location updates...");

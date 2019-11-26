@@ -2,7 +2,6 @@ package com.photour.helper;
 
 import android.content.Context;
 import android.os.Environment;
-
 import java.io.File;
 
 public class Utils {

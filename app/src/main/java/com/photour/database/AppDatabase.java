@@ -1,27 +1,25 @@
 package com.photour.database;
 
+import static android.os.Build.VERSION_CODES.Q;
+
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
-
 import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-
 import com.photour.helper.DateConverter;
 import com.photour.model.ImageElement;
-
+import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static android.os.Build.VERSION_CODES.Q;
 
 /**
  * Database class.
@@ -44,7 +42,7 @@ public abstract class AppDatabase extends RoomDatabase {
    * @param context Context of MainActivity
    * @return AppDatabase the database object
    */
-  public static AppDatabase getDatabase(final Context context) {
+  static AppDatabase getDatabase(final Context context) {
     if (INSTANCE == null) {
       synchronized (AppDatabase.class) {
         if (INSTANCE == null) {

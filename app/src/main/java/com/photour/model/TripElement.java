@@ -7,11 +7,9 @@ import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.widget.ImageView;
-
 import androidx.databinding.BindingAdapter;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.room.ColumnInfo;
-
 import com.photour.R;
 import com.photour.async.AsyncDrawable;
 import com.photour.async.BitmapRawTask;

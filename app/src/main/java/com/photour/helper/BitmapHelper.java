@@ -1,6 +1,5 @@
 package com.photour.helper;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
@@ -33,8 +32,7 @@ public class BitmapHelper {
 
       // Calculate the largest inSampleSize value that is a power of 2 and keeps both
       // height and width larger than the requested height and width.
-      while ((halfHeight / inSampleSize) >= reqHeight
-          && (halfWidth / inSampleSize) >= reqWidth) {
+      while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
         inSampleSize *= 2;
       }
     }
@@ -47,16 +45,14 @@ public class BitmapHelper {
    *
    * Referenced Android Developer: Loading Large Bitmaps Efficiently
    *
-   * @param context Context of MainActivity
-   * @param resString Uri of the image
+   * @param filepath File path of image
    * @param reqWidth required width
    * @param reqHeight required height
    * @return Bitmap the compressed bitmap
    * @see <a href="https://developer.android.com/topic/performance/graphics/load-bitmap"></a>
    */
   public static Bitmap decodeSampledBitmapFromResource(
-      Context context,
-      String resString,
+      String filepath,
       int reqWidth,
       int reqHeight
   ) {
@@ -66,14 +62,12 @@ public class BitmapHelper {
     options.inJustDecodeBounds = true;
 
     try {
-//      InputStream inputStream = context.getContentResolver().openInputStream(resUri);
-      Bitmap bitmap = BitmapFactory.decodeFile(resString,options);
+      Bitmap bitmap = BitmapFactory.decodeFile(filepath,options);
       options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
       if (options.inSampleSize > 1) {
-//        inputStream = context.getContentResolver().openInputStream(resUri);
         options.inJustDecodeBounds = false;
-        bitmap = BitmapFactory.decodeFile( resString, options);
+        bitmap = BitmapFactory.decodeFile( filepath, options);
       }
 
       return bitmap;

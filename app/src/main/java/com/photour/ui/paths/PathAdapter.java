@@ -2,13 +2,10 @@ package com.photour.ui.paths;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.photour.databinding.ItemPathBinding;
 import com.photour.model.TripElement;
-
 import java.util.ArrayList;
 import java.util.List;
 

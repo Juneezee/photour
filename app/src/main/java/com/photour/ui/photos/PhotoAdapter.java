@@ -2,13 +2,10 @@ package com.photour.ui.photos;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.photour.databinding.ItemImageBinding;
 import com.photour.model.ImageElement;
-
 import java.util.ArrayList;
 import java.util.List;
 

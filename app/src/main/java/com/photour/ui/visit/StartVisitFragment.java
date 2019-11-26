@@ -20,15 +20,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import com.google.android.libraries.maps.GoogleMap;
+import com.google.android.libraries.maps.OnMapReadyCallback;
+import com.google.android.libraries.maps.SupportMapFragment;
 import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.databinding.FragmentStartVisitBinding;
 import com.photour.helper.AlertDialogHelper;
 import com.photour.helper.LocationServicesHelper;
 import com.photour.sensor.Accelerometer;
-import com.google.android.libraries.maps.GoogleMap;
-import com.google.android.libraries.maps.OnMapReadyCallback;
-import com.google.android.libraries.maps.SupportMapFragment;
 import java.io.File;
 import java.util.List;
 import pl.aprilapps.easyphotopicker.DefaultCallback;
@@ -43,7 +43,7 @@ import pl.aprilapps.easyphotopicker.EasyImage.ImageSource;
 public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
   final StartVisitMap startVisitMap = new StartVisitMap(this);
-  private VisitViewModel visitViewModel;
+  VisitViewModel visitViewModel;
   private FragmentStartVisitBinding binding;
   private Activity activity;
 

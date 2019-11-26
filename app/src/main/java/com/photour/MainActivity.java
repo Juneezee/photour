@@ -20,10 +20,10 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import com.photour.database.DiskLruImageCache;
-import com.photour.ui.photos.PhotosFragment;
 import com.google.android.libraries.maps.MapView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.photour.database.DiskLruImageCache;
+import com.photour.ui.photos.PhotosFragment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -311,3 +311,4 @@ public class MainActivity extends AppCompatActivity {
 //    return new File(cachePath + File.separator + uniqueName);
 //  }
 }
+

@@ -5,11 +5,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
-
+import com.jakewharton.disklrucache.DiskLruCache;
 import com.photour.BuildConfig;
 import com.photour.helper.Utils;
-import com.jakewharton.disklrucache.DiskLruCache;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;

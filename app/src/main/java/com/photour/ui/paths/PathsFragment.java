@@ -14,15 +14,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.photour.databinding.FragmentPathsBinding;
 import com.photour.helper.PermissionHelper;
-import com.photour.model.ImageElement;
-import com.photour.model.SectionElement;
 import com.photour.model.TripElement;
-import com.photour.ui.photos.SectionedGridRecyclerViewAdapter;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class PathsFragment extends Fragment {

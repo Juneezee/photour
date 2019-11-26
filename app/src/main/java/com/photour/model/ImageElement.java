@@ -8,7 +8,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.View;
 import android.widget.ImageView;
-
 import androidx.databinding.BindingAdapter;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.navigation.Navigation;
@@ -62,14 +61,22 @@ public class ImageElement implements Parcelable {
   /**
    * Constructor for ImageElement
    *
+   * @param path File path of the image
    * @param visitTitle String of visit title
    * @param lat latitude double
    * @param lng longtitude double
    * @param pressure pressure float
    * @param temperature temperature float
    */
-  public ImageElement( String path, String visitTitle, double lat,
-      double lng, float pressure, float temperature, Date date) {
+  public ImageElement(
+      String path,
+      String visitTitle,
+      double lat,
+      double lng,
+      float pressure,
+      float temperature,
+      Date date
+  ) {
     this.path = path;
     this.visitTitle = visitTitle;
     this.lat = lat;
@@ -94,6 +101,7 @@ public class ImageElement implements Parcelable {
     temperature = in.readFloat();
   }
 
+  // Auto-generated, required for passing ImageElement object between navigation
   public static final Creator<ImageElement> CREATOR = new Creator<ImageElement>() {
     @Override
     public ImageElement createFromParcel(Parcel in) {
@@ -107,9 +115,9 @@ public class ImageElement implements Parcelable {
   };
 
   /**
-   * Function to load images for data binding
+   * Data binding adapter for loading the thumbnail images
    *
-   * @param imageView ImageView object
+   * @param imageView An {@link ImageView} object
    * @param filepath filepath of image
    */
   @BindingAdapter({"imageBitmap"})
@@ -132,22 +140,25 @@ public class ImageElement implements Parcelable {
     }
   }
 
+  /**
+   * Data binding adapter for loading the raw images
+   *
+   * @param imageView An {@link ImageView} object
+   * @param filepath filepath of image
+   */
   @BindingAdapter({"rawImage"})
   public static void loadRawImage(ImageView imageView, String filepath) {
     final Context context = imageView.getContext();
 
     BitmapTask bitmapRawTask = new BitmapRawTask(imageView.getContext(), imageView);
-    Bitmap placeholder;
 
     try {
       ExifInterface exifInterface = new ExifInterface(filepath);
 
-      if (exifInterface.hasThumbnail()) {
-        placeholder = exifInterface.getThumbnailBitmap();
-      } else {
-        placeholder = BitmapFactory
-            .decodeResource(context.getResources(), R.drawable.placeholder);
-      }
+      // Show the thumbnail first, then async load the raw image
+      Bitmap placeholder = exifInterface.hasThumbnail()
+          ? exifInterface.getThumbnailBitmap()
+          : BitmapFactory.decodeResource(context.getResources(), R.drawable.placeholder);
 
       final AsyncDrawable asyncDrawable =
           new AsyncDrawable(context.getResources(), placeholder, bitmapRawTask);
@@ -187,7 +198,8 @@ public class ImageElement implements Parcelable {
   }
 
   public String getDateInString() {
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("E, dd MMM yyyy • HH:mm", Locale.getDefault());
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("E, dd MMM yyyy • HH:mm",
+        Locale.getDefault());
     return simpleDateFormat.format(date);
   }
 
@@ -212,7 +224,7 @@ public class ImageElement implements Parcelable {
   /**
    * Getter for Latitude
    *
-   * @return lat latitude float
+   * @return double latitude
    */
   public double getLat() {
     return lat;
@@ -221,7 +233,7 @@ public class ImageElement implements Parcelable {
   /**
    * Getter for Longtitude
    *
-   * @return lng longtitude float
+   * @return double longitude
    */
   public double getLng() {
     return lng;
@@ -230,7 +242,7 @@ public class ImageElement implements Parcelable {
   /**
    * Getter for Barometer
    *
-   * @return pressure float
+   * @return float pressure
    */
   public float getPressure() {
     return pressure;
@@ -239,20 +251,35 @@ public class ImageElement implements Parcelable {
   /**
    * Getter for Ambient
    *
-   * @return temperature
+   * @return float temperature
    */
   public float getTemperature() {
     return temperature;
   }
 
+  /**
+   * Setter for date
+   *
+   * @param date New date
+   */
   public void setDate(Date date) {
     this.date = date;
   }
 
+  /**
+   * Setter for latitude
+   *
+   * @param lat New latitude
+   */
   public void setLat(double lat) {
     this.lat = lat;
   }
 
+  /**
+   * Setter for longitude
+   *
+   * @param lng New longitude
+   */
   public void setLng(double lng) {
     this.lng = lng;
   }

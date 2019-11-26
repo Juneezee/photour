@@ -1,12 +1,9 @@
 package com.photour.database;
 
 import android.app.Application;
-
 import androidx.lifecycle.LiveData;
-
 import com.photour.model.ImageElement;
 import com.photour.model.TripElement;
-
 import java.util.List;
 
 /**
@@ -22,7 +19,7 @@ public class ImageRepository {
   public ImageRepository(Application application) {
     AppDatabase db = AppDatabase.getDatabase(application);
     imageDao = db.ImageDao();
-    imageElements = imageDao.getAll();
+    imageElements = imageDao.getAllDesc();
   }
 
   /**

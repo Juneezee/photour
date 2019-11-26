@@ -10,16 +10,16 @@ import android.view.ViewStub;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import com.photour.MainActivity;
-import com.photour.R;
-import com.photour.databinding.FragmentImageBinding;
-import com.photour.model.ImageElement;
 import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
 import com.google.android.libraries.maps.model.LatLng;
 import com.google.android.libraries.maps.model.MarkerOptions;
+import com.photour.MainActivity;
+import com.photour.R;
+import com.photour.databinding.FragmentImageBinding;
+import com.photour.model.ImageElement;
 
 /**
  * Fragment to create when an has been clicked

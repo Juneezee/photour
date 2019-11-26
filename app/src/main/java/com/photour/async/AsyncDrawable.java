@@ -22,11 +22,7 @@ public class AsyncDrawable extends BitmapDrawable {
    * @param bitmap Placeholder bitmap for the imageView
    * @param bitmapTask Async task for the given imageView
    */
-  public AsyncDrawable(
-      Resources res,
-      Bitmap bitmap,
-      BitmapTask bitmapTask
-  ) {
+  public AsyncDrawable(Resources res, Bitmap bitmap, BitmapTask bitmapTask) {
     super(res, bitmap);
     bitmapTaskReference = new WeakReference<>(bitmapTask);
   }

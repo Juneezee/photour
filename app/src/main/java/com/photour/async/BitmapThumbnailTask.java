@@ -15,10 +15,7 @@ import com.photour.helper.BitmapHelper;
  */
 public class BitmapThumbnailTask extends BitmapTask {
 
-  private static final int REQ_WIDTH = 100;
-  private static final int REQ_HEIGHT = 100;
-
-  private String data = null;
+  private String filepath = null;
 
   /**
    * Constructor for BitmapTask
@@ -34,37 +31,39 @@ public class BitmapThumbnailTask extends BitmapTask {
    * Task being run async. Compresses the bitmap and crop it to 100x100. The bitmap is then saved in
    * LRU cache to used in the future.
    *
-   * @param params Uri of image that will be processed
-   * @return Bitmap bitmap of the uri
+   * @param filepaths File path of images that will be processed
+   * @return Bitmap bitmap of the image
    */
   @Override
-  protected Bitmap doInBackground(String... params) {
+  protected Bitmap doInBackground(String... filepaths) {
     Bitmap bitmap;
     try {
-      Context contextRef = contextReference.get();
-      data = params[0];
+      final Context contextRef = contextReference.get();
+      filepath = filepaths[0];
 
-//      InputStream inputStream = contextRef.getContentResolver().openInputStream(data);
-
-//      if (inputStream == null) {
-//        return null;
-//      }
-
-      ExifInterface exifInterface = new ExifInterface(data);
-      String idStr = data.substring(data.lastIndexOf('/') + 1).replaceAll("[+() .]","_")
-              .toLowerCase();
+      final ExifInterface exifInterface = new ExifInterface(filepath);
+      String idStr = filepath.substring(filepath.lastIndexOf('/') + 1).replaceAll("[+() .]", "_")
+          .toLowerCase();
       idStr = idStr.substring(0, Math.min(idStr.length(), 64));
 
+      /*
+       * Case 1: Image is supported by ExifInterface and has thumbnail, then return embded thumbnail
+       * Case 2: Image is not supported by ExifInterface but stored in disk cache, return cached
+       * thumbnail
+       * Else case: Decode the thumbnail manually
+       *
+       */
       bitmap = exifInterface.hasThumbnail()
           ? exifInterface.getThumbnailBitmap()
-          : ((MainActivity)contextRef).getBitmapFromDiskCache(idStr) != null ?
-              ((MainActivity)contextRef).getBitmapFromDiskCache(idStr) :
-              BitmapHelper.decodeSampledBitmapFromResource(contextRef, data, REQ_WIDTH, REQ_HEIGHT);
+          : ((MainActivity) contextRef).getBitmapFromDiskCache(idStr) != null
+              ? ((MainActivity) contextRef).getBitmapFromDiskCache(idStr)
+              : BitmapHelper.decodeSampledBitmapFromResource(filepath, 100, 100);
 
+      // Uncommon cases where GIFs and PNGs are not getting thumbnails after decode
       if (bitmap == null) {
-        bitmap = BitmapFactory.decodeFile(data);
+        bitmap = BitmapFactory.decodeFile(filepath);
       }
-      System.out.println(idStr+": "+bitmap);
+
       ((MainActivity) contextRef).addBitmapToMemoryCache(idStr, bitmap);
 
       return bitmap;
@@ -84,17 +83,20 @@ public class BitmapThumbnailTask extends BitmapTask {
   public static boolean shouldCancelTask(String data, ImageView imageView) {
     final BitmapThumbnailTask bitmapThumbnailTask = (BitmapThumbnailTask) getBitmapTask(imageView);
 
-    if (bitmapThumbnailTask != null) {
-      final String bitmapData = bitmapThumbnailTask.data;
-      if (data != null && bitmapData != null && !bitmapData.equals(data)) {
-        // Cancel previous task
-        bitmapThumbnailTask.cancel(true);
-      } else {
-        // The same work is already in progress
-        return false;
-      }
-    }
     // No task associated with the ImageView, or an existing task was cancelled
-    return true;
+    if (bitmapThumbnailTask == null) {
+      return true;
+    }
+
+    final String bitmapData = bitmapThumbnailTask.filepath;
+
+    if (data != null && bitmapData != null && !bitmapData.equals(data)) {
+      // Cancel previous task
+      bitmapThumbnailTask.cancel(true);
+      return true;
+    } else {
+      // The same work is already in progress
+      return false;
+    }
   }
 }

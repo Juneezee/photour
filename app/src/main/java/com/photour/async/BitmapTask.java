@@ -7,10 +7,15 @@ import android.os.AsyncTask;
 import android.widget.ImageView;
 import java.lang.ref.WeakReference;
 
+/**
+ * An {@link AsyncTask} for loading the image Bitmap
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class BitmapTask extends AsyncTask<String, Void, Bitmap> {
 
   WeakReference<Context> contextReference;
-  WeakReference<ImageView> imageViewWeakReference;
+  private WeakReference<ImageView> imageViewWeakReference;
 
   /**
    * Constructor for BitmapTask
@@ -18,13 +23,15 @@ public class BitmapTask extends AsyncTask<String, Void, Bitmap> {
    * @param context context of activity
    * @param imageView imageView that the bitmap will be set on
    */
-  public BitmapTask(Context context, ImageView imageView) {
+  BitmapTask(Context context, ImageView imageView) {
     this.contextReference = new WeakReference<>(context);
     this.imageViewWeakReference = new WeakReference<>(imageView);
   }
 
   @Override
-  protected Bitmap doInBackground(String... params) { return null; }
+  protected Bitmap doInBackground(String... filepaths) {
+    return null;
+  }
 
   /**
    * Runs on the UI thread after {@link #doInBackground}. The specified result is the value returned
@@ -57,15 +64,12 @@ public class BitmapTask extends AsyncTask<String, Void, Bitmap> {
    * @param imageView ImageView object
    */
   static BitmapTask getBitmapTask(ImageView imageView) {
-
-    if (imageView != null) {
-      final Drawable drawable = imageView.getDrawable();
-      if (drawable instanceof AsyncDrawable) {
-        final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
-        return asyncDrawable.getBitmapTask();
-      }
+    if (imageView == null) {
+      return null;
     }
 
-    return null;
+    final Drawable drawable = imageView.getDrawable();
+
+    return drawable instanceof AsyncDrawable ? ((AsyncDrawable) drawable).getBitmapTask() : null;
   }
 }
