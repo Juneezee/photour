@@ -317,4 +317,3 @@ public class MainActivity extends AppCompatActivity {
 //    return new File(cachePath + File.separator + uniqueName);
 //  }
 }
-
