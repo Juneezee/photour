@@ -7,7 +7,7 @@ import android.os.Environment;
 import android.util.Log;
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.photour.BuildConfig;
-import com.photour.helper.Utils;
+import com.photour.helper.CacheHelper;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -39,7 +39,7 @@ public class DiskLruImageCache {
           throws IOException, FileNotFoundException {
     OutputStream out = null;
     try {
-      out = new BufferedOutputStream( editor.newOutputStream( 0 ), Utils.IO_BUFFER_SIZE );
+      out = new BufferedOutputStream( editor.newOutputStream( 0 ), CacheHelper.IO_BUFFER_SIZE );
       int mCompressQuality = 70;
       return bitmap.compress( mCompressFormat, mCompressQuality, out );
     } finally {
@@ -55,8 +55,8 @@ public class DiskLruImageCache {
     // otherwise use internal cache dir
     final String cachePath =
             Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                    !Utils.isExternalStorageRemovable() ?
-                    Utils.getExternalCacheDir(context).getPath() :
+                    !CacheHelper.isExternalStorageRemovable() ?
+                    CacheHelper.getExternalCacheDir(context).getPath() :
                     context.getCacheDir().getPath();
 
     return new File(cachePath + File.separator + uniqueName);
@@ -110,7 +110,7 @@ public class DiskLruImageCache {
       final InputStream in = snapshot.getInputStream( 0 );
       if ( in != null ) {
         final BufferedInputStream buffIn =
-                new BufferedInputStream( in, Utils.IO_BUFFER_SIZE );
+                new BufferedInputStream( in, CacheHelper.IO_BUFFER_SIZE );
         bitmap = BitmapFactory.decodeStream( buffIn );
       }
     } catch ( IOException e ) {

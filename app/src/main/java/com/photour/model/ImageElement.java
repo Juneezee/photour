@@ -18,9 +18,10 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.photour.MainActivity;
 import com.photour.R;
-import com.photour.async.AsyncDrawable;
-import com.photour.async.BitmapRawTask;
-import com.photour.async.BitmapThumbnailTask;
+import com.photour.helper.CacheHelper;
+import com.photour.task.AsyncDrawable;
+import com.photour.task.BitmapRawTask;
+import com.photour.task.BitmapThumbnailTask;
 import com.photour.ui.photos.PhotosFragmentDirections;
 import com.photour.ui.photos.PhotosFragmentDirections.ActionViewImage;
 import java.text.SimpleDateFormat;
@@ -71,7 +72,8 @@ public abstract class ImageElement implements Parcelable {
   @BindingAdapter({"imageBitmap"})
   public static void loadImageBitmap(ImageView imageView, String filepath) {
     final Context context = imageView.getContext();
-    Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(filepath);
+
+    Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(CacheHelper.getImageIdString(filepath));
     if (bitmap != null) {
       imageView.setImageBitmap(bitmap);
     } else {
@@ -82,7 +84,7 @@ public abstract class ImageElement implements Parcelable {
         final AsyncDrawable asyncDrawable =
             new AsyncDrawable(context.getResources(), placeholder, task);
         imageView.setImageDrawable(asyncDrawable);
-        // task.execute(filepath);
+//         task.execute(filepath);
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath);
       }
     }

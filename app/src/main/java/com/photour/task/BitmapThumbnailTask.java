@@ -1,4 +1,4 @@
-package com.photour.async;
+package com.photour.task;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import androidx.exifinterface.media.ExifInterface;
 import com.photour.MainActivity;
 import com.photour.helper.BitmapHelper;
+import com.photour.helper.CacheHelper;
 
 /**
  * A child class of {@link BitmapTask} for handling the async task for thumbnails
@@ -42,9 +43,7 @@ public class BitmapThumbnailTask extends BitmapTask {
       filepath = filepaths[0];
 
       final ExifInterface exifInterface = new ExifInterface(filepath);
-      String idStr = filepath.substring(filepath.lastIndexOf('/') + 1).replaceAll("[+() .]", "_")
-          .toLowerCase();
-      idStr = idStr.substring(0, Math.min(idStr.length(), 64));
+      String idStr = CacheHelper.getImageIdString(filepath);
 
       /*
        * Case 1: Image is supported by ExifInterface and has thumbnail, then return embded thumbnail

@@ -1,4 +1,4 @@
-package com.photour.async;
+package com.photour.task;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;

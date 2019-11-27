@@ -1,5 +1,6 @@
 package com.photour;
 
+import android.app.job.JobScheduler;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -84,6 +85,31 @@ public class MainActivity extends AppCompatActivity {
       setupBottomNavigationBar();
     }
     preloadPlayServices();
+
+    if (isJobServiceRunning() && currentNavController.getValue().getCurrentDestination().getId() == R.id.new_visit) {
+      currentNavController.getValue().navigate(R.id.start_visit);
+    }
+  }
+
+  private boolean isJobServiceRunning() {
+    JobScheduler scheduler = (JobScheduler) getSystemService( Context.JOB_SCHEDULER_SERVICE ) ;
+
+//    boolean hasBeenScheduled = false ;
+//
+//    for ( JobInfo jobInfo : scheduler.getAllPendingJobs() ) {
+//      if ( jobInfo.getId() == 123 ) {
+//        hasBeenScheduled = true ;
+//        break ;
+//      }
+//    }
+//
+//    return hasBeenScheduled ;
+
+    if (scheduler == null) {
+      return false;
+    }
+
+    return scheduler.getAllPendingJobs().size() > 0;
   }
 
   /**
@@ -275,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
       while (diskCacheStarting) {
         try {
           diskCacheLock.wait();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
         }
       }
       if (diskLruCache != null) {

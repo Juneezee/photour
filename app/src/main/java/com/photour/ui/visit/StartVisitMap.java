@@ -12,11 +12,16 @@ import com.google.android.libraries.maps.model.MarkerOptions;
 import com.google.android.libraries.maps.model.PolylineOptions;
 import java.util.ArrayList;
 
+/**
+ * A class for handling and interacting with the map object in {@link StartVisitFragment}
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class StartVisitMap implements OnMapReadyCallback {
 
   private final StartVisitFragment startVisitFragment;
 
-  GoogleMap googleMap;
+  private GoogleMap googleMap;
 
   private static final int ZOOM_LEVEL = 17;
 
@@ -81,7 +86,7 @@ public class StartVisitMap implements OnMapReadyCallback {
   public void onMapReady(GoogleMap googleMap) {
     this.googleMap = googleMap;
     this.googleMap.setMyLocationEnabled(true);
-    this.googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+//    this.googleMap.getUiSettings().setMyLocationButtonEnabled(false);
 
     // Restore polyline and markers if fragment is re-created
     drawPolyline();
