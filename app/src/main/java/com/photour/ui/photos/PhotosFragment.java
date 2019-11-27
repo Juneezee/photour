@@ -257,7 +257,7 @@ public class PhotosFragment extends Fragment {
   @Override
   public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
-    menu.findItem(R.id.menu_filter).setVisible(true);
+    menu.findItem(R.id.image_filter).setVisible(true);
   }
 
   /**

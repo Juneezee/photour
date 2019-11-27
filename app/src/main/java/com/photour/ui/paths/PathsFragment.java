@@ -6,6 +6,9 @@ import android.Manifest.permission;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
@@ -14,9 +17,13 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.photour.R;
 import com.photour.databinding.FragmentPathsBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.model.TripElement;
+
+import java.util.Collections;
 import java.util.List;
 
 public class PathsFragment extends Fragment {
@@ -40,6 +47,7 @@ public class PathsFragment extends Fragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    setHasOptionsMenu(true);
 
     activity = getActivity();
     permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
@@ -111,6 +119,58 @@ public class PathsFragment extends Fragment {
     pathAdapter.notifyDataSetChanged();
 
   }
+
+  /**
+   * Initialize the contents of the Fragment host's standard options menu.
+   *
+   * @param menu The options menu in which the items are placed
+   * @see #setHasOptionsMenu
+   * @see #onPrepareOptionsMenu
+   * @see #onOptionsItemSelected
+   */
+  @Override
+  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    super.onCreateOptionsMenu(menu, inflater);
+    menu.findItem(R.id.trip_filter).setVisible(true);
+  }
+
+  /**
+   * This hook is called whenever an item in options menu is selected.
+   *
+   * @param item The menu item that was selected.
+   * @return boolean Return false to allow normal menu processing to proceed, true to consume it
+   * here.
+   * @see #onCreateOptionsMenu
+   */
+  @Override
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    if (permissionHelper.hasStoragePermission()) {
+      int itemId = item.getItemId();
+
+      switch (itemId) {
+        case R.id.trip_desc:
+        case R.id.trip_asc:
+          switchSortMode(itemId);
+          break;
+      }
+    }
+
+    return super.onOptionsItemSelected(item);
+  }
+
+  /**
+   * Switch sorting mode and call resetGrid() to reload recyclerView
+   *
+   * @param type The type to sort the photos (by date or by path)
+   */
+  private void switchSortMode(int type) {
+    if (pathsViewModel.sortMode != type) {
+      pathsViewModel.sortMode = type;
+      Collections.reverse(pathsViewModel.trips.getValue());
+      resetRecyler(pathsViewModel.trips.getValue());
+    }
+  }
+
   /**
    * Callback for the result from requesting permissions. This method is invoked for every call on
    * {@link #requestPermissions(String[], int)}.
