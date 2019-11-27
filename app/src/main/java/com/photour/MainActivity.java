@@ -2,11 +2,8 @@ package com.photour;
 
 import android.app.job.JobScheduler;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Rect;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -18,14 +15,13 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import com.google.android.libraries.maps.MapView;
 import com.google.android.material.textfield.TextInputEditText;
-import com.photour.database.DiskLruImageCache;
 import com.photour.helper.CacheHelper;
-import com.photour.ui.photos.PhotosFragment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,26 +57,24 @@ public class MainActivity extends AppCompatActivity {
     if (savedInstanceState == null) {
       setupBottomNavigationBar();
     }
+
     preloadPlayServices();
 
-    if (isJobServiceRunning() && currentNavController.getValue().getCurrentDestination().getId() == R.id.new_visit) {
-      currentNavController.getValue().navigate(R.id.start_visit);
+    // Restore ongoing visit if available
+    if (currentNavController != null && currentNavController.getValue() != null
+        && isJobServiceRunning()
+    ) {
+      restoreOngoingVisit(currentNavController.getValue());
     }
   }
 
-  private boolean isJobServiceRunning() {
-    JobScheduler scheduler = (JobScheduler) getSystemService( Context.JOB_SCHEDULER_SERVICE ) ;
-
-//    boolean hasBeenScheduled = false ;
-//
-//    for ( JobInfo jobInfo : scheduler.getAllPendingJobs() ) {
-//      if ( jobInfo.getId() == 123 ) {
-//        hasBeenScheduled = true ;
-//        break ;
-//      }
-//    }
-//
-//    return hasBeenScheduled ;
+  /**
+   * Check if StartVisit JobService is running
+   *
+   * @return boolean {@code true} If the StartVisit JobService is running
+   */
+  public boolean isJobServiceRunning() {
+    JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
     if (scheduler == null) {
       return false;
@@ -90,16 +84,17 @@ public class MainActivity extends AppCompatActivity {
   }
 
   /**
-   * This method is called after {@link #onStart} when the activity is being re-initialized from a
-   * previously saved state. Performs a restore of any view state that had previously been frozen by
-   * {@link #onSaveInstanceState}.
+   * A visit is ongoing when the application was killed. Restore to {@link
+   * com.photour.ui.visit.StartVisitFragment}
    *
-   * @param savedInstanceState The data most recently supplied in {@link #onSaveInstanceState}.
+   * @param controller A {@link NavController}
    */
-  @Override
-  protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-    super.onRestoreInstanceState(savedInstanceState);
-    setupBottomNavigationBar();
+  private void restoreOngoingVisit(@NonNull NavController controller) {
+    NavDestination currentDestination = controller.getCurrentDestination();
+
+    if (currentDestination != null && currentDestination.getId() == R.id.new_visit) {
+      controller.navigate(R.id.start_visit);
+    }
   }
 
   /**
@@ -161,6 +156,19 @@ public class MainActivity extends AppCompatActivity {
       currentNavController = controller;
     });
 
+  }
+
+  /**
+   * This method is called after {@link #onStart} when the activity is being re-initialized from a
+   * previously saved state. Performs a restore of any view state that had previously been frozen by
+   * {@link #onSaveInstanceState}.
+   *
+   * @param savedInstanceState The data most recently supplied in {@link #onSaveInstanceState}.
+   */
+  @Override
+  protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+    super.onRestoreInstanceState(savedInstanceState);
+    setupBottomNavigationBar();
   }
 
   /**

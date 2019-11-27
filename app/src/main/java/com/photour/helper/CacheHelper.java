@@ -5,13 +5,16 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.LruCache;
-
 import com.photour.MainActivity;
 import com.photour.database.DiskLruImageCache;
 import com.photour.ui.photos.PhotosFragment;
-
 import java.io.File;
 
+/**
+ * A helper class for managing cache for images
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class CacheHelper {
 
   private DiskLruImageCache diskLruCache;
@@ -19,7 +22,7 @@ public class CacheHelper {
   private boolean diskCacheStarting;
   private Context context;
 
-  private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
+  public static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
   private static final String DISK_CACHE_SUBDIR = "thumbnails";
 
   private LruCache<String, Bitmap> memoryCache;
@@ -27,13 +30,12 @@ public class CacheHelper {
   public static final int IO_BUFFER_SIZE = 8 * 1024;
 
   /**
-   * Constructor for CacheHelper
-   * Initialises Memory Cache and Disk Cache
+   * Constructor for CacheHelper Initialises Memory Cache and Disk Cache
    *
-   * @param context
+   * @param context The context of current application
    */
   public CacheHelper(Context context) {
-    //Sets up variables
+    // Sets up variables
     diskCacheLock = new Object();
     diskCacheStarting = true;
     this.context = context;
@@ -43,7 +45,8 @@ public class CacheHelper {
 
     //Creates or find PhotosFragment sets memory cache of PhotosFragment
     PhotosFragment mRetainFragment =
-            PhotosFragment.findOrCreateRetainFragment(((MainActivity)context).getSupportFragmentManager());
+        PhotosFragment
+            .findOrCreateRetainFragment(((MainActivity) context).getSupportFragmentManager());
     memoryCache = PhotosFragment.mRetainedCache;
     if (memoryCache == null) {
       memoryCache = new LruCache<String, Bitmap>(cacheSize) {
@@ -52,7 +55,7 @@ public class CacheHelper {
           return bitmap.getByteCount() / 1024;
         }
       };
-      mRetainFragment.mRetainedCache = memoryCache;
+      PhotosFragment.mRetainedCache = memoryCache;
     }
 
     //Runs Async Task for Disk Cache
@@ -88,8 +91,7 @@ public class CacheHelper {
   }
 
   /**
-   * Function to get bitmap from disk cache.
-   * Runs in async due to slow speed of disk cache.
+   * Function to get bitmap from disk cache. Runs in async due to slow speed of disk cache.
    *
    * @param key Key to identify bitmap
    * @return bitmap object. Returns null if invalid
@@ -130,7 +132,8 @@ public class CacheHelper {
 
   /**
    * Returns boolean if external storage is removable
-   * @return
+   *
+   * @return boolean {@code true} if external storage is removable
    */
   public static boolean isExternalStorageRemovable() {
     return Environment.isExternalStorageRemovable();
@@ -138,8 +141,9 @@ public class CacheHelper {
 
   /**
    * Accessor for absolute path of external storage directory
+   *
    * @param context context of MainActivty
-   * @return
+   * @return A {@link File} object
    */
   public static File getExternalCacheDir(Context context) {
     return context.getExternalCacheDir();
@@ -147,6 +151,7 @@ public class CacheHelper {
 
   /**
    * Function to convert filename to key that disk cache accepts
+   *
    * @param filepath file name of image
    * @return String key for image
    */

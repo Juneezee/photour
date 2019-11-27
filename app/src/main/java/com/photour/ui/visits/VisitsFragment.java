@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,8 +21,6 @@ import com.photour.R;
 import com.photour.databinding.FragmentVisitsBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.model.Visit;
-import com.photour.ui.photos.PhotosFragment;
-
 import java.util.Collections;
 import java.util.List;
 

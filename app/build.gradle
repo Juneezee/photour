@@ -70,7 +70,7 @@ dependencies {
     // Google AutoValue for organising models
     api "com.google.auto.value:auto-value-annotations:1.7"
     annotationProcessor "com.google.auto.value:auto-value:1.7"
-    annotationProcessor 'com.ryanharter.auto.value:auto-value-parcel:0.2.7'
+    annotationProcessor 'com.ryanharter.auto.value:auto-value-parcel:0.2.8'
 
     // EasyImage
     implementation 'com.github.jkwiecien:EasyImage:2.1.1'

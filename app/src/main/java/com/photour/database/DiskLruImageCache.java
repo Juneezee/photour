@@ -11,11 +11,15 @@ import com.photour.helper.CacheHelper;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * A class for creating and storing disk cache
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class DiskLruImageCache {
 
   private DiskLruCache mDiskCache;
@@ -26,8 +30,8 @@ public class DiskLruImageCache {
 
   public DiskLruImageCache(Context context, String uniqueName, int diskCacheSize) {
     try {
-      final File diskCacheDir = getDiskCacheDir(context, uniqueName );
-      mDiskCache = DiskLruCache.open( diskCacheDir, APP_VERSION, VALUE_COUNT, diskCacheSize );
+      final File diskCacheDir = getDiskCacheDir(context, uniqueName);
+      mDiskCache = DiskLruCache.open(diskCacheDir, APP_VERSION, VALUE_COUNT, diskCacheSize);
 //      mCompressFormat = compressFormat;
 //      mCompressQuality = quality;
     } catch (IOException e) {
@@ -35,18 +39,22 @@ public class DiskLruImageCache {
     }
   }
 
-  private boolean writeBitmapToFile( Bitmap bitmap, DiskLruCache.Editor editor )
-          throws IOException, FileNotFoundException {
-    OutputStream out = null;
-    try {
-      out = new BufferedOutputStream( editor.newOutputStream( 0 ), CacheHelper.IO_BUFFER_SIZE );
+  private boolean writeBitmapToFile(Bitmap bitmap, DiskLruCache.Editor editor) throws IOException {
+    try (OutputStream out = new BufferedOutputStream(editor.newOutputStream(0),
+        CacheHelper.IO_BUFFER_SIZE)) {
       int mCompressQuality = 70;
-      return bitmap.compress( mCompressFormat, mCompressQuality, out );
-    } finally {
-      if ( out != null ) {
-        out.close();
-      }
+      return bitmap.compress(mCompressFormat, mCompressQuality, out);
     }
+
+//    try {
+//      out = new BufferedOutputStream( editor.newOutputStream( 0 ), CacheHelper.IO_BUFFER_SIZE );
+//      int mCompressQuality = 70;
+//      return bitmap.compress( mCompressFormat, mCompressQuality, out );
+//    } finally {
+//      if ( out != null ) {
+//        out.close();
+//      }
+//    }
   }
 
   private File getDiskCacheDir(Context context, String uniqueName) {
@@ -54,41 +62,41 @@ public class DiskLruImageCache {
     // Check if media is mounted or storage is built-in, if so, try and use external cache dir
     // otherwise use internal cache dir
     final String cachePath =
-            Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                    !CacheHelper.isExternalStorageRemovable() ?
-                    CacheHelper.getExternalCacheDir(context).getPath() :
-                    context.getCacheDir().getPath();
+        Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+            !CacheHelper.isExternalStorageRemovable() ?
+            CacheHelper.getExternalCacheDir(context).getPath() :
+            context.getCacheDir().getPath();
 
     return new File(cachePath + File.separator + uniqueName);
   }
 
-  public void put( String key, Bitmap data ) {
+  public void put(String key, Bitmap data) {
 
     DiskLruCache.Editor editor = null;
     try {
-      editor = mDiskCache.edit( key );
-      if ( editor == null ) {
+      editor = mDiskCache.edit(key);
+      if (editor == null) {
         return;
       }
 
-      if( writeBitmapToFile( data, editor ) ) {
+      if (writeBitmapToFile(data, editor)) {
         mDiskCache.flush();
         editor.commit();
-        if ( BuildConfig.DEBUG ) {
-          Log.d( "cache_test_DISK_", "image put on disk cache " + key );
+        if (BuildConfig.DEBUG) {
+          Log.d("cache_test_DISK_", "image put on disk cache " + key);
         }
       } else {
         editor.abort();
-        if ( BuildConfig.DEBUG ) {
-          Log.d( "cache_test_DISK_", "ERROR on: image put on disk cache " + key );
+        if (BuildConfig.DEBUG) {
+          Log.d("cache_test_DISK_", "ERROR on: image put on disk cache " + key);
         }
       }
     } catch (IOException e) {
-      if ( BuildConfig.DEBUG ) {
-        Log.d( "cache_test_DISK_", "ERROR on: image put on disk cache " + key );
+      if (BuildConfig.DEBUG) {
+        Log.d("cache_test_DISK_", "ERROR on: image put on disk cache " + key);
       }
       try {
-        if ( editor != null ) {
+        if (editor != null) {
           editor.abort();
         }
       } catch (IOException ignored) {
@@ -97,64 +105,82 @@ public class DiskLruImageCache {
 
   }
 
-  public Bitmap getBitmap( String key ) {
+  public Bitmap getBitmap(String key) {
 
     Bitmap bitmap = null;
-    DiskLruCache.Snapshot snapshot = null;
-    try {
+    try (DiskLruCache.Snapshot snapshot = mDiskCache.get(key)) {
 
-      snapshot = mDiskCache.get( key );
-      if ( snapshot == null ) {
+      if (snapshot == null) {
         return null;
       }
-      final InputStream in = snapshot.getInputStream( 0 );
-      if ( in != null ) {
-        final BufferedInputStream buffIn =
-                new BufferedInputStream( in, CacheHelper.IO_BUFFER_SIZE );
-        bitmap = BitmapFactory.decodeStream( buffIn );
+      final InputStream in = snapshot.getInputStream(0);
+      if (in != null) {
+        final BufferedInputStream buffIn = new BufferedInputStream(in, CacheHelper.IO_BUFFER_SIZE);
+        bitmap = BitmapFactory.decodeStream(buffIn);
       }
-    } catch ( IOException e ) {
+    } catch (IOException e) {
       e.printStackTrace();
-    } finally {
-      if ( snapshot != null ) {
-        snapshot.close();
-      }
     }
 
-    if ( BuildConfig.DEBUG ) {
-      Log.d( "cache_test_DISK_", bitmap == null ? "" : "image read from disk " + key);
+//    try {
+//
+//      snapshot = mDiskCache.get(key);
+//      if (snapshot == null) {
+//        return null;
+//      }
+//      final InputStream in = snapshot.getInputStream(0);
+//      if (in != null) {
+//        final BufferedInputStream buffIn =
+//            new BufferedInputStream(in, CacheHelper.IO_BUFFER_SIZE);
+//        bitmap = BitmapFactory.decodeStream(buffIn);
+//      }
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    } finally {
+//      if (snapshot != null) {
+//        snapshot.close();
+//      }
+//    }
+
+    if (BuildConfig.DEBUG) {
+      Log.d("cache_test_DISK_", bitmap == null ? "" : "image read from disk " + key);
     }
 
     return bitmap;
 
   }
 
-  public boolean containsKey( String key ) {
+  public boolean containsKey(String key) {
 
     boolean contained = false;
-    DiskLruCache.Snapshot snapshot = null;
-    try {
-      snapshot = mDiskCache.get( key );
+    try (DiskLruCache.Snapshot snapshot = mDiskCache.get(key)) {
       contained = snapshot != null;
     } catch (IOException e) {
       e.printStackTrace();
-    } finally {
-      if ( snapshot != null ) {
-        snapshot.close();
-      }
     }
+
+//    try {
+//      snapshot = mDiskCache.get(key);
+//      contained = snapshot != null;
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    } finally {
+//      if (snapshot != null) {
+//        snapshot.close();
+//      }
+//    }
 
     return contained;
 
   }
 
   public void clearCache() {
-    if ( BuildConfig.DEBUG ) {
-      Log.d( "cache_test_DISK_", "disk cache CLEARED");
+    if (BuildConfig.DEBUG) {
+      Log.d("cache_test_DISK_", "disk cache CLEARED");
     }
     try {
       mDiskCache.delete();
-    } catch ( IOException e ) {
+    } catch (IOException e) {
       e.printStackTrace();
     }
   }

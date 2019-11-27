@@ -7,6 +7,8 @@ import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Build;
@@ -19,15 +21,20 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.libraries.maps.model.LatLng;
 import com.photour.BuildConfig;
 import com.photour.MainActivity;
 import com.photour.R;
+import com.photour.helper.ReceiverHelper;
+import java.util.ArrayList;
 
 public class StartVisitService extends JobService {
 
   private static final String TAG = StartVisitService.class.getSimpleName();
   public static final String ACTION_BROADCAST = BuildConfig.APPLICATION_ID + ".broadcast";
+  public static final String ACTION_LAUNCH = BuildConfig.APPLICATION_ID + ".launch";
   public static final String EXTRA_LOCATION = BuildConfig.APPLICATION_ID + ".location";
+  public static final String EXTRA_LAUNCH = BuildConfig.APPLICATION_ID + ".launch";
   private static final String CHANNEL_ID = "photour";
   public static final int JOB_ID = 123;
 
@@ -39,12 +46,20 @@ public class StartVisitService extends JobService {
   private FusedLocationProviderClient fusedLocationProviderClient;
   private LocationCallback locationCallback;
 
+  private ArrayList<LatLng> latLngList = new ArrayList<>();
+  private ArrayList<LatLng> markerList = new ArrayList<>();
+
+  private ServiceReceiver receiver;
+
   /**
    * Called by the system when the service is first created.  Do not call this method directly.
    */
   @Override
   public void onCreate() {
     super.onCreate();
+
+    receiver = new ServiceReceiver();
+    ReceiverHelper.registerBroadcastReceiver(getApplicationContext(), receiver, ACTION_LAUNCH);
 
     fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
     locationCallback = new LocationCallback() {
@@ -70,7 +85,7 @@ public class StartVisitService extends JobService {
    */
   @Override
   public boolean onStartJob(JobParameters params) {
-    System.out.println("Job is starting");
+    Log.d(TAG, "Job is starting");
     startForeground(1, createNotification(params.getExtras().getString("title")));
     requestLocationUpdates();
     return true;
@@ -88,8 +103,9 @@ public class StartVisitService extends JobService {
    */
   @Override
   public boolean onStopJob(JobParameters params) {
-    System.out.println("Job is canceled");
+    Log.d(TAG, "Job is cancelled");
     stopForeground(true);
+    LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(receiver);
 
     removeLocationUpdates();
 
@@ -113,12 +129,13 @@ public class StartVisitService extends JobService {
     }
   }
 
+  /**
+   * Create a notification to indicate that a visit is ongoing
+   *
+   * @param newVisitTitle The title of the new visit
+   * @return Notification A {@link Notification} object
+   */
   private Notification createNotification(String newVisitTitle) {
-//    PendingIntent pendingIntent = new NavDeepLinkBuilder(getApplicationContext()).setComponentName(
-//        MainActivity.class).setGraph(R.navigation.navigation_visit).setDestination(R.id.start_visit)
-//        .setArguments(bundle)
-//        .createPendingIntent();
-
     // Bring the application to front if the activity is in the background (not killed)
     Intent intent = new Intent(this, MainActivity.class);
     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -134,25 +151,24 @@ public class StartVisitService extends JobService {
     return builder.build();
   }
 
+  /**
+   * Notify anyone listening for broadcasts about the new location.
+   * @param location The last location
+   */
   private void onLocationChanged(Location location) {
-    // Notify anyone listening for broadcasts about the new location.
+    latLngList.add(new LatLng(location.getLatitude(), location.getLongitude()));
+
+    Log.d(TAG, "Sending LatLng");
     Intent intent = new Intent(ACTION_BROADCAST);
     intent.putExtra(EXTRA_LOCATION, location);
     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
   }
 
-  public void getLastLocation() {
-    fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
-      if (task.isSuccessful() && task.getResult() != null) {
-        onLocationChanged(task.getResult());
-      } else {
-        Log.d(TAG, "Failed to get last location");
-      }
-    });
-  }
-
+  /**
+   * Request location update
+   */
   private void requestLocationUpdates() {
-    System.out.println("Requesting location updates");
+    Log.d(TAG, "Requesting location updates");
     LocationRequest locationRequest = new LocationRequest()
         .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
         .setInterval(UPDATE_INTERVAL)
@@ -164,7 +180,27 @@ public class StartVisitService extends JobService {
         Looper.myLooper());
   }
 
+  /**
+   * Remove location updates
+   */
   private void removeLocationUpdates() {
     fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+  }
+
+  /**
+   * Inner {@link BroadcastReceiver} class to handle the request sent by {@link
+   * com.photour.ui.visit.StartVisitFragment}
+   *
+   * @author Zer Jun Eng, Jia Hua Ng
+   */
+  private class ServiceReceiver extends BroadcastReceiver {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      // Application is relaunched, send back the list of LatLng
+      Intent relaunchIntent = new Intent(ACTION_BROADCAST);
+      relaunchIntent.putParcelableArrayListExtra(EXTRA_LAUNCH, latLngList);
+      LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(relaunchIntent);
+    }
   }
 }

@@ -9,7 +9,6 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,6 +27,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
@@ -37,9 +37,11 @@ import com.photour.R;
 import com.photour.databinding.FragmentStartVisitBinding;
 import com.photour.helper.AlertDialogHelper;
 import com.photour.helper.LocationServicesHelper;
+import com.photour.helper.ReceiverHelper;
 import com.photour.sensor.Accelerometer;
 import com.photour.service.StartVisitService;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
@@ -59,39 +61,17 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   private static final String KEY_POLYLINE = "polyline";
   private static final String KEY_MARKER = "marker";
 
-  private final StartVisitMap startVisitMap = new StartVisitMap(this);
+  private StartVisitMap startVisitMap;
   private VisitViewModel visitViewModel;
   private FragmentStartVisitBinding binding;
   private Activity activity;
 
-  // Default Google Maps MyLocation button
-  private View locationButton;
-
   // Sensors
   private Accelerometer accelerometer;
-
-  // To check if this created the first time in current activity
-  private boolean isFirstTime;
 
   // JobService related
   private JobScheduler scheduler;
   private FragmentReceiver receiver;
-
-  /**
-   * Get the value of isFirstTime
-   *
-   * @return boolean True if first time launching this fragment
-   */
-  boolean isFirstTime() {
-    return isFirstTime;
-  }
-
-  /**
-   * Set the value of isFirstTime to false
-   */
-  void setFirstTime() {
-    isFirstTime = false;
-  }
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -106,7 +86,9 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     activity = getActivity();
     receiver = new FragmentReceiver();
     scheduler = (JobScheduler) activity.getSystemService(JOB_SCHEDULER_SERVICE);
-    isFirstTime = savedInstanceState == null;
+
+    startVisitMap = new StartVisitMap(this,
+        LocationServices.getFusedLocationProviderClient(activity));
 
     // Show exit confirmation dialog on backpress
     OnBackPressedCallback callback = new OnBackPressedCallback(true) {
@@ -252,7 +234,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    */
   @Override
   public void onDestroy() {
-    LocalBroadcastManager.getInstance(activity).unregisterReceiver(receiver);
+    ReceiverHelper.unregisterBroadcastReceiver(activity, receiver);
     super.onDestroy();
   }
 
@@ -284,6 +266,28 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
         System.out.println("yo");
       }
     });
+  }
+
+  /**
+   * Called when the map is ready to be used.
+   *
+   * @param googleMap A non-null instance of a GoogleMap associated with the MapFragment or MapView
+   * that defines the callback.
+   */
+  @Override
+  public void onMapReady(GoogleMap googleMap) {
+    startVisitMap.onMapReady(googleMap);
+
+    ReceiverHelper
+        .registerBroadcastReceiver(activity, receiver, StartVisitService.ACTION_BROADCAST);
+
+    // If job service is running, restore to the last state before the app is stopped
+    if (((MainActivity) activity).isJobServiceRunning()) {
+      Intent intent = new Intent(StartVisitService.ACTION_LAUNCH);
+      LocalBroadcastManager.getInstance(activity).sendBroadcast(intent);
+    } else {
+      startJobService();
+    }
   }
 
   /**
@@ -334,8 +338,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
         .findFragmentById(R.id.map_fragment);
 
     if (supportMapFragment != null) {
-      locationButton = ((View) supportMapFragment.getView().findViewById(Integer.parseInt("1"))
-          .getParent()).findViewById(Integer.parseInt("2"));
       supportMapFragment.getMapAsync(this);
     }
   }
@@ -352,25 +354,14 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   }
 
   /**
-   * Called when the map is ready to be used.
-   *
-   * @param googleMap A non-null instance of a GoogleMap associated with the MapFragment or MapView
-   * that defines the callback.
-   */
-  @Override
-  public void onMapReady(GoogleMap googleMap) {
-    startVisitMap.onMapReady(googleMap);
-    locationButton.setVisibility(View.GONE);
-    startJobService();
-  }
-
-  /**
    * Add permission and location services check to the click listener. If permission is granted and
    * device location is on, then zoom the map to the current location of the device
    */
   public void onMyLocationClick() {
     // Permission and location services check
-    LocationServicesHelper.checkDeviceLocation(activity, this, () -> locationButton.callOnClick());
+    LocationServicesHelper.checkDeviceLocation(activity, this, () ->
+        startVisitMap.getLastLocation()
+    );
   }
 
   /**
@@ -418,10 +409,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     } else {
       Log.d(TAG, "Job scheduling failed");
     }
-
-    // Register broadcast listener
-    LocalBroadcastManager.getInstance(activity)
-        .registerReceiver(receiver, new IntentFilter(StartVisitService.ACTION_BROADCAST));
   }
 
   /**
@@ -441,12 +428,29 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     public void onReceive(Context context, Intent intent) {
       Location location = intent.getParcelableExtra(StartVisitService.EXTRA_LOCATION);
 
-      if (location != null) {
-        System.out.println("received latlng");
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        startVisitMap.latLngList.add(latLng);
+      ArrayList<LatLng> latLngList = intent
+          .getParcelableArrayListExtra(StartVisitService.EXTRA_LAUNCH);
+
+      if (isApplicationRelaunch(latLngList)) {
+        Log.d(TAG, "Relaunched, restoring state...");
+        startVisitMap.latLngList.addAll(latLngList);
+        startVisitMap.getLastLocation();
+      } else if (location != null) {
+        Log.d(TAG, "Received LatLng");
         startVisitMap.currentLocation.setValue(location);
+      } else {
+        startVisitMap.getLastLocation();
       }
+    }
+
+    /**
+     * Check if the application is killed while a visit is ongoing, and then relaunched
+     *
+     * @param latLngList An ArrayList of LatLng stored by the service
+     * @return boolean {@code true} If the application is relaunched
+     */
+    private boolean isApplicationRelaunch(ArrayList<LatLng> latLngList) {
+      return latLngList != null && !latLngList.isEmpty() && startVisitMap.latLngList.isEmpty();
     }
   }
 }
