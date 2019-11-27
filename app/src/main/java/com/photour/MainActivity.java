@@ -24,6 +24,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.libraries.maps.MapView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.photour.database.DiskLruImageCache;
+import com.photour.helper.CacheHelper;
 import com.photour.ui.photos.PhotosFragment;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,17 +36,11 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity {
 
-  private DiskLruImageCache diskLruCache;
-  private final Object diskCacheLock = new Object();
-  private boolean diskCacheStarting = true;
-  private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
-  private static final String DISK_CACHE_SUBDIR = "thumbnails";
-
-  private LruCache<String, Bitmap> memoryCache;
   private LiveData<NavController> currentNavController;
   private AppBarConfiguration appBarConfiguration;
   private BottomNavExtension navView;
   private Toolbar toolbar;
+  public CacheHelper cacheHelper;
 
   /**
    * Perform the required actions when the activity is created
@@ -61,25 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
-
-    final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-    final int cacheSize = maxMemory / 4;
-
-    PhotosFragment mRetainFragment =
-        PhotosFragment.findOrCreateRetainFragment(this.getSupportFragmentManager());
-    memoryCache = PhotosFragment.mRetainedCache;
-    if (memoryCache == null) {
-      memoryCache = new LruCache<String, Bitmap>(cacheSize) {
-        @Override
-        protected int sizeOf(String key, Bitmap bitmap) {
-          return bitmap.getByteCount() / 1024;
-        }
-      };
-      PhotosFragment.mRetainedCache = memoryCache;
-    }
-
-//    File cacheDir = diskLruCache.getDiskCacheDir(this, DISK_CACHE_SUBDIR);
-    new InitDiskCacheTask().execute(DISK_CACHE_SUBDIR);
+    cacheHelper = new CacheHelper(this);
 
     if (savedInstanceState == null) {
       setupBottomNavigationBar();
@@ -278,63 +255,5 @@ public class MainActivity extends AppCompatActivity {
 
     return super.dispatchTouchEvent(ev);
   }
-
-  public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
-    if (getBitmapFromMemCache(key) == null) {
-      memoryCache.put(key, bitmap);
-    }
-
-    synchronized (diskCacheLock) {
-      if (diskLruCache != null && diskLruCache.getBitmap(key) == null) {
-        diskLruCache.put(key, bitmap);
-      }
-    }
-  }
-
-  public Bitmap getBitmapFromMemCache(String key) {
-    return memoryCache.get(key);
-  }
-
-  public Bitmap getBitmapFromDiskCache(String key) {
-    synchronized (diskCacheLock) {
-      // Wait while disk cache is started from background thread
-      while (diskCacheStarting) {
-        try {
-          diskCacheLock.wait();
-        } catch (InterruptedException ignored) {
-        }
-      }
-      if (diskLruCache != null) {
-        return diskLruCache.getBitmap(key);
-      }
-    }
-    return null;
-  }
-
-  class InitDiskCacheTask extends AsyncTask<String, Void, Void> {
-
-    @Override
-    protected Void doInBackground(String... params) {
-      synchronized (diskCacheLock) {
-        String cacheDir = params[0];
-        diskLruCache = new DiskLruImageCache(getApplicationContext(), cacheDir, DISK_CACHE_SIZE);
-
-        diskCacheStarting = false; // Finished initialization
-        diskCacheLock.notifyAll(); // Wake any waiting threads
-      }
-      return null;
-    }
-  }
-
-//  public static File getDiskCacheDir(Context context, String uniqueName) {
-//    // Check if media is mounted or storage is built-in, if so, try and use external cache dir
-//    // otherwise use internal cache dir
-//    final String cachePath =
-//            Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-//                    !isExternalStorageRemovable() ? context.getExternalCacheDir().getPath() :
-//                    context.getCacheDir().getPath();
-//
-//    return new File(cachePath + File.separator + uniqueName);
-//  }
 }
 

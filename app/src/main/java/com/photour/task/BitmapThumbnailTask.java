@@ -54,8 +54,8 @@ public class BitmapThumbnailTask extends BitmapTask {
        */
       bitmap = exifInterface.hasThumbnail()
           ? exifInterface.getThumbnailBitmap()
-          : ((MainActivity) contextRef).getBitmapFromDiskCache(idStr) != null
-              ? ((MainActivity) contextRef).getBitmapFromDiskCache(idStr)
+          : ((MainActivity) contextRef).cacheHelper.getBitmapFromDiskCache(idStr) != null
+              ? ((MainActivity) contextRef).cacheHelper.getBitmapFromDiskCache(idStr)
               : BitmapHelper.decodeSampledBitmapFromResource(filepath, 100, 100);
 
       // Uncommon cases where GIFs and PNGs are not getting thumbnails after decode
@@ -63,7 +63,7 @@ public class BitmapThumbnailTask extends BitmapTask {
         bitmap = BitmapFactory.decodeFile(filepath);
       }
 
-      ((MainActivity) contextRef).addBitmapToMemoryCache(idStr, bitmap);
+      ((MainActivity) contextRef).cacheHelper.addBitmapToMemoryCache(idStr, bitmap);
 
       return bitmap;
     } catch (Exception e) {

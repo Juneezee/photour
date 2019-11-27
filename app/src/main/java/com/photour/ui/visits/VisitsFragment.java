@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,10 +22,14 @@ import com.photour.R;
 import com.photour.databinding.FragmentVisitsBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.model.Visit;
+import com.photour.ui.photos.PhotosFragment;
+
 import java.util.Collections;
 import java.util.List;
 
 public class VisitsFragment extends Fragment {
+
+  private static final String TAG = "VisitsFragment";
 
   private static final String[] PERMISSIONS_REQUIRED = {permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
@@ -35,6 +40,16 @@ public class VisitsFragment extends Fragment {
   private RecyclerView mRecyclerView;
   private VisitAdapter visitAdapter;
 
+//  /**
+//   * Finds or create a ImageFragment using FragmentManager. Used to retain state on rotation
+//   *
+//   * @param fm FragmentManager
+//   * @return ImageFragment
+//   */
+//  public static VisitsFragment findOrCreateRetainFragment(FragmentManager fm) {
+//    VisitsFragment fragment = (VisitsFragment) fm.findFragmentByTag(TAG);
+//    return fragment == null ? new VisitsFragment() : fragment;
+//  }
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
    * and before {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.

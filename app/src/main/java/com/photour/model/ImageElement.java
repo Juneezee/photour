@@ -73,7 +73,7 @@ public abstract class ImageElement implements Parcelable {
   public static void loadImageBitmap(ImageView imageView, String filepath) {
     final Context context = imageView.getContext();
 
-    Bitmap bitmap = ((MainActivity) context).getBitmapFromMemCache(CacheHelper.getImageIdString(filepath));
+    Bitmap bitmap = ((MainActivity) context).cacheHelper.getBitmapFromMemCache(CacheHelper.getImageIdString(filepath));
     if (bitmap != null) {
       imageView.setImageBitmap(bitmap);
     } else {
