@@ -1,32 +1,35 @@
-package com.photour.ui.visits;
+package com.photour.ui.viewvisit;
 
 import android.app.Application;
 import android.database.ContentObserver;
 import android.os.Handler;
 import android.provider.MediaStore;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
 import com.photour.database.ImageRepository;
+import com.photour.model.ImageElement;
 import com.photour.model.Visit;
+
 import java.util.List;
 
-public class VisitsViewModel extends AndroidViewModel {
-
+public class ViewVisitViewModel extends AndroidViewModel {
 
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
-  public int sortMode;
 
   private ImageRepository imageRepository;
-  public LiveData<List<Visit>> trips;
+  public LiveData<Visit> trip;
+  public LiveData<ImageElement> images;
 
   private ContentObserver contentObserver = null;
 
-  public VisitsViewModel(@NonNull Application application) {
+  public ViewVisitViewModel(@NonNull Application application) {
     super(application);
     imageRepository = new ImageRepository(application);
-    loadVisit();
+    loadImages();
   }
 
   /**
@@ -45,17 +48,17 @@ public class VisitsViewModel extends AndroidViewModel {
    */
   void setPlaceholderText(boolean isEmpty) {
     placeholderText.setValue(
-            isEmpty ? "" : "No images yet " + new String(Character.toChars(0x1F60A)));
+            isEmpty ? "" : "No images for this visit " + new String(Character.toChars(0x1F60A)));
   }
 
-  public void loadVisit() {
-    trips = imageRepository.getVisits();
+  public void loadImages() {
+    images = imageRepository.getImagesforVisit();
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {
         @Override
         public void onChange(boolean selfChange) {
           super.onChange(selfChange);
-          loadVisit();
+          loadImages();
         }
       };
       this.getApplication().getContentResolver().registerContentObserver(

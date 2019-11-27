@@ -36,8 +36,12 @@ public class ImageRepository {
     return imageElements;
   }
 
-  public LiveData<List<Visit>> getTrips() {
+  public LiveData<List<Visit>> getVisits() {
     return imageDao.getVisits();
+  }
+
+  public LiveData<List<ImageElement>> getImagesforVisit(String visitTitle) {
+    return imageDao.findByVisit(visitTitle);
   }
 
   void insert(ImageElement... imageElements) {

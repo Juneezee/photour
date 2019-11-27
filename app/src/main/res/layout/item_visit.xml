@@ -19,7 +19,8 @@
     android:layout_marginEnd="6dp"
     android:layout_marginBottom="5dp"
     app:cardCornerRadius="8dp"
-    app:cardElevation="5dp">
+    app:cardElevation="5dp"
+    android:onClick="@{(view) -> visit.onImageClick(view)}">
 
     <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"

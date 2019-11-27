@@ -9,7 +9,23 @@
     android:id="@+id/visits"
     android:name="com.photour.ui.visits.VisitsFragment"
     android:label="@string/visits"
-    tools:layout="@layout/fragment_visits" />
+    tools:layout="@layout/fragment_visits" >
+    <action
+        android:id="@+id/action_view_visit"
+        app:destination="@id/view_visit" />
+  </fragment>
+
+  <fragment
+      android:id="@+id/view_visit"
+      android:name="com.photour.ui.viewvisit.ViewVisitFragment"
+      android:label="@string/visits"
+      tools:layout="@layout/fragment_view_visit">
+
+  <argument
+      android:name="visit"
+      app:argType="com.photour.model.Visit" />
+  </fragment>
+
 
   <include app:graph="@navigation/navigation_settings" />
 
