@@ -19,8 +19,8 @@
         android:title="@string/sort_by_oldest_first" />
 
       <item
-        android:id="@+id/by_path"
-        android:title="@string/sort_by_path" />
+        android:id="@+id/by_visit"
+        android:title="@string/sort_by_visit" />
     </menu>
   </item>
 

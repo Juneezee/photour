@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
       List<Integer> navGraphIds = new ArrayList<>();
       navGraphIds.add(R.navigation.navigation_visit);
       navGraphIds.add(R.navigation.navigation_photos);
-      navGraphIds.add(R.navigation.navigation_paths);
+      navGraphIds.add(R.navigation.navigation_visits);
 //      navGraphIds.add(R.navigation.navigation_settings);
 
       LiveData<NavController> controller = navView.setupWithNavController(
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
           switch (destination.getId()) {
             case R.id.new_visit:
             case R.id.photos:
-            case R.id.paths:
+            case R.id.visits:
               navView.setVisibility(View.VISIBLE);
               break;
             default:

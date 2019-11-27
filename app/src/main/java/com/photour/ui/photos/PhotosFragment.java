@@ -276,7 +276,7 @@ public class PhotosFragment extends Fragment {
       switch (itemId) {
         case R.id.by_date_desc:
         case R.id.by_date_asc:
-        case R.id.by_path:
+        case R.id.by_visit:
           switchSortMode(itemId);
           break;
       }

@@ -12,8 +12,8 @@
     android:title="@string/photos" />
 
   <item
-    android:id="@+id/navigation_paths"
+    android:id="@+id/navigation_visits"
     android:icon="@drawable/ic_path_black"
-    android:title="@string/paths" />
+    android:title="@string/visits" />
 
 </menu>

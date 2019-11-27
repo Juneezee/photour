@@ -6,7 +6,7 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import com.photour.model.ImageElement;
-import com.photour.model.TripElement;
+import com.photour.model.Visit;
 import java.util.Date;
 import java.util.List;
 
@@ -24,8 +24,8 @@ public interface ImageDao {
   @Query("SELECT * FROM image_element ORDER BY date ASC")
   LiveData<List<ImageElement>> getAllAsc();
 
-  @Query("SELECT visit_title, file_path, COUNT(*) AS photoNo FROM image_element GROUP BY visit_title ORDER BY date DESC")
-  LiveData<List<TripElement>> getTrips();
+  @Query("SELECT visit_title, file_path, COUNT(*) AS total_photos FROM image_element GROUP BY visit_title ORDER BY date DESC")
+  LiveData<List<Visit>> getVisits();
 
   @Query("SELECT * FROM image_element WHERE id IN (:ids)")
   LiveData<List<ImageElement>> loadAllByIds(int[] ids);

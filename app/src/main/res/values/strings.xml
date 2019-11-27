@@ -2,7 +2,7 @@
   <string name="app_name">Photour</string>
   <string name="new_visit">New Visit</string>
   <string name="photos">Photos</string>
-  <string name="paths">Paths</string>
+  <string name="visits">Visits</string>
   <string name="start">Start</string>
   <string name="add_a_title">Add a title</string>
   <string name="settings">Settings</string>
@@ -18,7 +18,7 @@
   <string name="start_a_new_visit">Start a New Visit</string>
   <string name="dialog_image">Dialog image</string>
   <string name="sort">Sort</string>
-  <string name="sort_by_path">Sort by: Path</string>
+  <string name="sort_by_visit">Sort by: Visit</string>
   <string name="degree">\u00B0C</string>
   <string name="image">Image</string>
   <string name="sort_by_newest_first">Sort by: Newest first</string>

@@ -39,7 +39,7 @@ public class PhotosViewModel extends AndroidViewModel {
   public PhotosViewModel(@NonNull Application application) {
     super(application);
     imageRepository = new ImageRepository(application);
-    sortMode = R.id.by_path;
+    sortMode = R.id.by_visit;
     loadImages();
   }
 

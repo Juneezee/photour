@@ -20,7 +20,6 @@ import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.async.AsyncDrawable;
 import com.photour.async.BitmapRawTask;
-import com.photour.async.BitmapTask;
 import com.photour.async.BitmapThumbnailTask;
 import com.photour.ui.photos.PhotosFragmentDirections;
 import com.photour.ui.photos.PhotosFragmentDirections.ActionViewImage;
@@ -94,12 +93,27 @@ public abstract class ImageElement implements Parcelable {
    *
    * @param imageView An {@link ImageView} object
    * @param filepath filepath of image
+   * @param reqWidth The required width for the decoded bitmap
+   * @param reqHeight The required height for the decoded bitmap
    */
-  @BindingAdapter({"rawImage"})
-  public static void loadRawImage(ImageView imageView, String filepath) {
+  @BindingAdapter(value = {"rawImage", "reqWidth", "reqHeight"}, requireAll = false)
+  public static void loadRawImage(
+      ImageView imageView,
+      String filepath,
+      int reqWidth,
+      int reqHeight
+  ) {
     final Context context = imageView.getContext();
 
-    BitmapTask bitmapRawTask = new BitmapRawTask(imageView.getContext(), imageView);
+    BitmapRawTask bitmapRawTask = new BitmapRawTask(imageView.getContext(), imageView);
+
+    if (reqWidth != 0) {
+      bitmapRawTask.setReqWidth(reqWidth);
+    }
+
+    if (reqHeight != 0) {
+      bitmapRawTask.setReqHeight(reqHeight);
+    }
 
     try {
       ExifInterface exifInterface = new ExifInterface(filepath);

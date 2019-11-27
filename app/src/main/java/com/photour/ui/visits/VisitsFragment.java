@@ -1,4 +1,4 @@
-package com.photour.ui.paths;
+package com.photour.ui.visits;
 
 import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
@@ -17,25 +17,23 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.photour.R;
-import com.photour.databinding.FragmentPathsBinding;
+import com.photour.databinding.FragmentVisitsBinding;
 import com.photour.helper.PermissionHelper;
-import com.photour.model.TripElement;
-
+import com.photour.model.Visit;
 import java.util.Collections;
 import java.util.List;
 
-public class PathsFragment extends Fragment {
+public class VisitsFragment extends Fragment {
 
   private static final String[] PERMISSIONS_REQUIRED = {permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
-  private PathsViewModel pathsViewModel;
+  private VisitsViewModel visitsViewModel;
   private Activity activity;
-  private FragmentPathsBinding binding;
+  private FragmentVisitsBinding binding;
   private RecyclerView mRecyclerView;
-  private PathAdapter pathAdapter;
+  private VisitAdapter visitAdapter;
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -72,11 +70,11 @@ public class PathsFragment extends Fragment {
       ViewGroup container,
       Bundle savedInstanceState
   ) {
-    pathsViewModel = new ViewModelProvider(this).get(PathsViewModel.class);
+    visitsViewModel = new ViewModelProvider(this).get(VisitsViewModel.class);
 
-    binding = FragmentPathsBinding.inflate(inflater, container, false);
+    binding = FragmentVisitsBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
-    binding.setPlaceholder(pathsViewModel);
+    binding.setPlaceholder(visitsViewModel);
 
     return binding.getRoot();
   }
@@ -93,30 +91,30 @@ public class PathsFragment extends Fragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    pathsViewModel.setPlaceholderText(permissionHelper.hasStoragePermission());
+    visitsViewModel.setPlaceholderText(permissionHelper.hasStoragePermission());
 
     // Check if storage permission is granted or not
     permissionHelper.checkStoragePermission(this::initializeRecyclerView);
   }
 
   private void initializeRecyclerView() {
-    pathsViewModel.setPlaceholderText(true);
+    visitsViewModel.setPlaceholderText(true);
 
     mRecyclerView = binding.gridRecyclerView;
     mRecyclerView.setHasFixedSize(true);
     mRecyclerView.setLayoutManager(new LinearLayoutManager(activity));
 
-    pathAdapter = new PathAdapter();
-    mRecyclerView.setAdapter(pathAdapter);
+    visitAdapter = new VisitAdapter();
+    mRecyclerView.setAdapter(visitAdapter);
 
-    pathsViewModel.trips.observe(getViewLifecycleOwner(), this::resetRecyler);
+    visitsViewModel.trips.observe(getViewLifecycleOwner(), this::resetRecyler);
   }
 
-  private void resetRecyler(List<TripElement> tripElements) {
+  private void resetRecyler(List<Visit> visits) {
 
     // Parses values into adapters and update view
-    pathAdapter.setItems(tripElements);
-    pathAdapter.notifyDataSetChanged();
+    visitAdapter.setItems(visits);
+    visitAdapter.notifyDataSetChanged();
 
   }
 
@@ -164,10 +162,10 @@ public class PathsFragment extends Fragment {
    * @param type The type to sort the photos (by date or by path)
    */
   private void switchSortMode(int type) {
-    if (pathsViewModel.sortMode != type) {
-      pathsViewModel.sortMode = type;
-      Collections.reverse(pathsViewModel.trips.getValue());
-      resetRecyler(pathsViewModel.trips.getValue());
+    if (visitsViewModel.sortMode != type) {
+      visitsViewModel.sortMode = type;
+      Collections.reverse(visitsViewModel.trips.getValue());
+      resetRecyler(visitsViewModel.trips.getValue());
     }
   }
 
@@ -189,6 +187,7 @@ public class PathsFragment extends Fragment {
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-    permissionHelper.onRequestPermissionsResult(grantResults, () -> {});
+    permissionHelper.onRequestPermissionsResult(grantResults, () -> {
+    });
   }
 }

@@ -9,7 +9,7 @@ import com.photour.MainActivity;
 import com.photour.helper.BitmapHelper;
 
 /**
- * Async Task that handles caching bitmaps
+ * A child class of {@link BitmapTask} for handling the async task for thumbnails
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */

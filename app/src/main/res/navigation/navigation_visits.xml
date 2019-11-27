@@ -2,14 +2,14 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
-  android:id="@+id/navigation_paths"
-  app:startDestination="@+id/paths">
+  android:id="@+id/navigation_visits"
+  app:startDestination="@+id/visits">
 
   <fragment
-    android:id="@+id/paths"
-    android:name="com.photour.ui.paths.PathsFragment"
-    android:label="@string/paths"
-    tools:layout="@layout/fragment_paths" />
+    android:id="@+id/visits"
+    android:name="com.photour.ui.visits.VisitsFragment"
+    android:label="@string/visits"
+    tools:layout="@layout/fragment_visits" />
 
   <include app:graph="@navigation/navigation_settings" />
 

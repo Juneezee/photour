@@ -1,4 +1,4 @@
-package com.photour.ui.paths;
+package com.photour.ui.visits;
 
 import android.app.Application;
 import android.database.ContentObserver;
@@ -9,21 +9,21 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.photour.database.ImageRepository;
-import com.photour.model.TripElement;
+import com.photour.model.Visit;
 import java.util.List;
 
-public class PathsViewModel extends AndroidViewModel {
+public class VisitsViewModel extends AndroidViewModel {
 
 
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
   public int sortMode;
 
   private ImageRepository imageRepository;
-  public LiveData<List<TripElement>> trips;
+  public LiveData<List<Visit>> trips;
 
   private ContentObserver contentObserver = null;
 
-  public PathsViewModel(@NonNull Application application) {
+  public VisitsViewModel(@NonNull Application application) {
     super(application);
     imageRepository = new ImageRepository(application);
     loadTrips();

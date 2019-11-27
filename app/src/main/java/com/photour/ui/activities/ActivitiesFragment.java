@@ -17,7 +17,7 @@ public class ActivitiesFragment extends Fragment {
   public View onCreateView(@NonNull LayoutInflater inflater,
       ViewGroup container, Bundle savedInstanceState) {
     activitiesViewModel = new ViewModelProvider(this).get(ActivitiesViewModel.class);
-    View root = inflater.inflate(R.layout.fragment_paths, container, false);
+    View root = inflater.inflate(R.layout.fragment_visits, container, false);
     final TextView textView = root.findViewById(R.id.text_notifications);
     activitiesViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
     return root;

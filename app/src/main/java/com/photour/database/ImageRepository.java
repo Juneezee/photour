@@ -3,7 +3,7 @@ package com.photour.database;
 import android.app.Application;
 import androidx.lifecycle.LiveData;
 import com.photour.model.ImageElement;
-import com.photour.model.TripElement;
+import com.photour.model.Visit;
 import java.util.List;
 
 /**
@@ -36,8 +36,8 @@ public class ImageRepository {
     return imageElements;
   }
 
-  public LiveData<List<TripElement>> getTrips() {
-    return imageDao.getTrips();
+  public LiveData<List<Visit>> getTrips() {
+    return imageDao.getVisits();
   }
 
   void insert(ImageElement... imageElements) {
