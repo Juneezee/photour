@@ -28,14 +28,26 @@ public class VisitsFragment extends Fragment {
 
   private static final String TAG = "VisitsFragment";
 
+  private static final String[] PERMISSIONS_REQUIRED = {permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
-  private VisitsViewModel visitsViewModel;
-  private Activity activity;
-  private FragmentVisitsBinding binding;
   private RecyclerView mRecyclerView;
   private VisitAdapter visitAdapter;
 
+  private VisitsViewModel visitsViewModel;
+  private FragmentVisitsBinding binding;
+  private Activity activity;
+
+//  /**
+//   * Finds or create a ImageFragment using FragmentManager. Used to retain state on rotation
+//   *
+//   * @param fm FragmentManager
+//   * @return ImageFragment
+//   */
+//  public static VisitsFragment findOrCreateRetainFragment(FragmentManager fm) {
+//    VisitsFragment fragment = (VisitsFragment) fm.findFragmentByTag(TAG);
+//    return fragment == null ? new VisitsFragment() : fragment;
+//  }
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
    * and before {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
@@ -49,7 +61,8 @@ public class VisitsFragment extends Fragment {
     setHasOptionsMenu(true);
 
     activity = getActivity();
-    permissionHelper = new PermissionHelper(activity);
+    permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
+    permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
   }
 
   /**

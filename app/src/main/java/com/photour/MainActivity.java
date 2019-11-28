@@ -1,9 +1,7 @@
 package com.photour;
 
-import android.Manifest.permission;
 import android.app.job.JobScheduler;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.Menu;
@@ -25,7 +23,6 @@ import com.google.android.libraries.maps.MapView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.photour.helper.CacheHelper;
 import com.photour.helper.PermissionHelper;
-import java.security.Permission;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -57,7 +57,7 @@ public class StartVisitService extends JobService {
   private FusedLocationProviderClient fusedLocationProviderClient;
   private LocationCallback locationCallback;
 
-  public final ArrayList<LatLng> latLngList = new ArrayList<>();
+  private final ArrayList<LatLng> latLngList = new ArrayList<>();
   private final ArrayList<LatLng> markerList = new ArrayList<>();
 
   private ServiceReceiver receiver;
@@ -214,30 +214,8 @@ public class StartVisitService extends JobService {
     public void onReceive(Context context, Intent intent) {
       // Application is relaunched
       Intent relaunchIntent = new Intent(ACTION_BROADCAST);
-
-      ArrayList<LatLng> fragLatLngList = intent
-          .getParcelableArrayListExtra(StartVisitService.EXTRA_LAUNCH);
-
-      final long elapsedTime = intent
-          .getLongExtra(StartVisitService.EXTRA_CHRONOMETER, SystemClock.elapsedRealtime());
-
-      if (fragLatLngList != null && !fragLatLngList.isEmpty()) {
-        // Fragment has newer data than JobService
-        latLngList.clear();
-        latLngList.addAll(fragLatLngList);
-      } else {
-        // Send back LatLng to restore polyline
-        relaunchIntent.putParcelableArrayListExtra(EXTRA_LAUNCH, latLngList);
-      }
-
-      if (elapsedTime <= chronometerBase) {
-        // Fragment has newer data than JobService
-        chronometerBase = elapsedTime;
-      } else {
-        // Send back base time of chrometer
-        relaunchIntent.putExtra(EXTRA_CHRONOMETER, chronometerBase);
-      }
-
+      relaunchIntent.putParcelableArrayListExtra(EXTRA_LAUNCH, latLngList);
+      relaunchIntent.putExtra(EXTRA_CHRONOMETER, chronometerBase);
       LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(relaunchIntent);
     }
   }

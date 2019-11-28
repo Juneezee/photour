@@ -59,15 +59,6 @@ public class PermissionHelper {
    * Constructor for PermissionHelper class
    *
    * @param activity The {@link com.photour.MainActivity}
-   */
-  public PermissionHelper(Activity activity) {
-    this.activity = activity;
-  }
-
-  /**
-   * Constructor for PermissionHelper class
-   *
-   * @param activity The {@link com.photour.MainActivity}
    * @param fragment The fragment that is requesting the permissions
    * @param permissions The String array of permissions to check
    */
