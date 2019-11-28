@@ -1,21 +1,15 @@
 package com.photour.ui.visit;
 
-import static android.content.Context.JOB_SCHEDULER_SERVICE;
-
 import android.Manifest;
 import android.app.Activity;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.PersistableBundle;
+import android.os.IBinder;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,24 +20,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
-import com.google.android.libraries.maps.model.LatLng;
 import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.databinding.FragmentStartVisitBinding;
 import com.photour.helper.AlertDialogHelper;
 import com.photour.helper.LocationHelper;
 import com.photour.helper.PermissionHelper;
-import com.photour.helper.ReceiverHelper;
 import com.photour.sensor.Accelerometer;
 import com.photour.service.StartVisitService;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
@@ -70,7 +59,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   };
   private PermissionHelper permissionHelper;
 
-  private StartVisitMap startVisitMap;
+  public final StartVisitMap startVisitMap = new StartVisitMap(this);
   private VisitViewModel visitViewModel;
   private FragmentStartVisitBinding binding;
   private Activity activity;
@@ -78,9 +67,63 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   // Sensors
   private Accelerometer accelerometer;
 
-  // JobService related
-  private JobScheduler scheduler;
-  private FragmentReceiver receiver;
+  // A reference to the service used to get location updates.
+  private StartVisitService mService = null;
+
+  // Tracks the bound state of the service.
+  private boolean bound = false;
+
+  // Monitors the state of the connection to the service.
+  private final ServiceConnection serviceConnection = new ServiceConnection() {
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+      StartVisitService.LocalBinder binder = (StartVisitService.LocalBinder) service;
+      mService = binder.getService();
+
+      if (mService.isRunning()) {
+        restoreStateFromService();
+        mService.requestLocationUpdates(StartVisitFragment.this);
+      } else {
+        mService.requestLocationUpdates(StartVisitFragment.this);
+        setStateToService();
+      }
+
+      bound = true;
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+      mService = null;
+      bound = false;
+    }
+  };
+
+  /**
+   * savedInstanceState is kept and Service is restarted. Fragment has newer data than Service, set
+   * the values to use the fragment data
+   */
+  private void setStateToService() {
+    mService.newVisitTitle = visitViewModel.getNewVisitTitle().getValue();
+    mService.chronometerBase = visitViewModel.getElapsedTime();
+    mService.latLngList.clear();
+    mService.latLngList.addAll(startVisitMap.latLngList);
+  }
+
+  /**
+   * Service did not get restarted and data is kept in the foreground service, restore the data from
+   * service
+   */
+  private void restoreStateFromService() {
+    visitViewModel.setNewVisitTitle(mService.newVisitTitle);
+    visitViewModel.setElapsedTime(mService.chronometerBase);
+    initChronometer();
+
+    if (!mService.latLngList.isEmpty() && startVisitMap.latLngList.isEmpty()) {
+      startVisitMap.latLngList.addAll(mService.latLngList);
+    }
+    mService.getLastLocation();
+  }
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -94,11 +137,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     super.onCreate(savedInstanceState);
     activity = getActivity();
     permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
-    receiver = new FragmentReceiver();
-    scheduler = (JobScheduler) activity.getSystemService(JOB_SCHEDULER_SERVICE);
-
-    startVisitMap = new StartVisitMap(this,
-        LocationServices.getFusedLocationProviderClient(activity));
 
     // Show exit confirmation dialog on backpress
     OnBackPressedCallback callback = new OnBackPressedCallback(true) {
@@ -164,6 +202,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
     initChronometer();
     initEasyImage();
+
   }
 
   /**
@@ -207,21 +246,25 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     }
   }
 
-
   /**
    * Called when the fragment is visible to the user and actively running.
    */
   @Override
   public void onResume() {
-    accelerometer.startAccelerometerRecording();
     ((MainActivity) activity).setToolbarVisibility(false);
-    super.onResume();
 
     if (!permissionHelper.hasCameraPermission() ||
         !permissionHelper.hasStoragePermission() ||
-        !permissionHelper.hasLocationPermission()) {
+        !permissionHelper.hasLocationPermission()
+    ) {
       Navigation.findNavController(binding.getRoot()).navigateUp();
+    } else {
+      accelerometer.startAccelerometerRecording();
+      activity.bindService(new Intent(activity, StartVisitService.class), serviceConnection,
+          Context.BIND_AUTO_CREATE);
     }
+
+    super.onResume();
   }
 
   /**
@@ -239,20 +282,16 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    */
   @Override
   public void onStop() {
+    if (bound) {
+      // Unbind from the service. This signals to the service that this activity is no longer
+      // in the foreground, and the service can respond by promoting itself to a foreground
+      // service.
+      activity.unbindService(serviceConnection);
+      bound = false;
+    }
+
     super.onStop();
     ((MainActivity) activity).setToolbarVisibility(true);
-  }
-
-  /**
-   * Called when the fragment is no longer in use.  This is called after {@link #onStop()} and
-   * before {@link #onDetach()}.
-   *
-   * Unregister the broadcast receiver when the user or system kills the application
-   */
-  @Override
-  public void onDestroy() {
-    ReceiverHelper.unregisterBroadcastReceiver(activity, receiver);
-    super.onDestroy();
   }
 
   /**
@@ -294,28 +333,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   @Override
   public void onMapReady(GoogleMap googleMap) {
     startVisitMap.onMapReady(googleMap);
-
-    ReceiverHelper
-        .registerBroadcastReceiver(activity, receiver, StartVisitService.ACTION_BROADCAST);
-
-    // If job service is running, restore to the last state before the app is stopped
-    System.out.println("Is service running? " + ((MainActivity) activity).isJobServiceRunning());
-
-    if (((MainActivity) activity).isJobServiceRunning()) {
-      Intent intent = new Intent(StartVisitService.ACTION_LAUNCH);
-
-      // Case: fragment instance state is saved and JobService is restarted.
-      // So fragment has newer data than JobService
-      if (!startVisitMap.getLatLngList().isEmpty()) {
-        intent.putExtra(StartVisitService.EXTRA_LATLNG, startVisitMap.latLngList);
-        intent.putExtra(StartVisitService.EXTRA_TITLE, visitViewModel.getNewVisitTitle().getValue());
-        intent.putExtra(StartVisitService.EXTRA_CHRONOMETER, visitViewModel.getElapsedTime());
-      }
-
-      LocalBroadcastManager.getInstance(activity).sendBroadcast(intent);
-    } else {
-      startJobService();
-    }
   }
 
   /**
@@ -388,7 +405,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   public void onMyLocationClick() {
     // Permission and location services check
     LocationHelper
-        .checkDeviceLocation(activity, this, () -> startVisitMap.getLastLocation());
+        .checkDeviceLocation(activity, this, () -> mService.getLastLocation());
   }
 
   /**
@@ -398,7 +415,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    */
   public void onStopClick() {
     AlertDialogHelper.createExitConfirmationDialog(activity, () -> {
-      scheduler.cancel(StartVisitService.JOB_ID);
+      activity.stopService(new Intent(activity, StartVisitService.class));
       Navigation.findNavController(binding.getRoot()).navigate(R.id.action_stop_visit);
     });
   }
@@ -417,77 +434,4 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     EasyImage.openGallery(this, 0);
   }
 
-  /**
-   * Start the {@link StartVisitService} JobService
-   */
-  private void startJobService() {
-    ComponentName componentName = new ComponentName(activity, StartVisitService.class);
-    PersistableBundle bundle = new PersistableBundle();
-    bundle.putString("title", visitViewModel.getNewVisitTitle().getValue());
-    JobInfo info = new JobInfo.Builder(StartVisitService.JOB_ID, componentName)
-        .setOverrideDeadline(0)
-        .setExtras(bundle)
-        .build();
-
-    int resultCode = scheduler.schedule(info);
-    if (resultCode == JobScheduler.RESULT_SUCCESS) {
-      Log.d(TAG, "Job scheduled");
-    } else {
-      Log.d(TAG, "Job scheduling failed");
-    }
-  }
-
-  /**
-   * Inner {@link BroadcastReceiver} class to handle the location sent by {@link StartVisitService}
-   *
-   * @author Zer Jun Eng, Jia Hua Ng
-   */
-  private class FragmentReceiver extends BroadcastReceiver {
-
-    /**
-     * This method is called when the BroadcastReceiver is receiving an Intent broadcast.
-     *
-     * @param context The Context in which the receiver is running.
-     * @param intent The Intent being received.
-     */
-    @Override
-    public void onReceive(Context context, Intent intent) {
-      Location location = intent.getParcelableExtra(StartVisitService.EXTRA_LOCATION);
-      final boolean isRelaunch = intent.getBooleanExtra(StartVisitService.EXTRA_LAUNCH, false);
-
-      if (isRelaunch) {
-        Log.d(TAG, "Relaunched, restoring state...");
-        restoreStartVisitState(intent);
-      } else if (location != null) {
-        Log.d(TAG, "Received LatLng");
-        startVisitMap.currentLocation.setValue(location);
-      } else {
-        startVisitMap.getLastLocation();
-      }
-    }
-
-    /**
-     * If the JobService is not killed or crashed, then it will retain the state of the ongoing
-     * visit. Restore them when {@link StartVisitFragment} has relaunched
-     *
-     * @param intent The Intent being received.
-     */
-    private void restoreStartVisitState(Intent intent) {
-      final ArrayList<LatLng> latLngList = intent
-          .getParcelableArrayListExtra(StartVisitService.EXTRA_LATLNG);
-
-      if (latLngList != null && !latLngList.isEmpty() && startVisitMap.latLngList.isEmpty()) {
-        startVisitMap.latLngList.addAll(latLngList);
-      }
-      startVisitMap.getLastLocation();
-
-      final long elapsedTime = intent
-          .getLongExtra(StartVisitService.EXTRA_CHRONOMETER, SystemClock.elapsedRealtime());
-      visitViewModel.setElapsedTime(elapsedTime);
-      initChronometer();
-
-      final String newVisitTitle = intent.getStringExtra(StartVisitService.EXTRA_TITLE);
-      visitViewModel.setNewVisitTitle(newVisitTitle);
-    }
-  }
 }

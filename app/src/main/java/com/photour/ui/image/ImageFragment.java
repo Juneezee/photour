@@ -1,8 +1,9 @@
 package com.photour.ui.image;
 
+import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
+
 import android.Manifest;
 import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
-
 import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
@@ -26,8 +26,6 @@ import com.photour.databinding.FragmentImageBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.helper.PreferenceHelper;
 import com.photour.model.ImageElement;
-
-import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
 /**
  * Fragment to create when an has been clicked

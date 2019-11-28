@@ -1,10 +1,9 @@
 package com.photour;
 
-import android.app.job.JobScheduler;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -12,9 +11,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -23,15 +20,13 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-
 import com.google.android.libraries.maps.MapView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.photour.helper.CacheHelper;
 import com.photour.helper.PermissionHelper;
 import com.photour.helper.PreferenceHelper;
-import com.photour.ui.settings.SettingsFragment;
+import com.photour.service.StartVisitService;
 import com.photour.ui.settings.SettingsFragmentDirections;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,40 +70,11 @@ public class MainActivity extends AppCompatActivity
 
     // Restore ongoing visit if available
     if (PermissionHelper.hasLocationPermission(this) && currentNavController != null
-        && currentNavController.getValue() != null && isJobServiceRunning()
+        && currentNavController.getValue() != null && StartVisitService.isRunning
     ) {
       restoreOngoingVisit(currentNavController.getValue());
-    } else if (!isJobServiceRunning()) {
-      stopOldJobService();
-    }
-  }
-
-  /**
-   * Check if StartVisit JobService is running
-   *
-   * @return boolean {@code true} If the StartVisit JobService is running
-   */
-  public boolean isJobServiceRunning() {
-    JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-
-    if (scheduler == null) {
-      return false;
-    }
-
-    return scheduler.getAllPendingJobs().size() > 0;
-  }
-
-  /**
-   * Likely to be the case where permission is revoked and the {@link
-   * com.photour.service.StartVisitService} crashed. Then do not restart it as the JobService does
-   * not retain any value of the ongoing visit
-   */
-  private void stopOldJobService() {
-    JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-
-    if (scheduler != null) {
-      Log.d("StartVisitService", "Do not restart old job service");
-      scheduler.cancelAll();
+    } else if (!StartVisitService.isRunning) {
+      stopService(new Intent(getApplicationContext(), StartVisitService.class));
     }
   }
 
@@ -299,4 +265,3 @@ public class MainActivity extends AppCompatActivity
     return true;
   }
 }
-

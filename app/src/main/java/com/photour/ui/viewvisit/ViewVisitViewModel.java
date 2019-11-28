@@ -2,22 +2,17 @@ package com.photour.ui.viewvisit;
 
 import android.app.Application;
 import android.database.ContentObserver;
-import android.media.Image;
 import android.os.Handler;
 import android.provider.MediaStore;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
 import com.google.android.libraries.maps.model.LatLng;
 import com.photour.database.ImageRepository;
 import com.photour.helper.PreferenceHelper;
 import com.photour.model.ImageElement;
 import com.photour.model.Visit;
-
-import java.lang.ref.Reference;
 import java.util.List;
 
 /**

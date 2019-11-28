@@ -1,5 +1,7 @@
 package com.photour.ui.viewvisit;
 
+import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
+
 import android.Manifest;
 import android.app.Activity;
 import android.os.Bundle;
@@ -8,14 +10,12 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
@@ -28,10 +28,7 @@ import com.photour.databinding.FragmentViewVisitBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.model.ImageElement;
 import com.photour.model.Visit;
-
 import java.util.List;
-
-import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
 /**
  * Fragment for ViewVisit page

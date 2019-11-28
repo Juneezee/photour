@@ -4,30 +4,29 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.job.JobInfo;
-import android.app.job.JobParameters;
-import android.app.job.JobService;
-import android.content.BroadcastReceiver;
-import android.content.Context;
+import android.app.Service;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.location.Location;
+import android.os.Binder;
 import android.os.Build;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.libraries.maps.model.LatLng;
-import com.photour.BuildConfig;
 import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.helper.LocationHelper;
-import com.photour.helper.ReceiverHelper;
+import com.photour.ui.visit.StartVisitFragment;
+import com.photour.ui.visit.StartVisitMap;
 import java.util.ArrayList;
 
 /**
@@ -35,49 +34,59 @@ import java.util.ArrayList;
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
-public class StartVisitService extends JobService {
+public class StartVisitService extends Service {
 
   private static final String TAG = StartVisitService.class.getSimpleName();
   private static final String CHANNEL_ID = "photour";
-  public static final int JOB_ID = 123;
-
-  public static final String ACTION_BROADCAST = BuildConfig.APPLICATION_ID + ".broadcast";
-  public static final String ACTION_LAUNCH = BuildConfig.APPLICATION_ID + ".launch";
-
-  public static final String EXTRA_LAUNCH = BuildConfig.APPLICATION_ID + ".launch";
-  public static final String EXTRA_LATLNG = BuildConfig.APPLICATION_ID + ".latlng";
-  public static final String EXTRA_CHRONOMETER = BuildConfig.APPLICATION_ID + ".chronometer";
-  public static final String EXTRA_LOCATION = BuildConfig.APPLICATION_ID + ".location";
-  public static final String EXTRA_TITLE = BuildConfig.APPLICATION_ID + ".title";
 
   // Constants for Google Map location request
   private static final int UPDATE_INTERVAL = 20000;
   private static final int FASTEST_INTERVAL = 1000;
   private static final float MIN_DISPLACEMENT = 5;
 
+  /*
+   * Used to check whether the bound activity has really gone away and not unbound as part of an
+   * orientation change. We create a foreground service notification only if the former takes
+   * place.
+   */
+  private boolean changingConfiguration = false;
+  public static boolean isRunning = false;
+
   // Title of the new visit
-  private String newVisitTitle;
+  public String newVisitTitle;
 
   // The base time of the chronometer when the visit is started
-  private long chronometerBase = SystemClock.elapsedRealtime();
+  public long chronometerBase = SystemClock.elapsedRealtime();
 
   private FusedLocationProviderClient fusedLocationProviderClient;
   private LocationCallback locationCallback;
 
-  private final ArrayList<LatLng> latLngList = new ArrayList<>();
+  private StartVisitMap visitMap;
+  public final ArrayList<LatLng> latLngList = new ArrayList<>();
   private final ArrayList<LatLng> markerList = new ArrayList<>();
 
-  private ServiceReceiver receiver;
+  private final IBinder binder = new LocalBinder();
+
+  /**
+   * Class used for the client Binder.  Since this service runs in the same process as its clients,
+   * we don't need to deal with IPC.
+   *
+   * @author Zer Jun Eng, Jia Hua Ng
+   */
+  public class LocalBinder extends Binder {
+
+    public StartVisitService getService() {
+      return StartVisitService.this;
+    }
+  }
 
   /**
    * Called by the system when the service is first created.  Do not call this method directly.
    */
   @Override
   public void onCreate() {
+    Log.d(TAG, "onCreating service...");
     super.onCreate();
-
-    receiver = new ServiceReceiver();
-    ReceiverHelper.registerBroadcastReceiver(getApplicationContext(), receiver, ACTION_LAUNCH);
 
     fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
     locationCallback = new LocationCallback() {
@@ -92,42 +101,104 @@ public class StartVisitService extends JobService {
   }
 
   /**
-   * Called to indicate that the job has begun executing.
+   * Called by the system every time a client explicitly starts the service by calling {@link
+   * android.content.Context#startService}, providing the arguments it supplied and a unique integer
+   * token representing the start request.
    *
-   * @param params Parameters specifying info about this job, including the optional extras
-   * configured with {@link JobInfo.Builder#setExtras(android.os.PersistableBundle). This object
-   * serves to identify this specific running job instance when calling {@link
-   * #jobFinished(JobParameters, boolean)}.
-   * @return {@code true} if service will continue running, using a separate thread when
-   * appropriate. {@code false} means that this job has completed its work.
+   * @param intent The Intent supplied to {@link android.content.Context#startService}, as given.
+   * This may be null if the service is being restarted after its process has gone away, and it had
+   * previously returned anything except {@link #START_STICKY_COMPATIBILITY}.
+   * @param flags Additional data about this start request.
+   * @param startId A unique integer representing this specific request to start.  Use with {@link
+   * #stopSelfResult(int)}.
+   * @return The return value indicates what semantics the system should use for the service's
+   * current started state.  It may be one of the constants associated with the {@link
+   * #START_CONTINUATION_MASK} bits.
    */
   @Override
-  public boolean onStartJob(JobParameters params) {
-    Log.d(TAG, "Job is starting");
-    newVisitTitle = params.getExtras().getString("title");
-    startForeground(1, createNotification(newVisitTitle));
-    requestLocationUpdates();
-    return true;
+  public int onStartCommand(Intent intent, int flags, int startId) {
+    Log.d(TAG, "onStartCommand");
+    return START_NOT_STICKY;
   }
 
   /**
-   * This method is called if the system has determined that you must stop execution of your job
-   * even before you've had a chance to call {@link #jobFinished(JobParameters, boolean)}.
+   * Called by the system when the device configuration changes while your activity is running.
    *
-   * @param params The parameters identifying this job, as supplied to the job in the {@link
-   * #onStartJob(JobParameters)} callback.
-   * @return {@code true} to indicate to the JobManager whether you'd like to reschedule this job
-   * based on the retry criteria provided at job creation-time; or {@code false} to end the job
-   * entirely.  Regardless of the value returned, your job must stop executing.
+   * @param newConfig The new device configuration.
    */
   @Override
-  public boolean onStopJob(JobParameters params) {
-    Log.d(TAG, "Job is cancelled");
-    stopForeground(true);
-    LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(receiver);
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    changingConfiguration = true;
+  }
 
+  /**
+   * Called by the system to notify a Service that it is no longer used and is being removed.  The
+   * service should clean up any resources it holds (threads, registered receivers, etc) at this
+   * point.  Upon return, there will be no more calls in to this Service object and it is
+   * effectively dead.
+   */
+  @Override
+  public void onDestroy() {
+    Log.d(TAG, "Stopping service...");
+    super.onDestroy();
     removeLocationUpdates();
+    stopForeground(true);
+    stopSelf();
+  }
 
+  /**
+   * Return the communication channel to the service.  May return null if clients can not bind to
+   * the service.
+   *
+   * @param intent The Intent that was used to bind to this service, as given to {@link
+   * android.content.Context#bindService Context.bindService}
+   * @return Return an IBinder through which clients can call on to the service.
+   */
+  @Nullable
+  @Override
+  public IBinder onBind(Intent intent) {
+    Log.d(TAG, "In onBind()");
+    return binder;
+  }
+
+  /**
+   * Called when new clients have connected to the service, after it had previously been notified
+   * that all had disconnected in its {@link #onUnbind}.
+   *
+   * @param intent The Intent that was used to bind to this service, as given to {@link
+   * android.content.Context#bindService Context.bindService}.
+   */
+  @Override
+  public void onRebind(Intent intent) {
+    Log.d(TAG, "In onRebind()");
+    changingConfiguration = false;
+    super.onRebind(intent);
+  }
+
+  /**
+   * Called when all clients have disconnected from a particular interface published by the
+   * service.
+   *
+   * @param intent The Intent that was used to bind to this service, as given to {@link
+   * android.content.Context#bindService Context.bindService}.  Note that any extras that were
+   * included with the Intent at that point will <em>not</em> be seen here.
+   * @return Return true if you would like to have the service's {@link #onRebind} method later
+   * called when new clients bind to it.
+   */
+  @Override
+  public boolean onUnbind(Intent intent) {
+    Log.d(TAG, "Unbound from service");
+
+    // Called when the last client (StartVisitFragment) unbinds from this
+    // service. If this method is called due to a configuration change in StartVisitFragment, we
+    // do nothing. Otherwise, we make this service a foreground service.
+    if (!changingConfiguration) {
+      Log.d(TAG, "Starting foreground service...");
+      startForeground(1, createNotification(newVisitTitle));
+    }
+
+    // Ensures onRebind() is called when a client re-binds.
     return true;
   }
 
@@ -144,7 +215,10 @@ public class StartVisitService extends JobService {
       // or other notification behaviors after this
       NotificationManager notificationManager = (NotificationManager) getSystemService(
           NOTIFICATION_SERVICE);
-      notificationManager.createNotificationChannel(channel);
+
+      if (notificationManager != null) {
+        notificationManager.createNotificationChannel(channel);
+      }
     }
   }
 
@@ -171,33 +245,59 @@ public class StartVisitService extends JobService {
   }
 
   /**
+   * Check if this foreground service is already running
+   *
+   * @return boolean {@code true} if this foreground service is already running
+   */
+  public boolean isRunning() {
+    return isRunning;
+  }
+
+  /**
    * Notify anyone listening for broadcasts about the new location.
+   *
    * @param location The last location
    */
   private void onLocationChanged(Location location) {
+    Log.d(TAG, "Location changed");
     LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-    if (LocationHelper.shouldAddToLatLntList(latLngList, latLng)){
+    if (LocationHelper.shouldAddToLatLntList(latLngList, latLng)) {
       latLngList.add(latLng);
     }
 
-    Log.d(TAG, "Sending LatLng");
-    Intent intent = new Intent(ACTION_BROADCAST);
-    intent.putExtra(EXTRA_LOCATION, location);
-    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    visitMap.currentLocation.setValue(location);
+  }
+
+  /**
+   * Get the last location of the device
+   */
+  public void getLastLocation() {
+    fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+      if (task.isSuccessful() && task.getResult() != null) {
+        visitMap.currentLocation.setValue(task.getResult());
+      } else {
+        Log.d(TAG, "Failed to get last location");
+      }
+    });
   }
 
   /**
    * Request location update
    */
-  private void requestLocationUpdates() {
+  public void requestLocationUpdates(StartVisitFragment startVisitFragment) {
     Log.d(TAG, "Requesting location updates");
+    this.visitMap = startVisitFragment.startVisitMap;
+
     LocationRequest locationRequest = new LocationRequest()
         .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
         .setInterval(UPDATE_INTERVAL)
         .setFastestInterval(FASTEST_INTERVAL)
         .setMaxWaitTime(UPDATE_INTERVAL)
         .setSmallestDisplacement(MIN_DISPLACEMENT);
+
+    startService(new Intent(getApplicationContext(), StartVisitService.class));
+    isRunning = true;
 
     fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
         Looper.myLooper());
@@ -208,25 +308,5 @@ public class StartVisitService extends JobService {
    */
   private void removeLocationUpdates() {
     fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-  }
-
-  /**
-   * Inner {@link BroadcastReceiver} class to handle the request sent by {@link
-   * com.photour.ui.visit.StartVisitFragment}
-   *
-   * @author Zer Jun Eng, Jia Hua Ng
-   */
-  private class ServiceReceiver extends BroadcastReceiver {
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-      // Application is relaunched
-      Intent relaunchIntent = new Intent(ACTION_BROADCAST);
-      relaunchIntent.putExtra(EXTRA_LAUNCH, true);
-      relaunchIntent.putParcelableArrayListExtra(EXTRA_LATLNG, latLngList);
-      relaunchIntent.putExtra(EXTRA_TITLE, newVisitTitle);
-      relaunchIntent.putExtra(EXTRA_CHRONOMETER, chronometerBase);
-      LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(relaunchIntent);
-    }
   }
 }

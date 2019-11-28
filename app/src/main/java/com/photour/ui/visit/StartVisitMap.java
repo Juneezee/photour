@@ -3,7 +3,6 @@ package com.photour.ui.visit;
 import android.graphics.Color;
 import android.location.Location;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
@@ -24,29 +23,24 @@ public class StartVisitMap implements OnMapReadyCallback {
   private final StartVisitFragment startVisitFragment;
 
   private GoogleMap googleMap;
-  private FusedLocationProviderClient fusedLocationProviderClient;
 
   private static final int ZOOM_LEVEL = 17;
 
   // To check if this created the first time in current activity
-  private boolean isFirstTime = true;
+  public boolean isFirstTime = true;
 
   ArrayList<LatLng> latLngList = new ArrayList<>();
   ArrayList<LatLng> markerList = new ArrayList<>();
 
-  final MutableLiveData<Location> currentLocation = new MutableLiveData<>();
+  public final MutableLiveData<Location> currentLocation = new MutableLiveData<>();
 
   /**
    * Constructor for the class {@link StartVisitMap}
    *
    * @param startVisitFragment A {@link StartVisitFragment} fragment instance
    */
-  StartVisitMap(
-      StartVisitFragment startVisitFragment,
-      FusedLocationProviderClient fusedLocationProviderClient
-  ) {
+  StartVisitMap(StartVisitFragment startVisitFragment) {
     this.startVisitFragment = startVisitFragment;
-    this.fusedLocationProviderClient = fusedLocationProviderClient;
   }
 
   /**
@@ -118,7 +112,6 @@ public class StartVisitMap implements OnMapReadyCallback {
       }
 
       drawPolyline();
-      System.out.println(latLngList.size());
 
       // First location update should not animate to prevent fast zoom on initialisation
       if (isFirstTime) {
@@ -174,16 +167,5 @@ public class StartVisitMap implements OnMapReadyCallback {
     for (int i = 0; i < POINTS; i++) {
       addMarkerToMap(markerList.get(i));
     }
-  }
-
-  /**
-   * Get the last location of the device
-   */
-  void getLastLocation() {
-    fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
-      if (task.isSuccessful() && task.getResult() != null) {
-        currentLocation.setValue(task.getResult());
-      }
-    });
   }
 }
