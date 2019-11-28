@@ -44,8 +44,6 @@ public class PhotosFragment extends Fragment {
   public static LruCache<String, Bitmap> mRetainedCache;
 
   private FragmentPhotosBinding binding;
-
-  private static final String[] PERMISSIONS_REQUIRED = {permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
   private PhotoAdapter photoAdapter;
@@ -78,8 +76,7 @@ public class PhotosFragment extends Fragment {
     setHasOptionsMenu(true);
 
     activity = getActivity();
-    permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
-    permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
+    permissionHelper = new PermissionHelper(activity);
   }
 
   /**

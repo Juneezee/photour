@@ -4,6 +4,7 @@ import static com.photour.ui.visit.VisitFragment.REQUEST_CHECK_SETTINGS;
 
 import android.app.Activity;
 import android.content.IntentSender;
+import android.location.Location;
 import androidx.fragment.app.Fragment;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -11,13 +12,15 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.libraries.maps.model.LatLng;
+import java.util.ArrayList;
 
 /**
- * Helper class for checking the status of location services (device location)
+ * Helper class for location related tasks
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
-public class LocationServicesHelper {
+public class LocationHelper {
 
   /**
    * Check if the status of the device location (either ON of OFF)
@@ -77,6 +80,34 @@ public class LocationServicesHelper {
       ToastHelper.tShort(activity,
           "Unable to find GPS location (try turning on WiFi or mobile signal)");
     }
+  }
+
+  /**
+   * Check if the new LatLng should be added into the latLngList
+   *
+   * @param latLngList The ArrayList of LatLng
+   * @param newLatLng The new LatLng
+   * @return boolean {@code true} if the new LatLng is more than 5 metres in distance than the last
+   * LatLng
+   */
+  public static boolean shouldAddToLatLntList(ArrayList<LatLng> latLngList, LatLng newLatLng) {
+    // First location updates, must add
+    if (latLngList.isEmpty()) {
+      return true;
+    }
+
+    // Check if distance with last location updates is >= 5 metres
+    LatLng lastLatLng = latLngList.get(latLngList.size() - 1);
+    float[] results = new float[3];
+    Location.distanceBetween(
+        lastLatLng.latitude,
+        lastLatLng.longitude,
+        newLatLng.latitude,
+        newLatLng.longitude,
+        results
+    );
+
+    return results[0] >= 5;
   }
 
   /**

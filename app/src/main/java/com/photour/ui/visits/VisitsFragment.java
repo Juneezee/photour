@@ -28,7 +28,6 @@ public class VisitsFragment extends Fragment {
 
   private static final String TAG = "VisitsFragment";
 
-  private static final String[] PERMISSIONS_REQUIRED = {permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
   private VisitsViewModel visitsViewModel;
@@ -50,8 +49,7 @@ public class VisitsFragment extends Fragment {
     setHasOptionsMenu(true);
 
     activity = getActivity();
-    permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
-    permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
+    permissionHelper = new PermissionHelper(activity);
   }
 
   /**

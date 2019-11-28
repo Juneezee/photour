@@ -36,7 +36,7 @@ import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.databinding.FragmentStartVisitBinding;
 import com.photour.helper.AlertDialogHelper;
-import com.photour.helper.LocationServicesHelper;
+import com.photour.helper.LocationHelper;
 import com.photour.helper.ReceiverHelper;
 import com.photour.sensor.Accelerometer;
 import com.photour.service.StartVisitService;
@@ -257,7 +257,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
       public void onImagesPicked(@NonNull List<File> imageFiles, ImageSource source, int type) {
         // CODE TODO when upload from gallery
 
-        startVisitMap.addCurrentLocationAsMarker();
+//        startVisitMap.addMarkerToCurrentLocation();
 
         System.out.println("hi");
         System.out.println(imageFiles);
@@ -284,6 +284,14 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     // If job service is running, restore to the last state before the app is stopped
     if (((MainActivity) activity).isJobServiceRunning()) {
       Intent intent = new Intent(StartVisitService.ACTION_LAUNCH);
+
+      // Case: fragment instance state is saved and JobService is restarted.
+      // So fragment has newer data than JobService
+      if (!startVisitMap.getLatLngList().isEmpty()) {
+        intent.putExtra(StartVisitService.EXTRA_LAUNCH, startVisitMap.latLngList);
+        intent.putExtra(StartVisitService.EXTRA_CHRONOMETER, visitViewModel.getElapsedTime());
+      }
+
       LocalBroadcastManager.getInstance(activity).sendBroadcast(intent);
     } else {
       startJobService();
@@ -359,9 +367,8 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    */
   public void onMyLocationClick() {
     // Permission and location services check
-    LocationServicesHelper.checkDeviceLocation(activity, this, () ->
-        startVisitMap.getLastLocation()
-    );
+    LocationHelper
+        .checkDeviceLocation(activity, this, () -> startVisitMap.getLastLocation());
   }
 
   /**
@@ -431,8 +438,14 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
       ArrayList<LatLng> latLngList = intent
           .getParcelableArrayListExtra(StartVisitService.EXTRA_LAUNCH);
 
+      final long elapsedTime = intent
+          .getLongExtra(StartVisitService.EXTRA_CHRONOMETER, SystemClock.elapsedRealtime());
+
       if (isApplicationRelaunch(latLngList)) {
         Log.d(TAG, "Relaunched, restoring state...");
+        visitViewModel.setElapsedTime(elapsedTime);
+        initChronometer();
+
         startVisitMap.latLngList.addAll(latLngList);
         startVisitMap.getLastLocation();
       } else if (location != null) {

@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Build;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -25,9 +26,15 @@ import com.google.android.libraries.maps.model.LatLng;
 import com.photour.BuildConfig;
 import com.photour.MainActivity;
 import com.photour.R;
+import com.photour.helper.LocationHelper;
 import com.photour.helper.ReceiverHelper;
 import java.util.ArrayList;
 
+/**
+ * Background JobService for tracking a new visit
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class StartVisitService extends JobService {
 
   private static final String TAG = StartVisitService.class.getSimpleName();
@@ -35,6 +42,7 @@ public class StartVisitService extends JobService {
   public static final String ACTION_LAUNCH = BuildConfig.APPLICATION_ID + ".launch";
   public static final String EXTRA_LOCATION = BuildConfig.APPLICATION_ID + ".location";
   public static final String EXTRA_LAUNCH = BuildConfig.APPLICATION_ID + ".launch";
+  public static final String EXTRA_CHRONOMETER = BuildConfig.APPLICATION_ID + ".chronometer";
   private static final String CHANNEL_ID = "photour";
   public static final int JOB_ID = 123;
 
@@ -43,11 +51,14 @@ public class StartVisitService extends JobService {
   private static final int FASTEST_INTERVAL = 1000;
   private static final float MIN_DISPLACEMENT = 5;
 
+  // The base time of the chronometer when the visit is started
+  private long chronometerBase = SystemClock.elapsedRealtime();
+
   private FusedLocationProviderClient fusedLocationProviderClient;
   private LocationCallback locationCallback;
 
-  private ArrayList<LatLng> latLngList = new ArrayList<>();
-  private ArrayList<LatLng> markerList = new ArrayList<>();
+  public final ArrayList<LatLng> latLngList = new ArrayList<>();
+  private final ArrayList<LatLng> markerList = new ArrayList<>();
 
   private ServiceReceiver receiver;
 
@@ -156,7 +167,11 @@ public class StartVisitService extends JobService {
    * @param location The last location
    */
   private void onLocationChanged(Location location) {
-    latLngList.add(new LatLng(location.getLatitude(), location.getLongitude()));
+    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+    if (LocationHelper.shouldAddToLatLntList(latLngList, latLng)){
+      latLngList.add(latLng);
+    }
 
     Log.d(TAG, "Sending LatLng");
     Intent intent = new Intent(ACTION_BROADCAST);
@@ -197,9 +212,32 @@ public class StartVisitService extends JobService {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-      // Application is relaunched, send back the list of LatLng
+      // Application is relaunched
       Intent relaunchIntent = new Intent(ACTION_BROADCAST);
-      relaunchIntent.putParcelableArrayListExtra(EXTRA_LAUNCH, latLngList);
+
+      ArrayList<LatLng> fragLatLngList = intent
+          .getParcelableArrayListExtra(StartVisitService.EXTRA_LAUNCH);
+
+      final long elapsedTime = intent
+          .getLongExtra(StartVisitService.EXTRA_CHRONOMETER, SystemClock.elapsedRealtime());
+
+      if (fragLatLngList != null && !fragLatLngList.isEmpty()) {
+        // Fragment has newer data than JobService
+        latLngList.clear();
+        latLngList.addAll(fragLatLngList);
+      } else {
+        // Send back LatLng to restore polyline
+        relaunchIntent.putParcelableArrayListExtra(EXTRA_LAUNCH, latLngList);
+      }
+
+      if (elapsedTime <= chronometerBase) {
+        // Fragment has newer data than JobService
+        chronometerBase = elapsedTime;
+      } else {
+        // Send back base time of chrometer
+        relaunchIntent.putExtra(EXTRA_CHRONOMETER, chronometerBase);
+      }
+
       LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(relaunchIntent);
     }
   }

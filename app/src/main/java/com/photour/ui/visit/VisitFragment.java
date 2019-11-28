@@ -22,7 +22,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.photour.databinding.FragmentVisitBinding;
 import com.photour.helper.AlertDialogHelper;
-import com.photour.helper.LocationServicesHelper;
+import com.photour.helper.LocationHelper;
 import com.photour.helper.PermissionHelper;
 import com.photour.helper.ToastHelper;
 import com.photour.ui.visit.VisitFragmentDirections.ActionStartVisit;
@@ -233,7 +233,7 @@ public class VisitFragment extends Fragment {
    * location is ON
    */
   private void checkDeviceLocation() {
-    LocationServicesHelper.checkDeviceLocation(activity, this, this::navigateToStartVisit);
+    LocationHelper.checkDeviceLocation(activity, this, this::navigateToStartVisit);
   }
 
   /**

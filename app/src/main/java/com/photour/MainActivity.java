@@ -1,7 +1,9 @@
 package com.photour;
 
+import android.Manifest.permission;
 import android.app.job.JobScheduler;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.Menu;
@@ -22,6 +24,8 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.libraries.maps.MapView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.photour.helper.CacheHelper;
+import com.photour.helper.PermissionHelper;
+import java.security.Permission;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,8 +65,8 @@ public class MainActivity extends AppCompatActivity {
     preloadPlayServices();
 
     // Restore ongoing visit if available
-    if (currentNavController != null && currentNavController.getValue() != null
-        && isJobServiceRunning()
+    if (PermissionHelper.hasLocationPermission(this) && currentNavController != null
+        && currentNavController.getValue() != null && isJobServiceRunning()
     ) {
       restoreOngoingVisit(currentNavController.getValue());
     }

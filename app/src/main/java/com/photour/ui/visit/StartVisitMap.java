@@ -11,6 +11,7 @@ import com.google.android.libraries.maps.model.JointType;
 import com.google.android.libraries.maps.model.LatLng;
 import com.google.android.libraries.maps.model.MarkerOptions;
 import com.google.android.libraries.maps.model.PolylineOptions;
+import com.photour.helper.LocationHelper;
 import java.util.ArrayList;
 
 /**
@@ -33,7 +34,7 @@ public class StartVisitMap implements OnMapReadyCallback {
   ArrayList<LatLng> latLngList = new ArrayList<>();
   ArrayList<LatLng> markerList = new ArrayList<>();
 
-  MutableLiveData<Location> currentLocation = new MutableLiveData<>();
+  final MutableLiveData<Location> currentLocation = new MutableLiveData<>();
 
   /**
    * Constructor for the class {@link StartVisitMap}
@@ -111,8 +112,13 @@ public class StartVisitMap implements OnMapReadyCallback {
   private void observeCurrentLocation() {
     currentLocation.observe(startVisitFragment, location -> {
       LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-      latLngList.add(latLng);
+
+      if (LocationHelper.shouldAddToLatLntList(latLngList, latLng)) {
+        latLngList.add(latLng);
+      }
+
       drawPolyline();
+      System.out.println(latLngList.size());
 
       // First location update should not animate to prevent fast zoom on initialisation
       if (isFirstTime) {
@@ -149,7 +155,7 @@ public class StartVisitMap implements OnMapReadyCallback {
   /**
    * Add current location as marker to map
    */
-  void addCurrentLocationAsMarker() {
+  void addMarkerToCurrentLocation() {
     Location location = currentLocation.getValue();
     if (location == null) {
       return;

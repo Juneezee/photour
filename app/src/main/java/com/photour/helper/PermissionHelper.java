@@ -4,10 +4,9 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.Manifest.permission;
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -60,6 +59,15 @@ public class PermissionHelper {
    * Constructor for PermissionHelper class
    *
    * @param activity The {@link com.photour.MainActivity}
+   */
+  public PermissionHelper(Activity activity) {
+    this.activity = activity;
+  }
+
+  /**
+   * Constructor for PermissionHelper class
+   *
+   * @param activity The {@link com.photour.MainActivity}
    * @param fragment The fragment that is requesting the permissions
    * @param permissions The String array of permissions to check
    */
@@ -89,17 +97,7 @@ public class PermissionHelper {
    * has been granted
    */
   private boolean shouldAskPermission(String permission) {
-    return VERSION.SDK_INT >= VERSION_CODES.M
-        && activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED;
-  }
-
-  /**
-   * Check for CAMERA permission
-   *
-   * @param listener A {@link PermissionAskListener} instance for callback
-   */
-  public void checkCameraPermission(PermissionAskListener listener) {
-    checkPermission(permission.CAMERA, listener);
+    return activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED;
   }
 
   /**
@@ -111,12 +109,12 @@ public class PermissionHelper {
     checkPermission(permission.WRITE_EXTERNAL_STORAGE, new PermissionAskListener() {
       @Override
       public void onPermissionAsk() {
-        buildStorageDialog(false, listener);
+        buildDialog(false, listener);
       }
 
       @Override
       public void onPermissionDisabled() {
-        buildStorageDialog(true, listener);
+        buildDialog(true, listener);
       }
 
       @Override
@@ -126,14 +124,13 @@ public class PermissionHelper {
     });
   }
 
-
   /**
-   * Build an AlertDialog to display the rationale for WRITE_EXTERNAL_PERMISSION only
+   * Build an AlertDialog to display the rationale for a WRITE_EXTERNAL_PERMISSION permission only
    *
    * @param isSettingsDialog True to show "Settings" (brings user to application details setting,
    * only when the permission is set as "Never ask again") instead of "Continue"
    */
-  private void buildStorageDialog(boolean isSettingsDialog, PermissionsResultListener listener) {
+  private void buildDialog(boolean isSettingsDialog, PermissionsResultListener listener) {
     String message = "To access your photos, allow Photour access to your device's storage. "
         + (isSettingsDialog ? "Tap Settings > Permissions, and turn Storage ON." : "");
 
@@ -272,27 +269,60 @@ public class PermissionHelper {
   }
 
   /**
+   * Static method to check if the application has access to location
+   *
+   * @param context The context of the application
+   * @return {@code true} if the application has location permission
+   */
+  public static boolean hasLocationPermission(Context context) {
+    return context.checkSelfPermission(permission.ACCESS_FINE_LOCATION)
+        == PackageManager.PERMISSION_GRANTED;
+  }
+
+  /**
    * Check if the application has access to location
    *
-   * @return boolean True if the application has location permission
+   * @return boolean {@code true} if the application has location permission
    */
   public boolean hasLocationPermission() {
     return !shouldAskPermission(permission.ACCESS_FINE_LOCATION);
   }
 
   /**
+   * Static method to check if the application has access to camera
+   *
+   * @param context The context of the application
+   * @return {@code true} if the application has camera permission
+   */
+  public static boolean hasCameraPermission(Context context) {
+    return context.checkSelfPermission(permission.CAMERA)
+        == PackageManager.PERMISSION_GRANTED;
+  }
+
+  /**
    * Check if the application has access to camera
    *
-   * @return boolean True if the application has camera permission
+   * @return boolean {@code true} if the application has camera permission
    */
   public boolean hasCameraPermission() {
     return !shouldAskPermission(permission.CAMERA);
   }
 
   /**
+   * Static method to check if the application has access to storage
+   *
+   * @param context The context of the application
+   * @return {@code true} if the application has storage permission
+   */
+  public static boolean hasStoragePermission(Context context) {
+    return context.checkSelfPermission(permission.WRITE_EXTERNAL_STORAGE)
+        == PackageManager.PERMISSION_GRANTED;
+  }
+
+  /**
    * Check if the application has access to storage
    *
-   * @return boolean True if the application has storage permission
+   * @return boolean {@code true} if the application has storage permission
    */
   public boolean hasStoragePermission() {
     return !shouldAskPermission(permission.WRITE_EXTERNAL_STORAGE);
