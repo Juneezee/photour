@@ -4,6 +4,7 @@ import android.app.job.JobScheduler;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -13,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
         && currentNavController.getValue() != null && isJobServiceRunning()
     ) {
       restoreOngoingVisit(currentNavController.getValue());
+    } else if (!isJobServiceRunning()) {
+      stopOldJobService();
     }
   }
 
@@ -82,6 +84,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     return scheduler.getAllPendingJobs().size() > 0;
+  }
+
+  /**
+   * Likely to be the case where permission is revoked and the {@link
+   * com.photour.service.StartVisitService} crashed. Then do not restart it as the JobService does
+   * not retain any value of the ongoing visit
+   */
+  private void stopOldJobService() {
+    JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+
+    if (scheduler != null) {
+      Log.d("StartVisitService", "Do not restart old job service");
+      scheduler.cancelAll();
+    }
   }
 
   /**
@@ -136,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
           this.getIntent()
       );
 
-      final Observer<NavController> navControllerObserver = navController -> {
+      controller.observe(this, navController -> {
         navController.addOnDestinationChangedListener((controller1, destination, arguments) -> {
           switch (destination.getId()) {
             case R.id.new_visit:
@@ -151,9 +167,7 @@ public class MainActivity extends AppCompatActivity {
 
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-      };
-
-      controller.observe(this, navControllerObserver);
+      });
       currentNavController = controller;
     });
 
