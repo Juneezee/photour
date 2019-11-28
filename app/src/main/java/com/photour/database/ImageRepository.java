@@ -32,18 +32,35 @@ public class ImageRepository {
     return imageElements.getValue().get(id);
   }
 
+  /**
+   * Gets all Images in database
+   * @return List of ImageElements
+   */
   public LiveData<List<ImageElement>> getAllImages() {
     return imageElements;
   }
 
+  /**
+   * Gets all visits in database
+   * @return List of visits
+   */
   public LiveData<List<Visit>> getVisits() {
     return imageDao.getVisits();
   }
 
+  /**
+   * Gets all Images that is in the visit in database
+   * @param visitTitle String title of the visit
+   * @return List of ImageElement
+   */
   public LiveData<List<ImageElement>> getImagesforVisit(String visitTitle) {
     return imageDao.findByVisit(visitTitle);
   }
 
+  /**
+   * Adds ImageElement into the database
+   * @param imageElements ImageElement object to be inserted into the database
+   */
   void insert(ImageElement... imageElements) {
     AppDatabase.databaseWriteExecutor.execute(() -> {
       imageDao.insertImages(imageElements);

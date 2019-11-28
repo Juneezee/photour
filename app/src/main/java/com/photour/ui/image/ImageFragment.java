@@ -112,6 +112,10 @@ public class ImageFragment extends Fragment implements OnMapReadyCallback {
     }
   }
 
+  /**
+   * Called when fragment is initialised or resumed. Checks if has storage permission else exit to
+   * previous fragment
+   */
   @Override
   public void onResume() {
     super.onResume();

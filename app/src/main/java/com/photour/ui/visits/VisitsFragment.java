@@ -24,6 +24,11 @@ import com.photour.model.Visit;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Fragment for Visits page
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class VisitsFragment extends Fragment {
 
   private static final String TAG = "VisitsFragment";
@@ -93,16 +98,11 @@ public class VisitsFragment extends Fragment {
   }
 
   /**
-   * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} has returned,
-   * but before any saved state has been restored in to the view.
-   *
-   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
-   * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
-   * saved state as given here.
+   * Called when the fragment is created or resumed
    */
   @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  public void onResume() {
+    super.onResume();
 
     visitsViewModel.setPlaceholderText(permissionHelper.hasStoragePermission());
 
@@ -110,6 +110,10 @@ public class VisitsFragment extends Fragment {
     permissionHelper.checkStoragePermission(this::initializeRecyclerView);
   }
 
+  /**
+   * Helper function to initialise recyclerView.
+   * Observes trip list of ViewModel
+   */
   private void initializeRecyclerView() {
     visitsViewModel.setPlaceholderText(true);
 
@@ -123,12 +127,15 @@ public class VisitsFragment extends Fragment {
     visitsViewModel.trips.observe(getViewLifecycleOwner(), this::resetRecyler);
   }
 
+  /**
+   * Helper function to reset recyclerView when dataset changes
+   *
+   * @param visits List of Visit
+   */
   private void resetRecyler(List<Visit> visits) {
-
     // Parses values into adapters and update view
     visitAdapter.setItems(visits);
     visitAdapter.notifyDataSetChanged();
-
   }
 
   /**

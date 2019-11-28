@@ -12,6 +12,11 @@ import com.photour.database.ImageRepository;
 import com.photour.model.Visit;
 import java.util.List;
 
+/**
+ * A ViewModel for {@link VisitsFragment}
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class VisitsViewModel extends AndroidViewModel {
 
 
@@ -23,6 +28,11 @@ public class VisitsViewModel extends AndroidViewModel {
 
   private ContentObserver contentObserver = null;
 
+  /**
+   * Constructor for VisitsViewModel
+   *
+   * @param application Application of MainActivity
+   */
   public VisitsViewModel(@NonNull Application application) {
     super(application);
     imageRepository = new ImageRepository(application);
@@ -45,9 +55,12 @@ public class VisitsViewModel extends AndroidViewModel {
    */
   void setPlaceholderText(boolean isEmpty) {
     placeholderText.setValue(
-            isEmpty ? "" : "No images yet " + new String(Character.toChars(0x1F60A)));
+            isEmpty ? "" : "No trips yet " + new String(Character.toChars(0x1F60A)));
   }
 
+  /**
+   * Helper function to setup visits LiveData with the Room
+   */
   public void loadVisit() {
     trips = imageRepository.getVisits();
     if (contentObserver == null) {

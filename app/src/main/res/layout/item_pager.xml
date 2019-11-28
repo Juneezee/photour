@@ -15,17 +15,17 @@
         android:layout_height="match_parent">
 
         <ImageView
+            android:background="@color/colorLightGray"
             android:id="@+id/image_item"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginStart="2dp"
             android:layout_marginTop="2dp"
             android:layout_marginBottom="2dp"
             android:adjustViewBounds="true"
             android:contentDescription="@string/image"
-            android:scaleType="centerCrop"
+            android:scaleType="centerInside"
             app:rawImage="@{imagePager.filePath()}"
-            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintDimensionRatio="2:1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

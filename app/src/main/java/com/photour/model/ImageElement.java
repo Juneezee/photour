@@ -84,7 +84,6 @@ public abstract class ImageElement implements Parcelable {
         final AsyncDrawable asyncDrawable =
             new AsyncDrawable(context.getResources(), placeholder, task);
         imageView.setImageDrawable(asyncDrawable);
-//         task.execute(filepath);
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath);
       }
     }
