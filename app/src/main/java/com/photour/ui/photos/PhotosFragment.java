@@ -110,18 +110,13 @@ public class PhotosFragment extends Fragment {
     return binding.getRoot();
   }
 
+
   /**
-   * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} has returned,
-   * but before any saved state has been restored in to the view.
-   *
-   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
-   * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
-   * saved state as given here.
+   * Called when the fragment is created or resumed
    */
   @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-
+  public void onResume() {
+    super.onResume();
     photosViewModel.setPlaceholderText(permissionHelper.hasStoragePermission());
 
     // Check if storage permission is granted or not

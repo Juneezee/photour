@@ -2,6 +2,7 @@ package com.photour.ui.visit;
 
 import static android.content.Context.JOB_SCHEDULER_SERVICE;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -37,6 +38,7 @@ import com.photour.R;
 import com.photour.databinding.FragmentStartVisitBinding;
 import com.photour.helper.AlertDialogHelper;
 import com.photour.helper.LocationHelper;
+import com.photour.helper.PermissionHelper;
 import com.photour.helper.ReceiverHelper;
 import com.photour.sensor.Accelerometer;
 import com.photour.service.StartVisitService;
@@ -55,6 +57,15 @@ import pl.aprilapps.easyphotopicker.EasyImage.ImageSource;
 public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
   private static final String TAG = StartVisitFragment.class.getSimpleName();
+
+//  public static final int REQUEST_CHECK_SETTINGS = 214;
+  private static final String[] PERMISSIONS_REQUIRED = {
+          Manifest.permission.ACCESS_FINE_LOCATION,
+          Manifest.permission.CAMERA,
+          Manifest.permission.WRITE_EXTERNAL_STORAGE
+  };
+
+  private PermissionHelper permissionHelper;
 
   private StartVisitMap startVisitMap;
   private VisitViewModel visitViewModel;
@@ -79,6 +90,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     activity = getActivity();
+    permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
     receiver = new FragmentReceiver();
     scheduler = (JobScheduler) activity.getSystemService(JOB_SCHEDULER_SERVICE);
 
@@ -161,6 +173,12 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     accelerometer.startAccelerometerRecording();
     ((MainActivity) activity).setToolbarVisibility(false);
     super.onResume();
+
+    if (!permissionHelper.hasCameraPermission() ||
+        !permissionHelper.hasStoragePermission() ||
+        !permissionHelper.hasLocationPermission()) {
+      Navigation.findNavController(binding.getRoot()).navigateUp();
+    }
   }
 
   /**

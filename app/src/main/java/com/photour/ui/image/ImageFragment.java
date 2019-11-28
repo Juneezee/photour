@@ -1,6 +1,8 @@
 package com.photour.ui.image;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -10,6 +12,8 @@ import android.view.ViewStub;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+
 import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
@@ -19,7 +23,10 @@ import com.google.android.libraries.maps.model.MarkerOptions;
 import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.databinding.FragmentImageBinding;
+import com.photour.helper.PermissionHelper;
 import com.photour.model.ImageElement;
+
+import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
 /**
  * Fragment to create when an has been clicked
@@ -27,6 +34,9 @@ import com.photour.model.ImageElement;
  * @author Zer Jun Eng, Jia Hua Ng
  */
 public class ImageFragment extends Fragment implements OnMapReadyCallback {
+
+  private static final String[] PERMISSIONS_REQUIRED = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+  private PermissionHelper permissionHelper;
 
   private FragmentImageBinding binding;
   private Activity activity;
@@ -46,6 +56,8 @@ public class ImageFragment extends Fragment implements OnMapReadyCallback {
     super.onCreate(savedInstanceState);
     activity = getActivity();
     setHasOptionsMenu(true);
+    permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
+    permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
   }
 
   /**
@@ -97,6 +109,15 @@ public class ImageFragment extends Fragment implements OnMapReadyCallback {
       }
 
       supportMapFragment.getMapAsync(this);
+    }
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+
+    if (!permissionHelper.hasStoragePermission()) {
+      Navigation.findNavController(binding.getRoot()).navigateUp();
     }
   }
 
