@@ -58,12 +58,16 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
   private static final String TAG = StartVisitFragment.class.getSimpleName();
 
+  // Keys for storing activity state.
+  private static final String KEY_CHRONOMETER = "chronometer";
+  private static final String KEY_POLYLINE = "polyline";
+  private static final String KEY_MARKER = "marker";
+
   private static final String[] PERMISSIONS_REQUIRED = {
       Manifest.permission.ACCESS_FINE_LOCATION,
       Manifest.permission.CAMERA,
       Manifest.permission.WRITE_EXTERNAL_STORAGE
   };
-
   private PermissionHelper permissionHelper;
 
   private StartVisitMap startVisitMap;
@@ -161,6 +165,48 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     initChronometer();
     initEasyImage();
   }
+
+  /**
+   * Called to ask the fragment to save its current dynamic state, so it can later be reconstructed
+   * in a new instance of its process is restarted.  If a new instance of the fragment later needs
+   * to be created, the data placed in the Bundle here will be available in the Bundle given to
+   * {@link #onCreate(Bundle)}, {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}, and {@link
+   * #onActivityCreated(Bundle)}.
+   *
+   * @param outState Bundle in which to place your saved state.
+   */
+  @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    outState.putLong(KEY_CHRONOMETER, visitViewModel.getElapsedTime());
+    outState.putParcelableArrayList(KEY_POLYLINE, startVisitMap.getLatLngList());
+    outState.putParcelableArrayList(KEY_MARKER, startVisitMap.getMarkerList());
+    super.onSaveInstanceState(outState);
+  }
+
+  /**
+   * Called when all saved state has been restored into the view hierarchy of the fragment.  This
+   * can be used to do initialization based on saved state that you are letting the view hierarchy
+   * track itself, such as whether check box widgets are currently checked.  This is called after
+   * {@link #onActivityCreated(Bundle)} and before {@link #onStart()}.
+   *
+   * @param savedInstanceState If the fragment is being re-created from a previous saved state, this
+   * is the state.
+   */
+  @Override
+  public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+    super.onViewStateRestored(savedInstanceState);
+
+    if (savedInstanceState != null) {
+      // Restore polyline and markers
+      startVisitMap.setLatLngList(savedInstanceState.getParcelableArrayList(KEY_POLYLINE));
+      startVisitMap.setMarkerList(savedInstanceState.getParcelableArrayList(KEY_MARKER));
+
+      // Restore the chronometer time
+      visitViewModel.setElapsedTime(savedInstanceState.getLong(KEY_CHRONOMETER));
+      initChronometer();
+    }
+  }
+
 
   /**
    * Called when the fragment is visible to the user and actively running.
@@ -261,7 +307,8 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
       // Case: fragment instance state is saved and JobService is restarted.
       // So fragment has newer data than JobService
       if (!startVisitMap.getLatLngList().isEmpty()) {
-        intent.putExtra(StartVisitService.EXTRA_LAUNCH, startVisitMap.latLngList);
+        intent.putExtra(StartVisitService.EXTRA_LATLNG, startVisitMap.latLngList);
+        intent.putExtra(StartVisitService.EXTRA_TITLE, visitViewModel.getNewVisitTitle().getValue());
         intent.putExtra(StartVisitService.EXTRA_CHRONOMETER, visitViewModel.getElapsedTime());
       }
 

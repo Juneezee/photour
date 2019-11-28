@@ -38,15 +38,17 @@ import java.util.ArrayList;
 public class StartVisitService extends JobService {
 
   private static final String TAG = StartVisitService.class.getSimpleName();
-  public static final String ACTION_BROADCAST = BuildConfig.APPLICATION_ID + ".broadcast";
-  public static final String ACTION_LAUNCH = BuildConfig.APPLICATION_ID + ".launch";
-  public static final String EXTRA_LAUNCH = BuildConfig.APPLICATION_ID + ".launch";
-  public static final String EXTRA_LATLNG = BuildConfig.APPLICATION_ID + ".latlng";
-  public static final String EXTRA_LOCATION = BuildConfig.APPLICATION_ID + ".location";
-  public static final String EXTRA_CHRONOMETER = BuildConfig.APPLICATION_ID + ".chronometer";
-  public static final String EXTRA_TITLE = BuildConfig.APPLICATION_ID + ".title";
   private static final String CHANNEL_ID = "photour";
   public static final int JOB_ID = 123;
+
+  public static final String ACTION_BROADCAST = BuildConfig.APPLICATION_ID + ".broadcast";
+  public static final String ACTION_LAUNCH = BuildConfig.APPLICATION_ID + ".launch";
+
+  public static final String EXTRA_LAUNCH = BuildConfig.APPLICATION_ID + ".launch";
+  public static final String EXTRA_LATLNG = BuildConfig.APPLICATION_ID + ".latlng";
+  public static final String EXTRA_CHRONOMETER = BuildConfig.APPLICATION_ID + ".chronometer";
+  public static final String EXTRA_LOCATION = BuildConfig.APPLICATION_ID + ".location";
+  public static final String EXTRA_TITLE = BuildConfig.APPLICATION_ID + ".title";
 
   // Constants for Google Map location request
   private static final int UPDATE_INTERVAL = 20000;
