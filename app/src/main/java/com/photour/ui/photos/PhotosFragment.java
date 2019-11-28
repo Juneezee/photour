@@ -53,7 +53,6 @@ public class PhotosFragment extends Fragment {
   private PhotosViewModel photosViewModel;
   private RecyclerView mRecyclerView;
   private Activity activity;
-  public List<ImageElement> elementList;
 
   /**
    * Finds or create a ImageFragment using FragmentManager. Used to retain state on rotation
@@ -163,7 +162,7 @@ public class PhotosFragment extends Fragment {
   private void resetGrid(List<ImageElement> imageElements) {
 
     List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
-    elementList = new ArrayList<>();
+    List<ImageElement> elementList = new ArrayList<>();
     SectionedGridRecyclerViewAdapter.Section[] dummy =
         new SectionedGridRecyclerViewAdapter.Section[sections.size()];
 

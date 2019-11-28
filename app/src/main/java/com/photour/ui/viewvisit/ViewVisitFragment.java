@@ -6,35 +6,33 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
-import com.google.android.libraries.maps.SupportMapFragment;
-import com.google.android.libraries.maps.model.LatLng;
-import com.google.android.libraries.maps.model.MarkerOptions;
 import com.photour.MainActivity;
-import com.photour.R;
-import com.photour.databinding.FragmentImageBinding;
+import com.photour.databinding.FragmentViewVisitBinding;
 import com.photour.model.ImageElement;
 import com.photour.model.Visit;
-import com.photour.ui.visits.ViewVisitFragmentArgs;
 
 import java.util.List;
 
 public class ViewVisitFragment extends Fragment implements OnMapReadyCallback {
 
-  private FragmentImageBinding binding;
+  private FragmentViewVisitBinding binding;
   private Activity activity;
 
   private GoogleMap googleMap;
   private Visit visit;
-  private List<ImageElement> visitPhotos;
+  private ViewVisitViewModel viewVisitViewModel;
+  private ViewPager2 mViewPager;
+  private ViewVisitAdapter viewVisitAdapter;
+
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
    * and before {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
@@ -45,8 +43,8 @@ public class ViewVisitFragment extends Fragment implements OnMapReadyCallback {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    activity = getActivity();
     setHasOptionsMenu(true);
+    activity = getActivity();
   }
 
   @Nullable
@@ -54,12 +52,17 @@ public class ViewVisitFragment extends Fragment implements OnMapReadyCallback {
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                            @Nullable Bundle savedInstanceState) {
 
-    binding = FragmentImageBinding.inflate(inflater, container, false);
+    viewVisitViewModel = new ViewModelProvider(this).get(ViewVisitViewModel.class);
+
+    binding = FragmentViewVisitBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
+    binding.setVisitItem(viewVisitViewModel);
 
     if (getArguments() != null) {
       visit = ViewVisitFragmentArgs.fromBundle(getArguments()).getVisit();
-
+//      viewVisitViewModel.currentImagePos.observe(getViewLifecycleOwner(), this::changeDetails);
+      viewVisitViewModel.visit = visit;
+      viewVisitViewModel.loadImages();
     }
 
     ((MainActivity) activity).setToolbarTitle("");
@@ -70,22 +73,43 @@ public class ViewVisitFragment extends Fragment implements OnMapReadyCallback {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     // Inflate MapFragment lite mode. Lite mode only work when using ViewStub to inflate it
-    ViewStub viewStub = binding.viewstubMap.getViewStub();
-    if (viewStub != null) {
-      viewStub.inflate();
-    }
+//    ViewStub viewStub = binding.viewstubMap.getViewStub();
+//    if (viewStub != null) {
+//      viewStub.inflate();
+//    }
 
-    SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager()
-            .findFragmentById(R.id.map_lite_fragment);
+//    SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager()
+//            .findFragmentById(R.id.map_lite_fragment);
+//
+//    if (supportMapFragment != null) {
+//      // Disable click events in lite mode, prevent opening Google Maps
+//      View mapview = supportMapFragment.getView();
+//      if (mapview != null) {
+//        supportMapFragment.getView().setClickable(false);
+//      }
+//
+//      supportMapFragment.getMapAsync(this);
+//    }
 
-    if (supportMapFragment != null) {
-      // Disable click events in lite mode, prevent opening Google Maps
-      View mapview = supportMapFragment.getView();
-      if (mapview != null) {
-        supportMapFragment.getView().setClickable(false);
-      }
+    if (visit != null) { initializeViewPager();}
+  }
 
-      supportMapFragment.getMapAsync(this);
+  private void initializeViewPager() {
+
+    mViewPager = binding.imageScroll;
+    viewVisitAdapter = new ViewVisitAdapter();
+    mViewPager.setAdapter(viewVisitAdapter);
+
+    viewVisitViewModel.images.observe(getViewLifecycleOwner(), this::resetViewPager);
+  }
+
+  private void resetViewPager(List<ImageElement> photos) {
+    if (photos != null && photos.size() > 0) {
+      viewVisitAdapter.setItems(photos);
+      viewVisitAdapter.notifyDataSetChanged();
+      viewVisitViewModel.setPlaceholderText(true);
+    } else {
+      viewVisitViewModel.setPlaceholderText(false);
     }
   }
 

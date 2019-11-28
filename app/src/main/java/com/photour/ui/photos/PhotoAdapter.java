@@ -23,7 +23,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
    *
    * @param items List of Uri for the adapter
    */
-  void setItems(List<ImageElement> items) {
+  public void setItems(List<ImageElement> items) {
     PhotoAdapter.items = items;
   }
 

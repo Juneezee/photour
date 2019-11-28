@@ -93,17 +93,4 @@ public class PhotosViewModel extends AndroidViewModel {
           MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, contentObserver);
     }
   }
-
-  /**
-   * Helper class to get name of folder from whole path
-   *
-   * @param dir Full directory path
-   * @return String folder name where the file sits
-   */
-  private String getPath(String dir) {
-    String[] temp = dir.split("/");
-    return temp[temp.length - 2];
-  }
-
-
 }

@@ -23,4 +23,7 @@
   <string name="image">Image</string>
   <string name="sort_by_newest_first">Sort by: Newest first</string>
   <string name="sort_by_oldest_first">Sort by: Oldest first</string>
+    <string name="visit_title">Visit Title</string>
+  <string name="date">Date</string>
+  <string name="location">Location</string>
 </resources>

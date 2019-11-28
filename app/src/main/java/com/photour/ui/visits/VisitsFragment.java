@@ -37,16 +37,6 @@ public class VisitsFragment extends Fragment {
   private RecyclerView mRecyclerView;
   private VisitAdapter visitAdapter;
 
-//  /**
-//   * Finds or create a ImageFragment using FragmentManager. Used to retain state on rotation
-//   *
-//   * @param fm FragmentManager
-//   * @return ImageFragment
-//   */
-//  public static VisitsFragment findOrCreateRetainFragment(FragmentManager fm) {
-//    VisitsFragment fragment = (VisitsFragment) fm.findFragmentByTag(TAG);
-//    return fragment == null ? new VisitsFragment() : fragment;
-//  }
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
    * and before {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.

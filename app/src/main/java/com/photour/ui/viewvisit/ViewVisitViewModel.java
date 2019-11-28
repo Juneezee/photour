@@ -19,17 +19,27 @@ import java.util.List;
 public class ViewVisitViewModel extends AndroidViewModel {
 
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
-
+  private MutableLiveData<String[]> detailsArray = new MutableLiveData<>();
+//  public MutableLiveData<Integer> currentImagePos = new MutableLiveData<>();
   private ImageRepository imageRepository;
-  public LiveData<Visit> trip;
-  public LiveData<ImageElement> images;
+  public Visit visit;
+  public LiveData<List<ImageElement>> images;
 
   private ContentObserver contentObserver = null;
 
   public ViewVisitViewModel(@NonNull Application application) {
     super(application);
     imageRepository = new ImageRepository(application);
-    loadImages();
+
+  }
+
+  public MutableLiveData<String[]> getDetailsArray() {
+    return detailsArray;
+  }
+
+  public void setDetailsArray(int currentImagePos) {
+    String[] tempArray = {visit.visitTitle()};
+    detailsArray.setValue(tempArray);
   }
 
   /**
@@ -42,7 +52,7 @@ public class ViewVisitViewModel extends AndroidViewModel {
   }
 
   /**
-   * Set the placeholder text as "No photos yet"
+   * Set the placeholder text as "No photos for this visit"
    *
    * @param isEmpty True to set the placeholder text as empty
    */
@@ -52,7 +62,8 @@ public class ViewVisitViewModel extends AndroidViewModel {
   }
 
   public void loadImages() {
-    images = imageRepository.getImagesforVisit();
+    images = imageRepository.getImagesforVisit(visit.visitTitle());
+    setDetailsArray(0);
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {
         @Override
