@@ -40,9 +40,11 @@ public class StartVisitService extends JobService {
   private static final String TAG = StartVisitService.class.getSimpleName();
   public static final String ACTION_BROADCAST = BuildConfig.APPLICATION_ID + ".broadcast";
   public static final String ACTION_LAUNCH = BuildConfig.APPLICATION_ID + ".launch";
-  public static final String EXTRA_LOCATION = BuildConfig.APPLICATION_ID + ".location";
   public static final String EXTRA_LAUNCH = BuildConfig.APPLICATION_ID + ".launch";
+  public static final String EXTRA_LATLNG = BuildConfig.APPLICATION_ID + ".latlng";
+  public static final String EXTRA_LOCATION = BuildConfig.APPLICATION_ID + ".location";
   public static final String EXTRA_CHRONOMETER = BuildConfig.APPLICATION_ID + ".chronometer";
+  public static final String EXTRA_TITLE = BuildConfig.APPLICATION_ID + ".title";
   private static final String CHANNEL_ID = "photour";
   public static final int JOB_ID = 123;
 
@@ -50,6 +52,9 @@ public class StartVisitService extends JobService {
   private static final int UPDATE_INTERVAL = 20000;
   private static final int FASTEST_INTERVAL = 1000;
   private static final float MIN_DISPLACEMENT = 5;
+
+  // Title of the new visit
+  private String newVisitTitle;
 
   // The base time of the chronometer when the visit is started
   private long chronometerBase = SystemClock.elapsedRealtime();
@@ -97,7 +102,8 @@ public class StartVisitService extends JobService {
   @Override
   public boolean onStartJob(JobParameters params) {
     Log.d(TAG, "Job is starting");
-    startForeground(1, createNotification(params.getExtras().getString("title")));
+    newVisitTitle = params.getExtras().getString("title");
+    startForeground(1, createNotification(newVisitTitle));
     requestLocationUpdates();
     return true;
   }
@@ -214,7 +220,9 @@ public class StartVisitService extends JobService {
     public void onReceive(Context context, Intent intent) {
       // Application is relaunched
       Intent relaunchIntent = new Intent(ACTION_BROADCAST);
-      relaunchIntent.putParcelableArrayListExtra(EXTRA_LAUNCH, latLngList);
+      relaunchIntent.putExtra(EXTRA_LAUNCH, true);
+      relaunchIntent.putParcelableArrayListExtra(EXTRA_LATLNG, latLngList);
+      relaunchIntent.putExtra(EXTRA_TITLE, newVisitTitle);
       relaunchIntent.putExtra(EXTRA_CHRONOMETER, chronometerBase);
       LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(relaunchIntent);
     }

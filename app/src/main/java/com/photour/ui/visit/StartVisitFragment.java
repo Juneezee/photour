@@ -58,11 +58,10 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
   private static final String TAG = StartVisitFragment.class.getSimpleName();
 
-//  public static final int REQUEST_CHECK_SETTINGS = 214;
   private static final String[] PERMISSIONS_REQUIRED = {
-          Manifest.permission.ACCESS_FINE_LOCATION,
-          Manifest.permission.CAMERA,
-          Manifest.permission.WRITE_EXTERNAL_STORAGE
+      Manifest.permission.ACCESS_FINE_LOCATION,
+      Manifest.permission.CAMERA,
+      Manifest.permission.WRITE_EXTERNAL_STORAGE
   };
 
   private PermissionHelper permissionHelper;
@@ -96,8 +95,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
     startVisitMap = new StartVisitMap(this,
         LocationServices.getFusedLocationProviderClient(activity));
-
-    System.out.println("running onCreate");
 
     // Show exit confirmation dialog on backpress
     OnBackPressedCallback callback = new OnBackPressedCallback(true) {
@@ -383,7 +380,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     JobInfo info = new JobInfo.Builder(StartVisitService.JOB_ID, componentName)
         .setOverrideDeadline(0)
         .setExtras(bundle)
-        .setPersisted(true)
         .build();
 
     int resultCode = scheduler.schedule(info);
@@ -410,20 +406,11 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onReceive(Context context, Intent intent) {
       Location location = intent.getParcelableExtra(StartVisitService.EXTRA_LOCATION);
+      final boolean isRelaunch = intent.getBooleanExtra(StartVisitService.EXTRA_LAUNCH, false);
 
-      ArrayList<LatLng> latLngList = intent
-          .getParcelableArrayListExtra(StartVisitService.EXTRA_LAUNCH);
-
-      final long elapsedTime = intent
-          .getLongExtra(StartVisitService.EXTRA_CHRONOMETER, SystemClock.elapsedRealtime());
-
-      if (isApplicationRelaunch(latLngList)) {
+      if (isRelaunch) {
         Log.d(TAG, "Relaunched, restoring state...");
-        visitViewModel.setElapsedTime(elapsedTime);
-        initChronometer();
-
-        startVisitMap.latLngList.addAll(latLngList);
-        startVisitMap.getLastLocation();
+        restoreStartVisitState(intent);
       } else if (location != null) {
         Log.d(TAG, "Received LatLng");
         startVisitMap.currentLocation.setValue(location);
@@ -433,13 +420,27 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
-     * Check if the application is killed while a visit is ongoing, and then relaunched
+     * If the JobService is not killed or crashed, then it will retain the state of the ongoing
+     * visit. Restore them when {@link StartVisitFragment} has relaunched
      *
-     * @param latLngList An ArrayList of LatLng stored by the service
-     * @return boolean {@code true} If the application is relaunched
+     * @param intent The Intent being received.
      */
-    private boolean isApplicationRelaunch(ArrayList<LatLng> latLngList) {
-      return latLngList != null && !latLngList.isEmpty() && startVisitMap.latLngList.isEmpty();
+    private void restoreStartVisitState(Intent intent) {
+      final ArrayList<LatLng> latLngList = intent
+          .getParcelableArrayListExtra(StartVisitService.EXTRA_LATLNG);
+
+      if (latLngList != null && !latLngList.isEmpty() && startVisitMap.latLngList.isEmpty()) {
+        startVisitMap.latLngList.addAll(latLngList);
+      }
+      startVisitMap.getLastLocation();
+
+      final long elapsedTime = intent
+          .getLongExtra(StartVisitService.EXTRA_CHRONOMETER, SystemClock.elapsedRealtime());
+      visitViewModel.setElapsedTime(elapsedTime);
+      initChronometer();
+
+      final String newVisitTitle = intent.getStringExtra(StartVisitService.EXTRA_TITLE);
+      visitViewModel.setNewVisitTitle(newVisitTitle);
     }
   }
 }
