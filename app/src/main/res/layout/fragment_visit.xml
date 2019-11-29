@@ -77,12 +77,12 @@
         android:layout_height="0dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/rounded_button"
+        android:onClick="@{() -> listener.onStartClick()}"
         android:paddingStart="@dimen/activity_horizontal_margin"
         android:paddingEnd="@dimen/activity_horizontal_margin"
         android:text="@string/start"
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/min_text_size"
-        android:onClick="@{() -> listener.onStartClick()}"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textclock" />

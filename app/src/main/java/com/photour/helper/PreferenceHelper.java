@@ -2,7 +2,6 @@ package com.photour.helper;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
@@ -38,6 +37,6 @@ public class PreferenceHelper {
     SharedPreferences sharedPreferences =
             PreferenceManager.getDefaultSharedPreferences(context);
 
-    return sharedPreferences.getString("temperature","@string/degree");
+    return sharedPreferences.getString("temperature","@string/celsius");
   }
 }

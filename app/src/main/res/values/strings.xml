@@ -19,7 +19,8 @@
   <string name="dialog_image">Dialog image</string>
   <string name="sort">Sort</string>
   <string name="sort_by_visit">Sort by: Visit</string>
-  <string name="degree">\u00B0C</string>
+  <string name="celsius">\u00B0C</string>
+  <string name="fahrenheit">\u00B0F</string>
   <string name="image">Image</string>
   <string name="sort_by_newest_first">Sort by: Newest first</string>
   <string name="sort_by_oldest_first">Sort by: Oldest first</string>

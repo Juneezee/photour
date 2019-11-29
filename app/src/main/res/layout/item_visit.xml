@@ -18,9 +18,9 @@
     android:layout_marginTop="5dp"
     android:layout_marginEnd="6dp"
     android:layout_marginBottom="5dp"
+    android:onClick="@{(view) -> visit.onImageClick(view)}"
     app:cardCornerRadius="8dp"
-    app:cardElevation="5dp"
-    android:onClick="@{(view) -> visit.onImageClick(view)}">
+    app:cardElevation="5dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
@@ -37,8 +37,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:rawImage="@{visit.visitCover()}"
-        app:reqWidth="@{240}"
-        app:reqHeight="@{360}"/>
+        app:reqHeight="@{360}"
+        app:reqWidth="@{240}" />
 
       <TextView
         android:id="@+id/trip_title"

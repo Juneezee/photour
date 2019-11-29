@@ -3,11 +3,9 @@ package com.photour.ui.settings;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceFragmentCompat;
-
 import com.photour.R;
 
 /**

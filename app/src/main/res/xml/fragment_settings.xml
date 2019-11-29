@@ -13,7 +13,7 @@
     android:key="temperature"
     android:title="Temperature"
     android:summary="Unit to display temperature"
-    android:defaultValue="@string/degree"
+    android:defaultValue="@string/celsius"
     android:entries="@array/tempArray"
     android:entryValues="@array/tempValues"/>
   <SwitchPreferenceCompat

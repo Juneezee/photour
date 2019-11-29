@@ -67,7 +67,7 @@
       android:drawablePadding="8dp"
       android:paddingStart="@dimen/fragment_horizontal_margin"
       android:paddingEnd="@dimen/activity_horizontal_margin"
-      android:text="@{temperature.standardSensorAvailable() ? String.valueOf(temperature.sensorValue).concat(@string/degree) : `N/A`}"
+      android:text="@{temperature.standardSensorAvailable() ? String.valueOf(temperature.sensorValue).concat(@string/celsius) : `N/A`}"
       app:layout_constraintBottom_toBottomOf="@id/button_stop_visit"
       app:layout_constraintStart_toEndOf="@id/chronometer"
       app:layout_constraintTop_toTopOf="@id/button_stop_visit" />
