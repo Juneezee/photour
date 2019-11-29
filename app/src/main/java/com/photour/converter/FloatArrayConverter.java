@@ -43,9 +43,10 @@ public class FloatArrayConverter {
     }
 
     final String[] arr = string.split(",");
-    final float[] values = new float[arr.length];
+    final int len = arr.length;
+    final float[] values = new float[len];
 
-    for (int i = 0; i < arr.length; i++) {
+    for (int i = 0; i < len; i++) {
       values[i] = Float.parseFloat(arr[i]);
     }
 

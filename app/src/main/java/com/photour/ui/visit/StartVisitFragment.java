@@ -312,11 +312,12 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
     if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
-      Image image = ImagePicker.getFirstImageOrNull(data);
-      System.out.println(image.getId());
-      System.out.println(image.getPath());
-      startVisitMap.addMarkerToCurrentLocation(mService, image.getPath());
+      String imagePath =ImagePicker.getFirstImageOrNull(data).getPath();
+      System.out.println(imagePath);
 
+
+
+      startVisitMap.addMarkerToCurrentLocation(mService, imagePath);
     }
 
     super.onActivityResult(requestCode, resultCode, data);

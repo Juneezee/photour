@@ -184,8 +184,6 @@ public class StartVisitMap implements OnMapReadyCallback, OnMarkerClickListener 
     googleMap.addMarker(new MarkerOptions().position(point).title(pathName));
     markerList.add(imageMarker);
     mService.markerList.add(imageMarker);
-
-//    addMarkerToMap(pathName, new LatLng(location.getLatitude(), location.getLongitude()));
   }
 
   /**
