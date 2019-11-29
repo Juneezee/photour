@@ -13,13 +13,13 @@ import java.util.List;
  */
 public class ImageRepository {
 
-  private ImageDao imageDao;
+  private AppDao appDao;
   private LiveData<List<ImageElement>> imageElements;
 
   public ImageRepository(Application application) {
     AppDatabase db = AppDatabase.getDatabase(application);
-    imageDao = db.ImageDao();
-    imageElements = imageDao.getAllDesc();
+    appDao = db.ImageDao();
+    imageElements = appDao.getAllDesc();
   }
 
   /**
@@ -45,7 +45,7 @@ public class ImageRepository {
    * @return List of visits
    */
   public LiveData<List<Visit>> getVisits() {
-    return imageDao.getVisits();
+    return appDao.getVisits();
   }
 
   /**
@@ -54,7 +54,7 @@ public class ImageRepository {
    * @return List of ImageElement
    */
   public LiveData<List<ImageElement>> getImagesForVisit(String visitTitle) {
-    return imageDao.findByVisit(visitTitle);
+    return appDao.findByVisit(visitTitle);
   }
 
   /**
@@ -63,7 +63,7 @@ public class ImageRepository {
    */
   void insert(ImageElement... imageElements) {
     AppDatabase.databaseWriteExecutor.execute(() -> {
-      imageDao.insertImages(imageElements);
+      appDao.insertImages(imageElements);
     });
   }
 }

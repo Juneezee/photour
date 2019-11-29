@@ -16,16 +16,13 @@ import java.util.List;
  * @author Zer Jun Eng, Jia Hua Ng
  */
 @Dao
-public interface ImageDao {
+public interface AppDao {
 
   @Query("SELECT * FROM image_element ORDER BY date DESC")
   LiveData<List<ImageElement>> getAllDesc();
 
   @Query("SELECT * FROM image_element ORDER BY date ASC")
   LiveData<List<ImageElement>> getAllAsc();
-
-  @Query("SELECT visit_title, file_path, COUNT(*) AS total_photos FROM image_element GROUP BY visit_title ORDER BY date DESC")
-  LiveData<List<Visit>> getVisits();
 
   @Query("SELECT * FROM image_element WHERE id IN (:ids)")
   LiveData<List<ImageElement>> loadAllByIds(int[] ids);
@@ -35,6 +32,9 @@ public interface ImageDao {
 
   @Query("SELECT * FROM image_element WHERE date LIKE :date")
   LiveData<List<ImageElement>> findByDate(Date date);
+
+  @Query("SELECT visit_title, file_path, COUNT(*) AS total_photos FROM image_element GROUP BY visit_title ORDER BY date DESC")
+  LiveData<List<Visit>> getVisits();
 
   @Insert
   void insertImages(ImageElement... images);

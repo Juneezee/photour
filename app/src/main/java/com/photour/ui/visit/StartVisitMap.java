@@ -171,16 +171,6 @@ public class StartVisitMap implements OnMapReadyCallback, OnMarkerClickListener 
   }
 
   /**
-   * Add a marker at specific location to the map
-   *
-   * @param point A {@link LatLng} point to add
-   */
-  private void addMarkerToMap(String pathName, LatLng point) {
-    googleMap.addMarker(new MarkerOptions().position(point).title(pathName));
-    markerList.add(ImageMarker.create(pathName, point));
-  }
-
-  /**
    * Add current location as marker to map
    */
   void addMarkerToCurrentLocation(StartVisitService mService, String pathName) {
@@ -201,7 +191,7 @@ public class StartVisitMap implements OnMapReadyCallback, OnMarkerClickListener 
   /**
    * Draw all markers on map
    */
-  void drawMarkers() {
+  private void drawMarkers() {
     final int POINTS = markerList.size();
 
     for (int i = 0; i < POINTS; i++) {

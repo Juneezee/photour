@@ -9,6 +9,11 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.photour.ui.visits.VisitsFragmentDirections;
 import com.photour.ui.visits.VisitsFragmentDirections.ActionViewVisit;
 
+/**
+ * Model class for Visit
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 @AutoValue
 public abstract class Visit implements Parcelable {
 

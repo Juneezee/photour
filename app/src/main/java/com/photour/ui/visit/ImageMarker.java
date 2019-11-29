@@ -5,6 +5,9 @@ import com.google.android.libraries.maps.model.LatLng;
 import com.google.auto.value.AutoValue;
 
 /**
+ * A class for storing the file path of an uploaded / taken image with a LatLng point. With help
+ * from {@link AutoValue}
+ *
  * @author Zer Jun Eng, Jia Hua Ng
  */
 @AutoValue

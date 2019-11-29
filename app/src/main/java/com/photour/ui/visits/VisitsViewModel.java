@@ -54,8 +54,8 @@ public class VisitsViewModel extends AndroidViewModel {
    * @param isEmpty True to set the placeholder text as empty
    */
   void setPlaceholderText(boolean isEmpty) {
-    placeholderText.setValue(
-            isEmpty ? "" : "No trips yet " + new String(Character.toChars(0x1F60A)));
+    placeholderText
+        .setValue(isEmpty ? "" : "No visits yet " + new String(Character.toChars(0x1F60A)));
   }
 
   /**
@@ -72,7 +72,7 @@ public class VisitsViewModel extends AndroidViewModel {
         }
       };
       this.getApplication().getContentResolver().registerContentObserver(
-              MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, contentObserver);
+          MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, contentObserver);
     }
   }
 }

@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
 @TypeConverters({DateConverter.class, FloatArrayConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 
-  public abstract ImageDao ImageDao();
+  public abstract AppDao ImageDao();
 
   private static volatile AppDatabase INSTANCE;
   private static final int NUMBER_OF_THREADS = 4;
@@ -51,7 +51,7 @@ public abstract class AppDatabase extends RoomDatabase {
         if (INSTANCE == null) {
           INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
               AppDatabase.class, "app_database")
-              .addCallback(sRoomDatabaseCallback)
+//              .addCallback(sRoomDatabaseCallback)
               .build();
           INSTANCE.context = context;
         }
@@ -73,7 +73,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
         // Populate the database in the background.
         // If you want to start with more words, just add them.
-        ImageDao dao = INSTANCE.ImageDao();
+        AppDao dao = INSTANCE.ImageDao();
         dao.deleteAll();
 
         String[] projection = new String[]{MediaStore.Images.Media._ID,

@@ -418,7 +418,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   public void onGalleryClick() {
     ImagePicker.create(this)
         .folderMode(true)
-        .toolbarFolderTitle("Added images to new visit")
+        .toolbarFolderTitle("Add images to new visit")
         .single().showCamera(false)
         .start();
   }
