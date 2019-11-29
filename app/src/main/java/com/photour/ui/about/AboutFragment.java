@@ -2,9 +2,12 @@ package com.photour.ui.about;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.photour.R;
 
@@ -14,6 +17,12 @@ import com.photour.R;
  * @author Zer Jun Eng, Jia Hua Ng
  */
 public class AboutFragment extends Fragment {
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setHasOptionsMenu(true);
+  }
 
   /**
    * Called to have the fragment instantiate its user interface view.
@@ -33,5 +42,13 @@ public class AboutFragment extends Fragment {
       Bundle savedInstanceState
   ) {
     return inflater.inflate(R.layout.fragment_about, container, false);
+  }
+
+  @Override
+  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    super.onCreateOptionsMenu(menu, inflater);
+
+    // Do not show the settings icon once we are in settings fragment
+    menu.clear();
   }
 }

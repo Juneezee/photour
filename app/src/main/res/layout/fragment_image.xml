@@ -3,6 +3,9 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
   <data>
     <import type="android.view.View" />
+    <variable
+        name="unit"
+        type="String" />
 
     <variable
       name="image"
@@ -38,7 +41,7 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:text="@string/visit_title"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/colorPrimary"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,7 +55,6 @@
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:text="@{image.visitTitle()}"
-        android:textColor="@color/colorTitleGray"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/trip_label" />
@@ -65,7 +67,7 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:text="@string/date"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/colorPrimary"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -79,7 +81,6 @@
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:text="@{image.dateInString}"
-        android:textColor="@color/colorTitleGray"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/date_label" />
@@ -92,7 +93,7 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:text="@string/location"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/colorPrimary"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -116,7 +117,7 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:text="Temperature"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/colorPrimary"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
         android:visibility="@{image.hasSensorsReading() ? View.VISIBLE : View.GONE}"
@@ -130,8 +131,7 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{String.valueOf(image.temperature()).concat(@string/degree)}"
-        android:textColor="@color/colorTitleGray"
+        android:text='@{String.valueOf(unit.equals(@string/degree) ? (image.temperatureCelsius()):(image.temperatureFahrenheit())).concat(unit)}'
         android:textSize="16sp"
         android:visibility="@{image.hasSensorsReading() ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
@@ -145,7 +145,7 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:text="Pressure"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/colorPrimary"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
         android:visibility="@{image.hasSensorsReading() ? View.VISIBLE : View.GONE}"
@@ -160,7 +160,6 @@
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:text="@{image.pressure() + ` hPa`}"
-        android:textColor="@color/colorTitleGray"
         android:textSize="16sp"
         android:visibility="@{image.hasSensorsReading() ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
@@ -174,7 +173,7 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:text="File Path"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/colorPrimary"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -188,7 +187,6 @@
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:text="@{image.filePath()}"
-        android:textColor="@color/colorTitleGray"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/uri_label" />

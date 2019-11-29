@@ -43,7 +43,6 @@
         android:singleLine="true"
         android:text="@{viewModel.newVisitTitle}"
         android:textAlignment="center"
-        android:textColor="@color/colorBlack"
         android:textSize="20sp" />
     </FrameLayout>
 
@@ -69,7 +68,6 @@
       android:paddingStart="@dimen/fragment_horizontal_margin"
       android:paddingEnd="@dimen/activity_horizontal_margin"
       android:text="@{temperature.standardSensorAvailable() ? String.valueOf(temperature.sensorValue).concat(@string/degree) : `N/A`}"
-      android:textColor="@color/colorBlack"
       app:layout_constraintBottom_toBottomOf="@id/button_stop_visit"
       app:layout_constraintStart_toEndOf="@id/chronometer"
       app:layout_constraintTop_toTopOf="@id/button_stop_visit" />
@@ -82,7 +80,6 @@
       android:paddingStart="@dimen/fragment_horizontal_margin"
       android:paddingEnd="@dimen/activity_horizontal_margin"
       android:text="@{pressure.standardSensorAvailable() ? String.valueOf(pressure.sensorValue) + ` hPa` : `N/A`}"
-      android:textColor="@color/colorBlack"
       app:layout_constraintBottom_toBottomOf="@id/button_stop_visit"
       app:layout_constraintStart_toEndOf="@id/thermometer"
       app:layout_constraintTop_toTopOf="@id/button_stop_visit" />

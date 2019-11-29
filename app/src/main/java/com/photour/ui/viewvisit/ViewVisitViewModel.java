@@ -13,9 +13,11 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.libraries.maps.model.LatLng;
 import com.photour.database.ImageRepository;
+import com.photour.helper.PreferenceHelper;
 import com.photour.model.ImageElement;
 import com.photour.model.Visit;
 
+import java.lang.ref.Reference;
 import java.util.List;
 
 /**
@@ -30,7 +32,7 @@ public class ViewVisitViewModel extends AndroidViewModel {
   private ImageRepository imageRepository;
   public Visit visit;
   public LiveData<List<ImageElement>> images;
-  private boolean hasSensorsReading = false;
+  private boolean hasSensorsReading;
 
   private ContentObserver contentObserver = null;
 
@@ -63,24 +65,17 @@ public class ViewVisitViewModel extends AndroidViewModel {
 
     ImageElement imageElement = images.getValue().get(currentImagePos);
     hasSensorsReading = imageElement.hasSensorsReading();
+    String unit = PreferenceHelper.tempUnit(getApplication());
     String[] tempArray = {
             visit.visitTitle(),
             imageElement.getDateInString(),
-            String.valueOf(imageElement.temperature()),
+            String.valueOf(unit.equals("c") ? (imageElement.temperatureCelsius()):(imageElement.temperatureFahrenheit())).concat(unit),
             String.valueOf(imageElement.pressure()),
-            imageElement.filePath()};
+            imageElement.filePath(),
+            String.valueOf(imageElement.hasSensorsReading())};
     detailsArray.setValue(tempArray);
 
     return new LatLng(imageElement.latitude(),imageElement.longitude());
-  }
-
-  /**
-   * Returns if the ImageElement has sensorReading
-   *
-   * @return boolean True if the ImageElement has sensor reading, else False.
-   */
-  public boolean hasSensorsReading() {
-    return hasSensorsReading;
   }
 
   /**

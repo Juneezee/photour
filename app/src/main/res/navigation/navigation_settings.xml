@@ -9,7 +9,11 @@
     android:id="@+id/action_settings"
     android:name="com.photour.ui.settings.SettingsFragment"
     android:label="@string/settings"
-    tools:layout="@layout/fragment_settings" />
+    tools:layout="@xml/fragment_settings" >
+    <action
+        android:id="@+id/action_action_settings_to_about"
+        app:destination="@id/about" />
+  </fragment>
 
   <fragment
     android:id="@+id/about"

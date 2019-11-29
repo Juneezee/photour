@@ -137,8 +137,12 @@ public abstract class ImageElement implements Parcelable {
     return sensors() != null;
   }
 
-  public float temperature() {
+  public float temperatureCelsius() {
     return sensors() == null ? 0 : sensors()[0];
+  }
+
+  public float temperatureFahrenheit() {
+    return sensors() == null ? 0 : (sensors()[0]*1.8f)+32f;
   }
 
   public float pressure() {

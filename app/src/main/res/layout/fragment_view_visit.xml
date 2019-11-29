@@ -132,7 +132,7 @@
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/min_text_size"
                 android:textStyle="bold"
-                android:visibility="@{visitItem.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+                android:visibility="@{Boolean.parseBoolean(visitItem.detailsArray[5]) ? View.VISIBLE : View.GONE}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/map_lite_fragment" />
 
@@ -143,10 +143,10 @@
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:text="@{visitItem.detailsArray[2].concat(@string/degree)}"
+                android:text="@{visitItem.detailsArray[2]}"
                 android:textColor="@color/colorTitleGray"
                 android:textSize="16sp"
-                android:visibility="@{visitItem.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+                android:visibility="@{Boolean.parseBoolean(visitItem.detailsArray[5]) ? View.VISIBLE : View.GONE}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/temperature_label" />
 
@@ -161,7 +161,7 @@
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/min_text_size"
                 android:textStyle="bold"
-                android:visibility="@{visitItem.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+                android:visibility="@{Boolean.parseBoolean(visitItem.detailsArray[5]) ? View.VISIBLE : View.GONE}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/text_temperature" />
 
@@ -175,7 +175,7 @@
                 android:text="@{visitItem.detailsArray[3] + ` hPa`}"
                 android:textColor="@color/colorTitleGray"
                 android:textSize="16sp"
-                android:visibility="@{visitItem.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+                android:visibility="@{Boolean.parseBoolean(visitItem.detailsArray[5]) ? View.VISIBLE : View.GONE}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/pressure_label" />
 
@@ -186,7 +186,7 @@
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:text="File Path"
+                android:text="@string/file_path"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/min_text_size"
                 android:textStyle="bold"

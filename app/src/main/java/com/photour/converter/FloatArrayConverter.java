@@ -42,7 +42,7 @@ public class FloatArrayConverter {
       return null;
     }
 
-    final String[] arr = string.split(".");
+    final String[] arr = string.split(",");
     final float[] values = new float[arr.length];
 
     for (int i = 0; i < arr.length; i++) {

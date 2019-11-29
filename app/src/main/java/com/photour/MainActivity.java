@@ -12,17 +12,26 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+
 import com.google.android.libraries.maps.MapView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.photour.helper.CacheHelper;
 import com.photour.helper.PermissionHelper;
+import com.photour.helper.PreferenceHelper;
+import com.photour.ui.settings.SettingsFragment;
+import com.photour.ui.settings.SettingsFragmentDirections;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,13 +40,15 @@ import java.util.List;
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
   private LiveData<NavController> currentNavController;
   private AppBarConfiguration appBarConfiguration;
   private BottomNavExtension navView;
   private Toolbar toolbar;
   public CacheHelper cacheHelper;
+  public PreferenceHelper preferenceHelper;
 
   /**
    * Perform the required actions when the activity is created
@@ -47,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
    */
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    PreferenceHelper.initializePreferences(getApplicationContext());
     setTheme(R.style.AppTheme_NoActionBar);
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
@@ -277,6 +289,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     return super.dispatchTouchEvent(ev);
+  }
+
+  @Override
+  public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
+    if (pref.getFragment().equals("com.photour.ui.about.AboutFragment")) {
+      currentNavController.getValue().navigate(SettingsFragmentDirections.actionActionSettingsToAbout());
+    }
+    return true;
   }
 }
 

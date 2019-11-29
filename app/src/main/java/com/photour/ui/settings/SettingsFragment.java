@@ -1,17 +1,13 @@
 package com.photour.ui.settings;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceFragmentCompat;
+
 import com.photour.R;
 
 /**
@@ -19,9 +15,7 @@ import com.photour.R;
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
-public class SettingsFragment extends Fragment {
-
-  private SettingsViewModel settingsViewModel;
+public class SettingsFragment extends PreferenceFragmentCompat {
 
   /**
    * Called to do initial creation of a fragment.  This is called after * {@link
@@ -36,28 +30,10 @@ public class SettingsFragment extends Fragment {
     setHasOptionsMenu(true);
   }
 
-  /**
-   * Called to have the fragment instantiate its user interface view.
-   *
-   * @param inflater The LayoutInflater object that can be used to inflate any views in the
-   * fragment,
-   * @param container If non-null, this is the parent view that the fragment's UI should be attached
-   * to.  The fragment should not add the view itself, but this can be used to generate the
-   * LayoutParams of the view.
-   * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
-   * saved state as given here.
-   * @return View Return the View for the fragment's UI, or null.
-   */
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      ViewGroup container,
-      Bundle savedInstanceState
-  ) {
-    settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
-    View root = inflater.inflate(R.layout.fragment_settings, container, false);
-    final TextView textView = root.findViewById(R.id.text_notifications);
-    settingsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
-    return root;
+
+  @Override
+  public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+    setPreferencesFromResource(R.xml.fragment_settings, rootKey);
   }
 
   /**

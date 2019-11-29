@@ -24,6 +24,7 @@ import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.databinding.FragmentImageBinding;
 import com.photour.helper.PermissionHelper;
+import com.photour.helper.PreferenceHelper;
 import com.photour.model.ImageElement;
 
 import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
@@ -83,6 +84,7 @@ public class ImageFragment extends Fragment implements OnMapReadyCallback {
     if (getArguments() != null) {
       image = ImageFragmentArgs.fromBundle(getArguments()).getImage();
       binding.setImage(image);
+      binding.setUnit(PreferenceHelper.tempUnit(getContext()));
     }
 
     ((MainActivity) activity).setToolbarTitle("");

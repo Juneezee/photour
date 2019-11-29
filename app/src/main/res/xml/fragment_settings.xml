@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+
+  <PreferenceCategory
+    android:key="design"
+    android:title="UI">
+
+  <ListPreference
+      android:icon="@drawable/ic_thermometer_grey"
+    android:key="temperature"
+    android:title="Temperature"
+    android:summary="Unit to display temperature"
+    android:defaultValue="@string/degree"
+    android:entries="@array/tempArray"
+    android:entryValues="@array/tempValues"/>
+  <SwitchPreferenceCompat
+      android:icon="@drawable/ic_theme"
+      android:key="theme"
+      android:title="Enable Dark Theme"
+      android:summary="Reduce glare &amp; improve night viewing"/>
+
+  </PreferenceCategory>
+
+  <Preference
+      android:icon="@drawable/ic_info"
+      android:fragment="com.photour.ui.about.AboutFragment"
+      android:key="about_us"
+      android:title="About Us"/>
+
+</PreferenceScreen>
