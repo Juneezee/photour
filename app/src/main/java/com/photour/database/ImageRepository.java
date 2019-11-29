@@ -53,7 +53,7 @@ public class ImageRepository {
    * @param visitTitle String title of the visit
    * @return List of ImageElement
    */
-  public LiveData<List<ImageElement>> getImagesforVisit(String visitTitle) {
+  public LiveData<List<ImageElement>> getImagesForVisit(String visitTitle) {
     return imageDao.findByVisit(visitTitle);
   }
 

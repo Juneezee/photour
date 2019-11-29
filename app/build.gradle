@@ -58,6 +58,11 @@ dependencies {
     implementation 'com.google.android.material:material:1.2.0-alpha02'
     implementation 'androidx.preference:preference:1.1.0'
 
+    // Google AutoValue for organising models
+    api "com.google.auto.value:auto-value-annotations:1.7"
+    annotationProcessor "com.google.auto.value:auto-value:1.7"
+    annotationProcessor 'com.ryanharter.auto.value:auto-value-parcel:0.2.8'
+
     // ViewModel and LiveData
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0-rc02"
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-rc02'
@@ -68,19 +73,19 @@ dependencies {
     implementation 'com.google.android.gms:play-services-gcm:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.0.0'
 
-    // Google AutoValue for organising models
-    api "com.google.auto.value:auto-value-annotations:1.7"
-    annotationProcessor "com.google.auto.value:auto-value:1.7"
-    annotationProcessor 'com.ryanharter.auto.value:auto-value-parcel:0.2.8'
-
     // EasyImage
     implementation 'com.github.jkwiecien:EasyImage:2.1.1'
+
+    // android-image-picker (https://github.com/esafirm/android-image-picker)
+    // N.B. Glide is not used in this application, it is a dependency of android-image-picker
+    implementation 'com.github.esafirm.android-image-picker:imagepicker:2.2.0'
+    implementation 'com.github.bumptech.glide:glide:4.10.0'
 
     // Room
     implementation 'androidx.room:room-runtime:2.2.2'
     annotationProcessor "androidx.room:room-compiler:2.2.2"
 
-    //Cache
+    // Cache
     implementation 'com.jakewharton:disklrucache:2.0.2'
 
     // Tests

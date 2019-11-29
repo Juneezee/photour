@@ -1,16 +1,27 @@
 package com.photour.ui.visit;
 
+import android.app.Activity;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
+import android.view.View;
+import android.widget.ImageView;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
+import com.google.android.libraries.maps.GoogleMap.InfoWindowAdapter;
+import com.google.android.libraries.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.model.JointType;
 import com.google.android.libraries.maps.model.LatLng;
+import com.google.android.libraries.maps.model.Marker;
 import com.google.android.libraries.maps.model.MarkerOptions;
 import com.google.android.libraries.maps.model.PolylineOptions;
+import com.photour.R;
+import com.photour.helper.BitmapHelper;
 import com.photour.helper.LocationHelper;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -18,7 +29,7 @@ import java.util.ArrayList;
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
-public class StartVisitMap implements OnMapReadyCallback {
+public class StartVisitMap implements OnMapReadyCallback, OnMarkerClickListener {
 
   private final StartVisitFragment startVisitFragment;
 
@@ -27,12 +38,56 @@ public class StartVisitMap implements OnMapReadyCallback {
   private static final int ZOOM_LEVEL = 17;
 
   // To check if this created the first time in current activity
-  public boolean isFirstTime = true;
+  private boolean isFirstTime = true;
 
   ArrayList<LatLng> latLngList = new ArrayList<>();
-  ArrayList<LatLng> markerList = new ArrayList<>();
+
+  ArrayList<ImageMarker> markerList = new ArrayList<>();
+
+  private String clickedMarkerImagePath;
 
   public final MutableLiveData<Location> currentLocation = new MutableLiveData<>();
+
+  /**
+   * Called when the map is ready to be used.
+   *
+   * @param googleMap A non-null instance of a GoogleMap associated with the MapFragment or MapView
+   * that defines the callback.
+   */
+  @Override
+  public void onMapReady(GoogleMap googleMap) {
+    this.googleMap = googleMap;
+    this.googleMap.setMyLocationEnabled(true);
+    this.googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+    this.googleMap.getUiSettings().setMapToolbarEnabled(false);
+    this.googleMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
+    this.googleMap.setOnMarkerClickListener(this);
+
+    // Restore polyline and markers if fragment is re-created
+    drawPolyline();
+    drawMarkers();
+
+    observeCurrentLocation();
+  }
+
+  /**
+   * Called when a marker has been clicked or tapped.
+   *
+   * @param marker The marker that was clicked.
+   * @return {@code true} if the listener has consumed the event (i.e., the default behavior should
+   * not occur); false otherwise (i.e., the default behavior should occur). The default behavior is
+   * for the camera to move to the marker and an info window to appear.
+   */
+  @Override
+  public boolean onMarkerClick(Marker marker) {
+    this.clickedMarkerImagePath = marker.getTitle();
+
+
+    // Return false to indicate that we have not consumed the event and that we wish
+    // for the default behavior to occur (which is for the camera to move such that the
+    // marker is centered and for the marker's info window to open, if it has one).
+    return false;
+  }
 
   /**
    * Constructor for the class {@link StartVisitMap}
@@ -58,7 +113,7 @@ public class StartVisitMap implements OnMapReadyCallback {
    *
    * @return ArrayList<LatLng> An array list of {@link LatLng} storing the LatLng of each marker
    */
-  ArrayList<LatLng> getMarkerList() {
+  ArrayList<ImageMarker> getMarkerList() {
     return markerList;
   }
 
@@ -76,27 +131,8 @@ public class StartVisitMap implements OnMapReadyCallback {
    *
    * @param markerList The new {@link LatLng} array list of markers
    */
-  void setMarkerList(ArrayList<LatLng> markerList) {
+  void setMarkerList(ArrayList<ImageMarker> markerList) {
     this.markerList = markerList;
-  }
-
-  /**
-   * Called when the map is ready to be used.
-   *
-   * @param googleMap A non-null instance of a GoogleMap associated with the MapFragment or MapView
-   * that defines the callback.
-   */
-  @Override
-  public void onMapReady(GoogleMap googleMap) {
-    this.googleMap = googleMap;
-    this.googleMap.setMyLocationEnabled(true);
-    this.googleMap.getUiSettings().setMyLocationButtonEnabled(false);
-
-    // Restore polyline and markers if fragment is re-created
-    drawPolyline();
-    drawMarkers();
-
-    observeCurrentLocation();
   }
 
   /**
@@ -140,23 +176,21 @@ public class StartVisitMap implements OnMapReadyCallback {
    *
    * @param point A {@link LatLng} point to add
    */
-  private void addMarkerToMap(LatLng point) {
-    googleMap.addMarker(new MarkerOptions().position(point));
-    markerList.add(point);
+  private void addMarkerToMap(String pathName, LatLng point) {
+    googleMap.addMarker(new MarkerOptions().position(point).title(pathName));
+    markerList.add(ImageMarker.create(pathName, point));
   }
 
   /**
    * Add current location as marker to map
    */
-  void addMarkerToCurrentLocation() {
+  void addMarkerToCurrentLocation(String pathName) {
     Location location = currentLocation.getValue();
     if (location == null) {
       return;
     }
 
-    LatLng point = new LatLng(location.getLatitude(), location.getLongitude());
-    googleMap.addMarker(new MarkerOptions().position(point));
-    markerList.add(point);
+    addMarkerToMap(pathName, new LatLng(location.getLatitude(), location.getLongitude()));
   }
 
   /**
@@ -164,8 +198,51 @@ public class StartVisitMap implements OnMapReadyCallback {
    */
   private void drawMarkers() {
     final int POINTS = markerList.size();
+
     for (int i = 0; i < POINTS; i++) {
-      addMarkerToMap(markerList.get(i));
+      ImageMarker imageMarker = markerList.get(i);
+      googleMap.addMarker(new MarkerOptions().position(imageMarker.latLng()).title(imageMarker.imagePath()));
+    }
+  }
+
+  /**
+   * An adapter class for custom info window of Google Maps markers
+   *
+   * @author Zer Jun Eng, Jia Hua Ng
+   */
+  private class CustomInfoWindowAdapter implements InfoWindowAdapter {
+
+    @Override
+    public View getInfoWindow(Marker marker) {
+      return null;
+    }
+
+    @Override
+    public View getInfoContents(Marker marker) {
+      Activity activity = startVisitFragment.getActivity();
+      View view = View.inflate(activity, R.layout.custom_info_window, null);
+
+      if (activity == null) {
+        return null;
+      }
+
+      ImageView imageView = view.findViewById(R.id.info_image);
+
+      Bitmap bitmap = null;
+
+      try {
+        ExifInterface exifInterface = new ExifInterface(clickedMarkerImagePath);
+        bitmap = exifInterface.hasThumbnail()
+            ? exifInterface.getThumbnailBitmap()
+            : BitmapHelper.decodeSampledBitmapFromResource(clickedMarkerImagePath, 100 ,100);
+
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      imageView.setImageBitmap(bitmap);
+
+      return view;
     }
   }
 }

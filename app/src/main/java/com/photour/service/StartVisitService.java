@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Binder;
 import android.os.Build;
@@ -44,12 +43,6 @@ public class StartVisitService extends Service {
   private static final int FASTEST_INTERVAL = 1000;
   private static final float MIN_DISPLACEMENT = 5;
 
-  /*
-   * Used to check whether the bound activity has really gone away and not unbound as part of an
-   * orientation change. We create a foreground service notification only if the former takes
-   * place.
-   */
-  private boolean changingConfiguration = false;
   public static boolean isRunning = false;
 
   // Title of the new visit
@@ -98,6 +91,7 @@ public class StartVisitService extends Service {
     };
 
     createNotificationChannel();
+    startForeground(1, createNotification(newVisitTitle));
   }
 
   /**
@@ -119,17 +113,6 @@ public class StartVisitService extends Service {
   public int onStartCommand(Intent intent, int flags, int startId) {
     Log.d(TAG, "onStartCommand");
     return START_NOT_STICKY;
-  }
-
-  /**
-   * Called by the system when the device configuration changes while your activity is running.
-   *
-   * @param newConfig The new device configuration.
-   */
-  @Override
-  public void onConfigurationChanged(Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
-    changingConfiguration = true;
   }
 
   /**
@@ -160,46 +143,6 @@ public class StartVisitService extends Service {
   public IBinder onBind(Intent intent) {
     Log.d(TAG, "In onBind()");
     return binder;
-  }
-
-  /**
-   * Called when new clients have connected to the service, after it had previously been notified
-   * that all had disconnected in its {@link #onUnbind}.
-   *
-   * @param intent The Intent that was used to bind to this service, as given to {@link
-   * android.content.Context#bindService Context.bindService}.
-   */
-  @Override
-  public void onRebind(Intent intent) {
-    Log.d(TAG, "In onRebind()");
-    changingConfiguration = false;
-    super.onRebind(intent);
-  }
-
-  /**
-   * Called when all clients have disconnected from a particular interface published by the
-   * service.
-   *
-   * @param intent The Intent that was used to bind to this service, as given to {@link
-   * android.content.Context#bindService Context.bindService}.  Note that any extras that were
-   * included with the Intent at that point will <em>not</em> be seen here.
-   * @return Return true if you would like to have the service's {@link #onRebind} method later
-   * called when new clients bind to it.
-   */
-  @Override
-  public boolean onUnbind(Intent intent) {
-    Log.d(TAG, "Unbound from service");
-
-    // Called when the last client (StartVisitFragment) unbinds from this
-    // service. If this method is called due to a configuration change in StartVisitFragment, we
-    // do nothing. Otherwise, we make this service a foreground service.
-    if (!changingConfiguration) {
-      Log.d(TAG, "Starting foreground service...");
-      startForeground(1, createNotification(newVisitTitle));
-    }
-
-    // Ensures onRebind() is called when a client re-binds.
-    return true;
   }
 
   /**

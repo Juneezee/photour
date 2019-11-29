@@ -96,7 +96,7 @@ public class ViewVisitViewModel extends AndroidViewModel {
    * Helper function to setup images LiveData with the Room
    */
   public void loadImages() {
-    images = imageRepository.getImagesforVisit(visit.visitTitle());
+    images = imageRepository.getImagesForVisit(visit.visitTitle());
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {
         @Override

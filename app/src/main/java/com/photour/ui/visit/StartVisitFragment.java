@@ -21,6 +21,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import com.esafirm.imagepicker.features.ImagePicker;
+import com.esafirm.imagepicker.model.Image;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
@@ -32,11 +34,7 @@ import com.photour.helper.LocationHelper;
 import com.photour.helper.PermissionHelper;
 import com.photour.sensor.Accelerometer;
 import com.photour.service.StartVisitService;
-import java.io.File;
-import java.util.List;
-import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
-import pl.aprilapps.easyphotopicker.EasyImage.ImageSource;
 
 /**
  * Fragment to create when new visit has started
@@ -306,22 +304,30 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    */
   @Override
   public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+    if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
+      Image image = ImagePicker.getFirstImageOrNull(data);
+      System.out.println(image.getId());
+      System.out.println(image.getPath());
+      startVisitMap.addMarkerToCurrentLocation(image.getPath());
+    }
+
+//    EasyImage.handleActivityResult(requestCode, resultCode, data, activity, new DefaultCallback() {
+//      @Override
+//      public void onImagesPicked(@NonNull List<File> imageFiles, ImageSource source, int type) {
+//        // CODE TODO when upload from gallery
+//
+////        startVisitMap.addMarkerToCurrentLocation();
+//
+//        System.out.println("--------------------");
+//        System.out.println(imageFiles);
+//        System.out.println(source);
+//        System.out.println(type);
+//        System.out.println("--------------------");
+//      }
+//    });
+
     super.onActivityResult(requestCode, resultCode, data);
-
-    EasyImage.handleActivityResult(requestCode, resultCode, data, activity, new DefaultCallback() {
-      @Override
-      public void onImagesPicked(@NonNull List<File> imageFiles, ImageSource source, int type) {
-        // CODE TODO when upload from gallery
-
-//        startVisitMap.addMarkerToCurrentLocation();
-
-        System.out.println("hi");
-        System.out.println(imageFiles);
-        System.out.println(source);
-        System.out.println(type);
-        System.out.println("yo");
-      }
-    });
   }
 
   /**
@@ -424,14 +430,20 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    * Open camera to take image
    */
   public void onCameraClick() {
-    EasyImage.openCameraForImage(this, 0);
+//    EasyImage.openCameraForImage(this, 0);
+    ImagePicker.cameraOnly().imageDirectory("Photour").start(this);
   }
 
   /**
    * Open gallery to choose image
    */
   public void onGalleryClick() {
-    EasyImage.openGallery(this, 0);
+//    EasyImage.openGallery(this, 0);
+    ImagePicker.create(this)
+        .folderMode(true)
+        .toolbarFolderTitle("Added images to new visit")
+        .single().showCamera(false)
+        .start();
   }
 
 }
