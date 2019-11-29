@@ -34,7 +34,6 @@ import com.photour.helper.LocationHelper;
 import com.photour.helper.PermissionHelper;
 import com.photour.sensor.Accelerometer;
 import com.photour.service.StartVisitService;
-import pl.aprilapps.easyphotopicker.EasyImage;
 
 /**
  * Fragment to create when new visit has started
@@ -83,8 +82,8 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
         restoreStateFromService();
         mService.requestLocationUpdates(StartVisitFragment.this);
       } else {
-        mService.requestLocationUpdates(StartVisitFragment.this);
         setStateToService();
+        mService.requestLocationUpdates(StartVisitFragment.this);
       }
 
       bound = true;
@@ -106,6 +105,8 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     mService.chronometerBase = visitViewModel.getElapsedTime();
     mService.latLngList.clear();
     mService.latLngList.addAll(startVisitMap.latLngList);
+    mService.markerList.clear();
+    mService.markerList.addAll(startVisitMap.markerList);
   }
 
   /**
@@ -120,6 +121,11 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     if (!mService.latLngList.isEmpty() && startVisitMap.latLngList.isEmpty()) {
       startVisitMap.latLngList.addAll(mService.latLngList);
     }
+
+    if (!mService.markerList.isEmpty() && startVisitMap.markerList.isEmpty()) {
+      startVisitMap.markerList.addAll(mService.markerList);
+    }
+
     mService.getLastLocation();
   }
 
@@ -199,8 +205,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     }
 
     initChronometer();
-    initEasyImage();
-
   }
 
   /**
@@ -309,23 +313,9 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
       Image image = ImagePicker.getFirstImageOrNull(data);
       System.out.println(image.getId());
       System.out.println(image.getPath());
-      startVisitMap.addMarkerToCurrentLocation(image.getPath());
-    }
+      startVisitMap.addMarkerToCurrentLocation(mService, image.getPath());
 
-//    EasyImage.handleActivityResult(requestCode, resultCode, data, activity, new DefaultCallback() {
-//      @Override
-//      public void onImagesPicked(@NonNull List<File> imageFiles, ImageSource source, int type) {
-//        // CODE TODO when upload from gallery
-//
-////        startVisitMap.addMarkerToCurrentLocation();
-//
-//        System.out.println("--------------------");
-//        System.out.println(imageFiles);
-//        System.out.println(source);
-//        System.out.println(type);
-//        System.out.println("--------------------");
-//      }
-//    });
+    }
 
     super.onActivityResult(requestCode, resultCode, data);
   }
@@ -394,17 +384,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   }
 
   /**
-   * EasyImage initialisation
-   */
-  private void initEasyImage() {
-    EasyImage.configuration(activity)
-        .setImagesFolderName("Photour")
-        .setCopyTakenPhotosToPublicGalleryAppFolder(true)
-        .setCopyPickedImagesToPublicGalleryAppFolder(false)
-        .setAllowMultiplePickInGallery(true);
-  }
-
-  /**
    * Add permission and location services check to the click listener. If permission is granted and
    * device location is on, then zoom the map to the current location of the device
    */
@@ -430,7 +409,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    * Open camera to take image
    */
   public void onCameraClick() {
-//    EasyImage.openCameraForImage(this, 0);
     ImagePicker.cameraOnly().imageDirectory("Photour").start(this);
   }
 
@@ -438,7 +416,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    * Open gallery to choose image
    */
   public void onGalleryClick() {
-//    EasyImage.openGallery(this, 0);
     ImagePicker.create(this)
         .folderMode(true)
         .toolbarFolderTitle("Added images to new visit")

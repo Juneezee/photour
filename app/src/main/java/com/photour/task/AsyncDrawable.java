@@ -28,9 +28,9 @@ public class AsyncDrawable extends BitmapDrawable {
   }
 
   /**
-   * Getter for BitmapThumbnailTask
+   * Getter for BitmapTask
    *
-   * @return BitmapThumbnailTask
+   * @return BitmapTask
    */
   BitmapTask getBitmapTask() {
     return bitmapTaskReference.get();

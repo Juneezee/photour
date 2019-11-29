@@ -24,6 +24,7 @@ import com.google.android.libraries.maps.model.LatLng;
 import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.helper.LocationHelper;
+import com.photour.ui.visit.ImageMarker;
 import com.photour.ui.visit.StartVisitFragment;
 import com.photour.ui.visit.StartVisitMap;
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class StartVisitService extends Service {
 
   private StartVisitMap visitMap;
   public final ArrayList<LatLng> latLngList = new ArrayList<>();
-  private final ArrayList<LatLng> markerList = new ArrayList<>();
+  public final ArrayList<ImageMarker> markerList = new ArrayList<>();
 
   private final IBinder binder = new LocalBinder();
 
@@ -91,7 +92,6 @@ public class StartVisitService extends Service {
     };
 
     createNotificationChannel();
-    startForeground(1, createNotification(newVisitTitle));
   }
 
   /**
@@ -125,6 +125,7 @@ public class StartVisitService extends Service {
   public void onDestroy() {
     Log.d(TAG, "Stopping service...");
     super.onDestroy();
+    isRunning = false;
     removeLocationUpdates();
     stopForeground(true);
     stopSelf();
@@ -240,6 +241,11 @@ public class StartVisitService extends Service {
         .setSmallestDisplacement(MIN_DISPLACEMENT);
 
     startService(new Intent(getApplicationContext(), StartVisitService.class));
+
+    if (!isRunning()) {
+      startForeground(1, createNotification(newVisitTitle));
+    }
+
     isRunning = true;
 
     fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,

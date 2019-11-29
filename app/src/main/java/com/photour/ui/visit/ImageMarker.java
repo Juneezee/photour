@@ -4,6 +4,9 @@ import android.os.Parcelable;
 import com.google.android.libraries.maps.model.LatLng;
 import com.google.auto.value.AutoValue;
 
+/**
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 @AutoValue
 public abstract class ImageMarker implements Parcelable {
 

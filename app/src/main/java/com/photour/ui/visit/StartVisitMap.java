@@ -21,7 +21,7 @@ import com.google.android.libraries.maps.model.PolylineOptions;
 import com.photour.R;
 import com.photour.helper.BitmapHelper;
 import com.photour.helper.LocationHelper;
-import java.io.IOException;
+import com.photour.service.StartVisitService;
 import java.util.ArrayList;
 
 /**
@@ -81,7 +81,6 @@ public class StartVisitMap implements OnMapReadyCallback, OnMarkerClickListener 
   @Override
   public boolean onMarkerClick(Marker marker) {
     this.clickedMarkerImagePath = marker.getTitle();
-
 
     // Return false to indicate that we have not consumed the event and that we wish
     // for the default behavior to occur (which is for the camera to move such that the
@@ -184,24 +183,31 @@ public class StartVisitMap implements OnMapReadyCallback, OnMarkerClickListener 
   /**
    * Add current location as marker to map
    */
-  void addMarkerToCurrentLocation(String pathName) {
+  void addMarkerToCurrentLocation(StartVisitService mService, String pathName) {
     Location location = currentLocation.getValue();
     if (location == null) {
       return;
     }
 
-    addMarkerToMap(pathName, new LatLng(location.getLatitude(), location.getLongitude()));
+    LatLng point = new LatLng(location.getLatitude(), location.getLongitude());
+    ImageMarker imageMarker = ImageMarker.create(pathName, point);
+    googleMap.addMarker(new MarkerOptions().position(point).title(pathName));
+    markerList.add(imageMarker);
+    mService.markerList.add(imageMarker);
+
+//    addMarkerToMap(pathName, new LatLng(location.getLatitude(), location.getLongitude()));
   }
 
   /**
    * Draw all markers on map
    */
-  private void drawMarkers() {
+  void drawMarkers() {
     final int POINTS = markerList.size();
 
     for (int i = 0; i < POINTS; i++) {
       ImageMarker imageMarker = markerList.get(i);
-      googleMap.addMarker(new MarkerOptions().position(imageMarker.latLng()).title(imageMarker.imagePath()));
+      googleMap.addMarker(
+          new MarkerOptions().position(imageMarker.latLng()).title(imageMarker.imagePath()));
     }
   }
 
@@ -228,20 +234,21 @@ public class StartVisitMap implements OnMapReadyCallback, OnMarkerClickListener 
 
       ImageView imageView = view.findViewById(R.id.info_image);
 
-      Bitmap bitmap = null;
+      Bitmap bitmap;
 
+      // Async task won't work because the view is returned before the task is completed
       try {
         ExifInterface exifInterface = new ExifInterface(clickedMarkerImagePath);
         bitmap = exifInterface.hasThumbnail()
             ? exifInterface.getThumbnailBitmap()
             : BitmapHelper.decodeSampledBitmapFromResource(clickedMarkerImagePath, 100 ,100);
 
-      } catch (IOException e) {
-        e.printStackTrace();
+      } catch (Exception e) {
+        imageView.setImageResource(R.drawable.placeholder);
+        return view;
       }
 
       imageView.setImageBitmap(bitmap);
-
       return view;
     }
   }
