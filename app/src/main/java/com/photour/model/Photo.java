@@ -15,11 +15,13 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 import com.google.android.libraries.maps.model.LatLng;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.photour.MainActivity;
 import com.photour.R;
+import com.photour.converter.LatLngConverter;
 import com.photour.helper.CacheHelper;
 import com.photour.task.AsyncDrawable;
 import com.photour.task.BitmapRawTask;
@@ -43,6 +45,7 @@ import java.util.Locale;
         onDelete = ForeignKey.CASCADE
     )
 )
+@TypeConverters({LatLngConverter.class})
 public abstract class Photo implements Parcelable {
 
   @CopyAnnotations

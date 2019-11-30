@@ -1,6 +1,7 @@
 package com.photour.ui.visitnew;
 
 import android.app.Application;
+import android.os.SystemClock;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -22,10 +23,9 @@ public class NewVisitViewModel extends AndroidViewModel {
   private PhotoRepository photoRepository;
 
   private long visitRowId = 0;
-  private Date newVisitDate = new Date();
 
   private MutableLiveData<String> newVisitTitle = new MutableLiveData<>();
-  private Long elapsedTime;
+  private Long baseTime;
 
   /**
    * Constructor of {@link NewVisitViewModel}
@@ -44,7 +44,7 @@ public class NewVisitViewModel extends AndroidViewModel {
   public void insertVisit() {
     if (visitRowId == 0) {
       visitRowId = visitRepository
-          .insert(Visit.create(0, newVisitTitle.getValue(), new Date(), null));
+          .insert(Visit.create(0, newVisitTitle.getValue(), new Date(), 0, null));
     }
   }
 
@@ -54,11 +54,17 @@ public class NewVisitViewModel extends AndroidViewModel {
    * @param startVisitMap A {@link StartVisitMap} instance
    */
   void endVisit(StartVisitMap startVisitMap) {
-    if (visitRowId != 0) {
-      visitRepository.update(visitRowId, startVisitMap.latLngList);
+    if (visitRowId != 0 && !startVisitMap.latLngList.isEmpty()) {
+      visitRepository
+          .update(visitRowId, SystemClock.elapsedRealtime() - baseTime, startVisitMap.latLngList);
     }
   }
 
+  /**
+   * Insert a photo of current new visit into the database
+   *
+   * @param photo The {@link Photo} object
+   */
   void insertPhoto(Photo photo) {
     if (visitRowId != 0) {
       photoRepository.insert(photo);
@@ -102,20 +108,20 @@ public class NewVisitViewModel extends AndroidViewModel {
   }
 
   /**
-   * Get the value of elapsedTime
+   * Get the value of baseTime
    *
-   * @return Long The value of elapsedTime
+   * @return Long The value of baseTime
    */
-  Long getElapsedTime() {
-    return elapsedTime;
+  Long getBaseTime() {
+    return baseTime;
   }
 
   /**
-   * Set the value of elapsedTime
+   * Set the value of baseTime
    *
-   * @param elapsedTime The new value of elapsedTime
+   * @param baseTime The new value of baseTime
    */
-  void setElapsedTime(final long elapsedTime) {
-    this.elapsedTime = elapsedTime;
+  void setBaseTime(final long baseTime) {
+    this.baseTime = baseTime;
   }
 }

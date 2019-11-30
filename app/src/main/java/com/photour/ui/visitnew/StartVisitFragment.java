@@ -113,7 +113,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   private void setStateToService() {
     mService.visitRowId = viewModel.getVisitRowId();
     mService.newVisitTitle = viewModel.getNewVisitTitle().getValue();
-    mService.chronometerBase = viewModel.getElapsedTime();
+    mService.chronometerBase = viewModel.getBaseTime();
     mService.latLngList.clear();
     mService.latLngList.addAll(startVisitMap.latLngList);
     mService.markerList.clear();
@@ -127,7 +127,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   private void restoreStateFromService() {
     viewModel.setVisitRowId(mService.visitRowId);
     viewModel.setNewVisitTitle(mService.newVisitTitle);
-    viewModel.setElapsedTime(mService.chronometerBase);
+    viewModel.setBaseTime(mService.chronometerBase);
     initChronometer();
 
     if (!mService.latLngList.isEmpty() && startVisitMap.latLngList.isEmpty()) {
@@ -235,7 +235,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   public void onSaveInstanceState(@NonNull Bundle outState) {
     outState.putLong(KEY_ID, viewModel.getVisitRowId());
     outState.putString(KEY_TITLE, viewModel.getNewVisitTitle().getValue());
-    outState.putLong(KEY_CHRONOMETER, viewModel.getElapsedTime());
+    outState.putLong(KEY_CHRONOMETER, viewModel.getBaseTime());
     outState.putParcelableArrayList(KEY_POLYLINE, startVisitMap.getLatLngList());
     outState.putParcelableArrayList(KEY_MARKER, startVisitMap.getMarkerList());
     super.onSaveInstanceState(outState);
@@ -263,7 +263,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
       startVisitMap.setMarkerList(savedInstanceState.getParcelableArrayList(KEY_MARKER));
 
       // Restore the chronometer time
-      viewModel.setElapsedTime(savedInstanceState.getLong(KEY_CHRONOMETER));
+      viewModel.setBaseTime(savedInstanceState.getLong(KEY_CHRONOMETER));
       initChronometer();
     }
   }
@@ -401,15 +401,13 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   private void initChronometer() {
     Chronometer chronometer = binding.chronometer;
 
-    if (viewModel.getElapsedTime() == null) {
+    if (viewModel.getBaseTime() == null) {
       // If the elapsed time is not defined, it's a new ViewModel so set it.
-      long startTime = SystemClock.elapsedRealtime();
-      viewModel.setElapsedTime(startTime);
-      chronometer.setBase(startTime);
+      viewModel.setBaseTime(SystemClock.elapsedRealtime());
     } else {
       // Otherwise the ViewModel has been retained, set the chronometer's base to the original
       // starting time.
-      chronometer.setBase(viewModel.getElapsedTime());
+      chronometer.setBase(viewModel.getBaseTime());
     }
 
     chronometer.start();

@@ -5,6 +5,8 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.TypeConverters;
+import com.photour.converter.LatLngConverter;
 import com.photour.model.Photo;
 import java.util.Date;
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.List;
  * @author Zer Jun Eng, Jia Hua Ng
  */
 @Dao
+@TypeConverters({LatLngConverter.class})
 public interface PhotoDao {
 
   @Insert

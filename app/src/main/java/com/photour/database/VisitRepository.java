@@ -56,8 +56,8 @@ public class VisitRepository {
    * @param id The row ID of the visit
    * @param latLngList The new list of LatLng
    */
-  public void update(final long id, final ArrayList<LatLng> latLngList) {
-    AppDatabase.databaseWriteExecutor.execute(() -> visitDao.update(id, latLngList));
+  public void update(final long id, final long elapsedTime, final ArrayList<LatLng> latLngList) {
+    AppDatabase.databaseWriteExecutor.execute(() -> visitDao.update(id, elapsedTime, latLngList));
   }
 
   /**

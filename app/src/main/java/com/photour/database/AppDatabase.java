@@ -20,8 +20,7 @@ import java.util.concurrent.Executors;
  * @author Zer Jun Eng, Jia Hua Ng
  */
 @Database(entities = {Photo.class, Visit.class}, version = 1, exportSchema = false)
-@TypeConverters({DateConverter.class, FloatArrayConverter.class, LatLngListConverter.class,
-    LatLngConverter.class})
+@TypeConverters({DateConverter.class, FloatArrayConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 
   public abstract VisitDao visitDao();

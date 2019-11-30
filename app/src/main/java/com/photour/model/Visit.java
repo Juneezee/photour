@@ -7,9 +7,11 @@ import androidx.navigation.Navigation;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 import com.google.android.libraries.maps.model.LatLng;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.photour.converter.LatLngListConverter;
 import com.photour.ui.visits.VisitsFragmentDirections;
 import com.photour.ui.visits.VisitsFragmentDirections.ActionViewVisit;
 import java.util.ArrayList;
@@ -22,17 +24,18 @@ import java.util.Date;
  */
 @AutoValue
 @Entity(tableName = "visits")
+@TypeConverters({LatLngListConverter.class})
 public abstract class Visit implements Parcelable {
 
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
   public abstract int id();
 
-  @CopyAnnotations
-  @ColumnInfo(name = "visit_title")
   public abstract String visitTitle();
 
   public abstract Date date();
+
+  public abstract long elapsedTime();
 
   @Nullable
   public abstract ArrayList<LatLng> latLngList();
@@ -41,9 +44,10 @@ public abstract class Visit implements Parcelable {
       int id,
       String visitTitle,
       Date date,
+      long elapsedTime,
       ArrayList<LatLng> latLngList
   ) {
-    return new AutoValue_Visit(id, visitTitle, date, latLngList);
+    return new AutoValue_Visit(id, visitTitle, date, elapsedTime, latLngList);
   }
 
   /**
