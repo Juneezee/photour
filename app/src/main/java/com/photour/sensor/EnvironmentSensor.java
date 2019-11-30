@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.SystemClock;
 import android.util.Log;
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -138,6 +139,7 @@ public class EnvironmentSensor {
    *
    * @return LiveData<Float> The current ambient temperature
    */
+  @NonNull
   public LiveData<Float> getSensorValue() {
     return sensorValue;
   }

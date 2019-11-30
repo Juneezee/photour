@@ -2,7 +2,9 @@ package com.photour.database;
 
 import android.app.Application;
 import androidx.lifecycle.LiveData;
+import com.google.android.libraries.maps.model.LatLng;
 import com.photour.model.Visit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -49,9 +51,19 @@ public class VisitRepository {
   }
 
   /**
+   * Update the latLngList of a visit
+   *
+   * @param id The row ID of the visit
+   * @param latLngList The new list of LatLng
+   */
+  public void update(final long id, final ArrayList<LatLng> latLngList) {
+    AppDatabase.databaseWriteExecutor.execute(() -> visitDao.update(id, latLngList));
+  }
+
+  /**
    * Gets all visits in database
    *
-   * @return List of visits
+   * @return LiveData<List<Visit>> List of visits
    */
   public LiveData<List<Visit>> getAllVisits() {
     return visitDao.getAllVisits();

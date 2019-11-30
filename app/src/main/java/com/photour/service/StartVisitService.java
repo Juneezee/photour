@@ -46,8 +46,8 @@ public class StartVisitService extends Service {
 
   public static boolean isRunning = false;
 
-  // Boolean to check if the current visit has been inserted into the database
-  public boolean isVisitInserted = false;
+  // If visitRowId == 0, then this new visit has not been inserted into the database yet
+  public long visitRowId = 0;
 
   // Title of the new visit
   public String newVisitTitle;
@@ -108,7 +108,7 @@ public class StartVisitService extends Service {
    * @param flags Additional data about this start request.
    * @param startId A unique integer representing this specific request to start.  Use with {@link
    * #stopSelfResult(int)}.
-   * @return The return value indicates what semantics the system should use for the service's
+   * @return int The return value indicates what semantics the system should use for the service's
    * current started state.  It may be one of the constants associated with the {@link
    * #START_CONTINUATION_MASK} bits.
    */
@@ -140,7 +140,7 @@ public class StartVisitService extends Service {
    *
    * @param intent The Intent that was used to bind to this service, as given to {@link
    * android.content.Context#bindService Context.bindService}
-   * @return Return an IBinder through which clients can call on to the service.
+   * @return IBinder Return an IBinder through which clients can call on to the service.
    */
   @Nullable
   @Override
@@ -209,9 +209,9 @@ public class StartVisitService extends Service {
 
     isRunning = true;
 
-    if (!isVisitInserted) {
+    if (visitRowId == 0) {
       startVisitFragment.viewModel.insertVisit();
-      isVisitInserted = true;
+      visitRowId = startVisitFragment.viewModel.getVisitRowId();
     }
 
     requestLocationUpdates();

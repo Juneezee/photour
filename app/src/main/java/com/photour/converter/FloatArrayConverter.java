@@ -13,7 +13,7 @@ public class FloatArrayConverter {
    * Convert float array to comma separated string
    *
    * @param values The array of float values
-   * @return The comma separated string
+   * @return String The comma separated string
    */
   @TypeConverter
   public static String fromArray(float[] values) {
@@ -34,7 +34,7 @@ public class FloatArrayConverter {
    * Convert comma separated string to float array
    *
    * @param string The comma separated string
-   * @return The array of float values
+   * @return float[] The array of float values
    */
   @TypeConverter
   public static float[] toArray(String string) {

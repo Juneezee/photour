@@ -15,7 +15,7 @@ public class LatLngListConverter {
    * Convert ArrayList<LatLng> to comma separated string ([latitude, longitude], [...,...],...)
    *
    * @param latLngList The array of LatLng values
-   * @return The comma separated string
+   * @return String The comma separated string
    */
   @TypeConverter
   public static String fromArrayList(ArrayList<LatLng> latLngList) {
@@ -40,7 +40,7 @@ public class LatLngListConverter {
    * Convert comma separated string to ArrayList<LatLng>
    *
    * @param string The comma separated string
-   * @return The array of LatLng values
+   * @return ArrayList<LatLng> The array of LatLng values
    */
   @TypeConverter
   public static ArrayList<LatLng> toArrayList(String string) {

@@ -18,7 +18,6 @@ import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
-import com.google.android.libraries.maps.model.LatLng;
 import com.google.android.libraries.maps.model.MarkerOptions;
 import com.photour.MainActivity;
 import com.photour.R;
@@ -135,10 +134,8 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
   public void onMapReady(GoogleMap googleMap) {
     this.googleMap = googleMap;
     this.googleMap.getUiSettings().setMapToolbarEnabled(false);
-
-    LatLng point = new LatLng(photo.latitude(), photo.longitude());
-    this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 15));
-    this.googleMap.addMarker(new MarkerOptions().position(point));
+    this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(photo.latLng(), 15));
+    this.googleMap.addMarker(new MarkerOptions().position(photo.latLng()));
   }
 
   /**

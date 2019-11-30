@@ -31,14 +31,14 @@ public class PhotoRepository {
    *
    * @param photo Photo object to be inserted into the database
    */
-  void insert(Photo photo) {
+  public void insert(Photo photo) {
     AppDatabase.databaseWriteExecutor.execute(() -> photoDao.insert(photo));
   }
 
   /**
    * Get all Photos from database
    *
-   * @return List of Photos
+   * @return LiveData<List<Photo>> List of Photos
    */
   public LiveData<List<Photo>> getAllPhotos() {
     return photos;

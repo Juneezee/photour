@@ -4,8 +4,9 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
-import androidx.room.Update;
+import com.google.android.libraries.maps.model.LatLng;
 import com.photour.model.Visit;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,8 +20,8 @@ public interface VisitDao {
   @Insert
   long insert(Visit visit);
 
-  @Update
-  void update(Visit visit);
+  @Query("UPDATE visits SET latLngList = :list WHERE id = :id")
+  void update(final long id, final ArrayList<LatLng> list);
 
   @Query("SELECT * FROM visits")
   LiveData<List<Visit>> getAllVisits();

@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.photour.database.PhotoRepository;
 import com.photour.database.VisitRepository;
+import com.photour.model.Photo;
 import com.photour.model.Visit;
 import java.util.Date;
 
@@ -20,10 +21,8 @@ public class NewVisitViewModel extends AndroidViewModel {
   private VisitRepository visitRepository;
   private PhotoRepository photoRepository;
 
-  // Boolean to check if the current visit has been inserted into the database
-  private boolean isVisitInserted = false;
-
-  long visitRowId;
+  private long visitRowId = 0;
+  private Date newVisitDate = new Date();
 
   private MutableLiveData<String> newVisitTitle = new MutableLiveData<>();
   private Long elapsedTime;
@@ -39,30 +38,49 @@ public class NewVisitViewModel extends AndroidViewModel {
     photoRepository = new PhotoRepository(application);
   }
 
+  /**
+   * Insert the current new visit into the database
+   */
   public void insertVisit() {
-    if (!isVisitInserted) {
+    if (visitRowId == 0) {
       visitRowId = visitRepository
           .insert(Visit.create(0, newVisitTitle.getValue(), new Date(), null));
-      isVisitInserted = true;
     }
   }
 
   /**
-   * Check if the current visit has been inserted into the database
+   * End the current new visit
    *
-   * @return boolean {@code true} if current visit has been inserted into the database
+   * @param startVisitMap A {@link StartVisitMap} instance
    */
-  boolean isVisitInserted() {
-    return isVisitInserted;
+  void endVisit(StartVisitMap startVisitMap) {
+    if (visitRowId != 0) {
+      visitRepository.update(visitRowId, startVisitMap.latLngList);
+    }
+  }
+
+  void insertPhoto(Photo photo) {
+    if (visitRowId != 0) {
+      photoRepository.insert(photo);
+    }
   }
 
   /**
-   * Set the value of <var>isVisitInserted</var>
+   * Get the row ID of the current visit
    *
-   * @param value The new value of <var>isVisitInserted</var>
+   * @return long The row ID of the current visit
    */
-  void setIsVisitInserted(boolean value) {
-    isVisitInserted = value;
+  public long getVisitRowId() {
+    return visitRowId;
+  }
+
+  /**
+   * Set the row ID of the current visit
+   *
+   * @param visitRowId The new value of the row ID
+   */
+  void setVisitRowId(long visitRowId) {
+    this.visitRowId = visitRowId;
   }
 
   /**

@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import com.photour.converter.DateConverter;
 import com.photour.converter.FloatArrayConverter;
+import com.photour.converter.LatLngConverter;
 import com.photour.converter.LatLngListConverter;
 import com.photour.model.Photo;
 import com.photour.model.Visit;
@@ -19,7 +20,8 @@ import java.util.concurrent.Executors;
  * @author Zer Jun Eng, Jia Hua Ng
  */
 @Database(entities = {Photo.class, Visit.class}, version = 1, exportSchema = false)
-@TypeConverters({DateConverter.class, FloatArrayConverter.class, LatLngListConverter.class})
+@TypeConverters({DateConverter.class, FloatArrayConverter.class, LatLngListConverter.class,
+    LatLngConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 
   public abstract VisitDao visitDao();

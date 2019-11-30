@@ -4,9 +4,9 @@ import androidx.room.TypeConverter;
 import java.util.Date;
 
 /**
- * Type converter for Date
+ * Type converter for {@link Date}
  *
- * @author Zer Jun Eng
+ * @author Zer Jun Eng, Jia Hua Ng
  */
 public class DateConverter {
 

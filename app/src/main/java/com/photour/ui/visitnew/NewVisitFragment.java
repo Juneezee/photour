@@ -245,8 +245,8 @@ public class NewVisitFragment extends Fragment {
     ActionStartVisit actionStartVisit = NewVisitFragmentDirections.actionStartVisit();
     Editable newVisitTitle = binding.newVisitTitleInput.getText();
 
-    if (newVisitTitle != null && !newVisitTitle.toString().isEmpty()) {
-      actionStartVisit.setNewVisitTitle(newVisitTitle.toString());
+    if (newVisitTitle != null && !newVisitTitle.toString().trim().isEmpty()) {
+      actionStartVisit.setNewVisitTitle(newVisitTitle.toString().trim());
     }
 
     Navigation.findNavController(binding.getRoot()).navigate(actionStartVisit);

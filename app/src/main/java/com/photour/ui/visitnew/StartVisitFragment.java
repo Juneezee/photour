@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -25,6 +26,7 @@ import com.esafirm.imagepicker.features.ImagePicker;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
+import com.google.android.libraries.maps.model.LatLng;
 import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.databinding.FragmentStartVisitBinding;
@@ -32,8 +34,12 @@ import com.photour.helper.AlertDialogHelper;
 import com.photour.helper.LocationHelper;
 import com.photour.helper.PermissionHelper;
 import com.photour.helper.PreferenceHelper;
+import com.photour.model.Photo;
 import com.photour.sensor.Accelerometer;
+import com.photour.sensor.AmbientSensor;
+import com.photour.sensor.Barometer;
 import com.photour.service.StartVisitService;
+import java.util.Date;
 
 /**
  * Fragment to create when new visit has started
@@ -46,10 +52,10 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
   // Keys for storing activity state.
   private static final String KEY_CHRONOMETER = "chronometer";
-  private static final String KEY_INSERTED = "inserted";
   private static final String KEY_POLYLINE = "polyline";
   private static final String KEY_MARKER = "marker";
   private static final String KEY_TITLE = "title";
+  private static final String KEY_ID = "id";
 
   private static final String[] PERMISSIONS_REQUIRED = {
       Manifest.permission.ACCESS_FINE_LOCATION,
@@ -65,6 +71,8 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
   // Sensors
   private Accelerometer accelerometer;
+  private AmbientSensor ambientSensor;
+  private Barometer barometer;
 
   // A reference to the service used to get location updates.
   private StartVisitService mService = null;
@@ -103,7 +111,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    * the values to use the fragment data
    */
   private void setStateToService() {
-    mService.isVisitInserted = viewModel.isVisitInserted();
+    mService.visitRowId = viewModel.getVisitRowId();
     mService.newVisitTitle = viewModel.getNewVisitTitle().getValue();
     mService.chronometerBase = viewModel.getElapsedTime();
     mService.latLngList.clear();
@@ -117,7 +125,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    * service
    */
   private void restoreStateFromService() {
-    viewModel.setIsVisitInserted(mService.isVisitInserted);
+    viewModel.setVisitRowId(mService.visitRowId);
     viewModel.setNewVisitTitle(mService.newVisitTitle);
     viewModel.setElapsedTime(mService.chronometerBase);
     initChronometer();
@@ -176,14 +184,16 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   ) {
     viewModel = new ViewModelProvider(this).get(NewVisitViewModel.class);
     accelerometer = new Accelerometer(activity);
+    ambientSensor = accelerometer.getAmbientSensor();
+    barometer = accelerometer.getBarometer();
 
     binding = FragmentStartVisitBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
     binding.setFragment(this);
-    binding.setViewModel(visitViewModel);
+    binding.setViewModel(viewModel);
     binding.setUnit(PreferenceHelper.tempUnit(getContext()));
-    binding.setTemperature(accelerometer.getAmbientSensor());
-    binding.setPressure(accelerometer.getBarometer());
+    binding.setTemperature(ambientSensor);
+    binding.setPressure(barometer);
 
     return binding.getRoot();
   }
@@ -223,9 +233,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    */
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
-    // Check if this ongoing visit has been inserted into the database
-    outState.putBoolean(KEY_INSERTED, viewModel.isVisitInserted());
-
+    outState.putLong(KEY_ID, viewModel.getVisitRowId());
     outState.putString(KEY_TITLE, viewModel.getNewVisitTitle().getValue());
     outState.putLong(KEY_CHRONOMETER, viewModel.getElapsedTime());
     outState.putParcelableArrayList(KEY_POLYLINE, startVisitMap.getLatLngList());
@@ -247,7 +255,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     super.onViewStateRestored(savedInstanceState);
 
     if (savedInstanceState != null) {
-      viewModel.setIsVisitInserted(savedInstanceState.getBoolean(KEY_INSERTED));
+      viewModel.setVisitRowId(savedInstanceState.getLong(KEY_ID));
       viewModel.setNewVisitTitle(savedInstanceState.getString(KEY_TITLE));
 
       // Restore polyline and markers
@@ -321,14 +329,45 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   @Override
   public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
+    // Add marker and insert photo into the database
     if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
-      String imagePath = ImagePicker.getFirstImageOrNull(data).getPath();
-      System.out.println(imagePath);
+      String pathName = ImagePicker.getFirstImageOrNull(data).getPath();
 
-      startVisitMap.addMarkerToCurrentLocation(mService, imagePath);
+      startVisitMap.addMarkerToCurrentLocation(mService, pathName);
+      insertPhoto(pathName);
     }
 
     super.onActivityResult(requestCode, resultCode, data);
+  }
+
+
+  /**
+   * Insert the uploaded or taken photo into the database
+   *
+   * @param pathName The file path of the photo
+   */
+  private void insertPhoto(String pathName) {
+    Location location = startVisitMap.currentLocation.getValue();
+    if (location == null) {
+      return;
+    }
+
+    LatLng point = new LatLng(location.getLatitude(), location.getLongitude());
+
+    Photo photo;
+
+    // Check if sensors reading are available
+    if (ambientSensor.standardSensorAvailable() || barometer.standardSensorAvailable()) {
+      Float temperature = ambientSensor.getSensorValue().getValue();
+      Float pressure = barometer.getSensorValue().getValue();
+
+      photo = Photo.create(0, (int) viewModel.getVisitRowId(), pathName, new Date(), point,
+          new float[]{temperature == null ? 0 : temperature, pressure == null ? 0 : pressure});
+    } else {
+      photo = Photo.create(0, (int) viewModel.getVisitRowId(), pathName, new Date(), point, null);
+    }
+
+    viewModel.insertPhoto(photo);
   }
 
   /**
@@ -412,6 +451,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   public void onStopClick() {
     AlertDialogHelper.createExitConfirmationDialog(activity, () -> {
       activity.stopService(new Intent(activity, StartVisitService.class));
+      viewModel.endVisit(startVisitMap);
       Navigation.findNavController(binding.getRoot()).navigate(R.id.action_stop_visit);
     });
   }

@@ -15,6 +15,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
+import com.google.android.libraries.maps.model.LatLng;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.photour.MainActivity;
@@ -48,24 +49,28 @@ public abstract class Photo implements Parcelable {
   @PrimaryKey(autoGenerate = true)
   public abstract int id();
 
+  public abstract int visitId();
+
   @CopyAnnotations
   @ColumnInfo(name = "file_path")
   public abstract String filePath();
 
-  public abstract int visitId();
-
   public abstract Date date();
 
-  public abstract double latitude();
-
-  public abstract double longitude();
+  public abstract LatLng latLng();
 
   @Nullable
   public abstract float[] sensors();
 
-  public static Photo create(int id, String filePath, int visitId, Date date,
-      double latitude, double longitude, float[] sensors) {
-    return new AutoValue_Photo(id, filePath, visitId, date, latitude, longitude, sensors);
+  public static Photo create(
+      int id,
+      int visitId,
+      String filePath,
+      Date date,
+      LatLng latLng,
+      float[] sensors
+  ) {
+    return new AutoValue_Photo(id, visitId, filePath, date, latLng, sensors);
   }
 
   public boolean hasSensorsReading() {

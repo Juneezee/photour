@@ -70,7 +70,7 @@ public class VisitViewModel extends AndroidViewModel {
             String.valueOf(photo.hasSensorsReading())};
     detailsArray.setValue(tempArray);
 
-    return new LatLng(photo.latitude(), photo.longitude());
+    return photo.latLng();
   }
 
   /**

@@ -171,7 +171,10 @@ public class StartVisitMap implements OnMapReadyCallback, OnMarkerClickListener 
   }
 
   /**
-   * Add current location as marker to map
+   * Add a clickable marker to current location, with photo as info content when clicked
+   *
+   * @param mService A binding instance of {@link StartVisitService}
+   * @param pathName The file path name of the photo
    */
   void addMarkerToCurrentLocation(StartVisitService mService, String pathName) {
     Location location = currentLocation.getValue();
@@ -179,9 +182,11 @@ public class StartVisitMap implements OnMapReadyCallback, OnMarkerClickListener 
       return;
     }
 
+    // Add marker to map
     LatLng point = new LatLng(location.getLatitude(), location.getLongitude());
     ImageMarker imageMarker = ImageMarker.create(pathName, point);
     googleMap.addMarker(new MarkerOptions().position(point).title(pathName));
+
     markerList.add(imageMarker);
     mService.markerList.add(imageMarker);
   }
@@ -229,7 +234,7 @@ public class StartVisitMap implements OnMapReadyCallback, OnMarkerClickListener 
         ExifInterface exifInterface = new ExifInterface(clickedMarkerImagePath);
         bitmap = exifInterface.hasThumbnail()
             ? exifInterface.getThumbnailBitmap()
-            : BitmapHelper.decodeSampledBitmapFromResource(clickedMarkerImagePath, 100 ,100);
+            : BitmapHelper.decodeSampledBitmapFromResource(clickedMarkerImagePath, 100, 100);
 
       } catch (Exception e) {
         imageView.setImageResource(R.drawable.placeholder);
