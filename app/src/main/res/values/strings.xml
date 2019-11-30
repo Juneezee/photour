@@ -27,7 +27,9 @@
   <string name="visit_title">Visit Title</string>
   <string name="date">Date</string>
   <string name="location">Location</string>
-    <string name="file_path">File Path</string>
+  <string name="temperature">Temperature</string>
+  <string name="pressure">Pressure</string>
+  <string name="file_path">File Path</string>
 
 
 </resources>

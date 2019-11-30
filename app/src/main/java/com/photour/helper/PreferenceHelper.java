@@ -37,6 +37,6 @@ public class PreferenceHelper {
     SharedPreferences sharedPreferences =
             PreferenceManager.getDefaultSharedPreferences(context);
 
-    return sharedPreferences.getString("temperature","@string/celsius");
+    return sharedPreferences.getString("temperature","\u00B0C");
   }
 }

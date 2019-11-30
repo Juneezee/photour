@@ -32,6 +32,7 @@ import com.photour.databinding.FragmentStartVisitBinding;
 import com.photour.helper.AlertDialogHelper;
 import com.photour.helper.LocationHelper;
 import com.photour.helper.PermissionHelper;
+import com.photour.helper.PreferenceHelper;
 import com.photour.sensor.Accelerometer;
 import com.photour.service.StartVisitService;
 
@@ -177,6 +178,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     binding.setLifecycleOwner(this);
     binding.setFragment(this);
     binding.setViewModel(visitViewModel);
+    binding.setUnit(PreferenceHelper.tempUnit(getContext()));
     binding.setTemperature(accelerometer.getAmbientSensor());
     binding.setPressure(accelerometer.getBarometer());
 

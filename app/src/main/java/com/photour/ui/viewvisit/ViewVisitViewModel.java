@@ -64,7 +64,7 @@ public class ViewVisitViewModel extends AndroidViewModel {
     String[] tempArray = {
             visit.visitTitle(),
             imageElement.getDateInString(),
-            String.valueOf(unit.equals("c") ? (imageElement.temperatureCelsius()):(imageElement.temperatureFahrenheit())).concat(unit),
+            String.valueOf(unit.equals("\u00B0C") ? (imageElement.temperatureCelsius()):(imageElement.temperatureFahrenheit())).concat(unit),
             String.valueOf(imageElement.pressure()),
             imageElement.filePath(),
             String.valueOf(imageElement.hasSensorsReading())};

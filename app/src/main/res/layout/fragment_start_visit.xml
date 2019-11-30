@@ -3,6 +3,9 @@
 
   <data>
     <variable
+        name="unit"
+        type="String" />
+    <variable
       name="fragment"
       type="com.photour.ui.visit.StartVisitFragment" />
 
@@ -67,7 +70,7 @@
       android:drawablePadding="8dp"
       android:paddingStart="@dimen/fragment_horizontal_margin"
       android:paddingEnd="@dimen/activity_horizontal_margin"
-      android:text="@{temperature.standardSensorAvailable() ? String.valueOf(temperature.sensorValue).concat(@string/celsius) : `N/A`}"
+      android:text="@{temperature.standardSensorAvailable() ? String.valueOf(unit.contains(`C`) ? temperature.sensorValue*1f : (temperature.sensorValue*1.8f)+32f).concat(unit) : `N/A`}"
       app:layout_constraintBottom_toBottomOf="@id/button_stop_visit"
       app:layout_constraintStart_toEndOf="@id/chronometer"
       app:layout_constraintTop_toTopOf="@id/button_stop_visit" />

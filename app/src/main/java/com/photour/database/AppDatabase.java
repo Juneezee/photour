@@ -51,7 +51,7 @@ public abstract class AppDatabase extends RoomDatabase {
         if (INSTANCE == null) {
           INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
               AppDatabase.class, "app_database")
-//              .addCallback(sRoomDatabaseCallback)
+              .addCallback(sRoomDatabaseCallback)
               .build();
           INSTANCE.context = context;
         }
@@ -126,9 +126,9 @@ public abstract class AppDatabase extends RoomDatabase {
           } else {
             filePath = cursor.getString(cursor.getColumnIndexOrThrow("_data"));
           }
-//          float[] sensor = {1f,1f};
+          float[] sensor = {1f,1f};
           ImageElement image = ImageElement
-              .create(imageId, filePath, uriPath, date, 53.3808641, -1.4877637, null);
+              .create(imageId, filePath, uriPath, date, 53.3808641, -1.4877637, sensor);
           dao.insertImages(image);
         }
 
