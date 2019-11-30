@@ -9,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.photour.database.PhotoRepository;
+import com.photour.database.VisitRepository;
 import com.photour.model.Visit;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class VisitsViewModel extends AndroidViewModel {
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
   public int sortMode;
 
-  private PhotoRepository photoRepository;
+  private VisitRepository visitRepository;
   public LiveData<List<Visit>> visits;
 
   private ContentObserver contentObserver = null;
@@ -34,7 +35,7 @@ public class VisitsViewModel extends AndroidViewModel {
    */
   public VisitsViewModel(@NonNull Application application) {
     super(application);
-    photoRepository = new PhotoRepository(application);
+    visitRepository = new VisitRepository(application);
     loadVisit();
   }
 
@@ -60,8 +61,8 @@ public class VisitsViewModel extends AndroidViewModel {
   /**
    * Helper function to setup visits LiveData with the Room
    */
-  public void loadVisit() {
-//    visits = photoRepository.getVisits(); TODO
+  private void loadVisit() {
+    visits = visitRepository.getAllVisits();
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {
         @Override
