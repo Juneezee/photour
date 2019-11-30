@@ -3,6 +3,11 @@ package com.photour.helper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+/**
+ * A helper class for decoding {@link Bitmap}
+ *
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class BitmapHelper {
 
   /**

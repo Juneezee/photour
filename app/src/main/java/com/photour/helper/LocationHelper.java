@@ -1,6 +1,6 @@
 package com.photour.helper;
 
-import static com.photour.ui.visit.VisitFragment.REQUEST_CHECK_SETTINGS;
+import static com.photour.ui.visitnew.NewVisitFragment.REQUEST_CHECK_SETTINGS;
 
 import android.app.Activity;
 import android.content.IntentSender;

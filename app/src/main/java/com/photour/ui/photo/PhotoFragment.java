@@ -1,4 +1,4 @@
-package com.photour.ui.image;
+package com.photour.ui.photo;
 
 import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
@@ -22,26 +22,26 @@ import com.google.android.libraries.maps.model.LatLng;
 import com.google.android.libraries.maps.model.MarkerOptions;
 import com.photour.MainActivity;
 import com.photour.R;
-import com.photour.databinding.FragmentImageBinding;
+import com.photour.databinding.FragmentPhotoBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.helper.PreferenceHelper;
-import com.photour.model.ImageElement;
+import com.photour.model.Photo;
 
 /**
  * Fragment to create when an has been clicked
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
-public class ImageFragment extends Fragment implements OnMapReadyCallback {
+public class PhotoFragment extends Fragment implements OnMapReadyCallback {
 
   private static final String[] PERMISSIONS_REQUIRED = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
-  private FragmentImageBinding binding;
+  private FragmentPhotoBinding binding;
   private Activity activity;
 
   private GoogleMap googleMap;
-  private ImageElement image;
+  private Photo photo;
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -76,12 +76,12 @@ public class ImageFragment extends Fragment implements OnMapReadyCallback {
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
 
-    binding = FragmentImageBinding.inflate(inflater, container, false);
+    binding = FragmentPhotoBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
 
     if (getArguments() != null) {
-      image = ImageFragmentArgs.fromBundle(getArguments()).getImage();
-      binding.setImage(image);
+      photo = PhotoFragmentArgs.fromBundle(getArguments()).getPhoto();
+      binding.setPhoto(photo);
       binding.setUnit(PreferenceHelper.tempUnit(getContext()));
     }
 
@@ -136,7 +136,7 @@ public class ImageFragment extends Fragment implements OnMapReadyCallback {
     this.googleMap = googleMap;
     this.googleMap.getUiSettings().setMapToolbarEnabled(false);
 
-    LatLng point = new LatLng(image.latitude(), image.longitude());
+    LatLng point = new LatLng(photo.latitude(), photo.longitude());
     this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 15));
     this.googleMap.addMarker(new MarkerOptions().position(point));
   }

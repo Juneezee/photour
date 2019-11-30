@@ -3,7 +3,7 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <item
-    android:id="@+id/image_filter"
+    android:id="@+id/photos_filter"
     android:icon="@drawable/ic_filter"
     android:title="@string/sort"
     android:visible="false"
@@ -25,20 +25,20 @@
   </item>
 
   <item
-      android:id="@+id/trip_filter"
-      android:icon="@drawable/ic_filter"
-      android:title="@string/sort"
-      android:visible="false"
-      app:showAsAction="ifRoom">
+    android:id="@+id/visits_filter"
+    android:icon="@drawable/ic_filter"
+    android:title="@string/sort"
+    android:visible="false"
+    app:showAsAction="ifRoom">
 
     <menu>
       <item
-          android:id="@+id/trip_desc"
-          android:title="@string/sort_by_newest_first" />
+        android:id="@+id/visits_desc"
+        android:title="@string/sort_by_newest_first" />
 
       <item
-          android:id="@+id/trip_asc"
-          android:title="@string/sort_by_oldest_first" />
+        android:id="@+id/visits_asc"
+        android:title="@string/sort_by_oldest_first" />
     </menu>
   </item>
 

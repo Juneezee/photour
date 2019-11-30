@@ -7,11 +7,11 @@
         type="String" />
     <variable
       name="fragment"
-      type="com.photour.ui.visit.StartVisitFragment" />
+      type="com.photour.ui.visitnew.StartVisitFragment" />
 
     <variable
       name="viewModel"
-      type="com.photour.ui.visit.VisitViewModel" />
+      type="com.photour.ui.visitnew.NewVisitViewModel" />
 
     <variable
       name="temperature"

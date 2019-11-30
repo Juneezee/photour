@@ -8,7 +8,7 @@
 
     <variable
       name="visitItem"
-      type="com.photour.ui.viewvisit.ViewVisitViewModel" />
+      type="com.photour.ui.visit.VisitViewModel" />
   </data>
 
   <ScrollView
@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/trip_label"
+        app:layout_constraintBottom_toTopOf="@+id/visit_label"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -44,7 +44,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
       <TextView
-        android:id="@+id/trip_label"
+        android:id="@+id/visit_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -67,7 +67,7 @@
         android:text="@{visitItem.detailsArray[0]}"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/trip_label" />
+        app:layout_constraintTop_toBottomOf="@id/visit_label" />
 
       <TextView
         android:id="@+id/date_label"

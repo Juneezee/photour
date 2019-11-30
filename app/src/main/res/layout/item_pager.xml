@@ -6,8 +6,8 @@
     <import type="android.view.View" />
 
     <variable
-      name="imagePager"
-      type="com.photour.model.ImageElement" />
+      name="photoPager"
+      type="com.photour.model.Photo" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,7 +26,7 @@
       app:layout_constraintDimensionRatio="1.5:1"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:rawImage="@{imagePager.filePath()}" />
+      app:rawImage="@{photoPager.filePath()}" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

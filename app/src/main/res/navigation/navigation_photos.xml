@@ -12,19 +12,19 @@
     tools:layout="@layout/fragment_photos">
 
     <action
-      android:id="@+id/action_view_image"
-      app:destination="@id/image" />
+      android:id="@+id/action_view_photo"
+      app:destination="@id/photo" />
   </fragment>
 
   <fragment
-    android:id="@+id/image"
-    android:name="com.photour.ui.image.ImageFragment"
-    tools:layout="@layout/fragment_image">
+    android:id="@+id/photo"
+    android:name="com.photour.ui.photo.PhotoFragment"
+    tools:layout="@layout/fragment_photo">
 
 
     <argument
-      android:name="image"
-      app:argType="com.photour.model.ImageElement" />
+      android:name="photo"
+      app:argType="com.photour.model.Photo" />
   </fragment>
 
   <include app:graph="@navigation/navigation_settings" />

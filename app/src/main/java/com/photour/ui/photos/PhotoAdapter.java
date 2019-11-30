@@ -4,8 +4,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.photour.databinding.ItemImageBinding;
-import com.photour.model.ImageElement;
+import com.photour.databinding.ItemPhotoBinding;
+import com.photour.model.Photo;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,14 +16,14 @@ import java.util.List;
  */
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
 
-  private static List<ImageElement> items = new ArrayList<>();
+  private static List<Photo> items = new ArrayList<>();
 
   /**
    * Accessor for items
    *
    * @param items List of Uri for the adapter
    */
-  public void setItems(List<ImageElement> items) {
+  public void setItems(List<Photo> items) {
     PhotoAdapter.items = items;
   }
 
@@ -41,10 +41,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
   @NonNull
   @Override
   public ImageCard onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    ItemImageBinding itemImageBinding = ItemImageBinding
+    ItemPhotoBinding itemPhotoBinding = ItemPhotoBinding
         .inflate(LayoutInflater.from(parent.getContext()), parent, false);
 
-    return new ImageCard(itemImageBinding);
+    return new ImageCard(itemPhotoBinding);
   }
 
   /**
@@ -57,9 +57,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
    */
   @Override
   public void onBindViewHolder(@NonNull ImageCard holder, int position) {
-    ImageElement imageElement = items.get(position);
-    holder.itemImageBinding.setImage(imageElement);
-    holder.itemImageBinding.executePendingBindings();
+    Photo photo = items.get(position);
+    holder.itemPhotoBinding.setPhoto(photo);
+    holder.itemPhotoBinding.executePendingBindings();
   }
 
   /**
@@ -79,11 +79,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
    */
   class ImageCard extends RecyclerView.ViewHolder {
 
-    final ItemImageBinding itemImageBinding;
+    final ItemPhotoBinding itemPhotoBinding;
 
-    ImageCard(@NonNull ItemImageBinding itemImageBinding) {
-      super(itemImageBinding.getRoot());
-      this.itemImageBinding = itemImageBinding;
+    ImageCard(@NonNull ItemPhotoBinding itemPhotoBinding) {
+      super(itemPhotoBinding.getRoot());
+      this.itemPhotoBinding = itemPhotoBinding;
     }
   }
 }

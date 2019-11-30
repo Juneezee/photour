@@ -111,8 +111,7 @@ public class VisitsFragment extends Fragment {
   }
 
   /**
-   * Helper function to initialise recyclerView.
-   * Observes trip list of ViewModel
+   * Helper function to initialise recyclerView. Observes visits list of ViewModel
    */
   private void initializeRecyclerView() {
     visitsViewModel.setPlaceholderText(true);
@@ -124,7 +123,7 @@ public class VisitsFragment extends Fragment {
     visitAdapter = new VisitAdapter();
     mRecyclerView.setAdapter(visitAdapter);
 
-    visitsViewModel.trips.observe(getViewLifecycleOwner(), this::resetRecyler);
+    visitsViewModel.visits.observe(getViewLifecycleOwner(), this::resetRecyler);
   }
 
   /**
@@ -149,7 +148,7 @@ public class VisitsFragment extends Fragment {
   @Override
   public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
-    menu.findItem(R.id.trip_filter).setVisible(true);
+    menu.findItem(R.id.visits_filter).setVisible(true);
   }
 
   /**
@@ -166,8 +165,8 @@ public class VisitsFragment extends Fragment {
       int itemId = item.getItemId();
 
       switch (itemId) {
-        case R.id.trip_desc:
-        case R.id.trip_asc:
+        case R.id.visits_desc:
+        case R.id.visits_asc:
           switchSortMode(itemId);
           break;
       }
@@ -184,8 +183,8 @@ public class VisitsFragment extends Fragment {
   private void switchSortMode(int type) {
     if (visitsViewModel.sortMode != type) {
       visitsViewModel.sortMode = type;
-      Collections.reverse(visitsViewModel.trips.getValue());
-      resetRecyler(visitsViewModel.trips.getValue());
+      Collections.reverse(visitsViewModel.visits.getValue());
+      resetRecyler(visitsViewModel.visits.getValue());
     }
   }
 

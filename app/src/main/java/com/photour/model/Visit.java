@@ -2,35 +2,48 @@ package com.photour.model;
 
 import android.os.Parcelable;
 import android.view.View;
+import androidx.annotation.Nullable;
 import androidx.navigation.Navigation;
 import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import com.google.android.libraries.maps.model.LatLng;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.photour.ui.visits.VisitsFragmentDirections;
 import com.photour.ui.visits.VisitsFragmentDirections.ActionViewVisit;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
- * Model class for Visit
+ * Entity and Model class for Visit
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
 @AutoValue
+@Entity(tableName = "visits")
 public abstract class Visit implements Parcelable {
+
+  @CopyAnnotations
+  @PrimaryKey(autoGenerate = true)
+  public abstract int id();
 
   @CopyAnnotations
   @ColumnInfo(name = "visit_title")
   public abstract String visitTitle();
 
-  @CopyAnnotations
-  @ColumnInfo(name = "file_path")
-  public abstract String visitCover();
+  public abstract Date date();
 
-  @CopyAnnotations
-  @ColumnInfo(name = "total_photos")
-  public abstract int totalPhotos();
+  @Nullable
+  public abstract ArrayList<LatLng> latLngList();
 
-  public static Visit create(String visitTitle, String visitCover, int totalPhotos) {
-    return new AutoValue_Visit(visitTitle, visitCover, totalPhotos);
+  public static Visit create(
+      int id,
+      String visitTitle,
+      Date date,
+      ArrayList<LatLng> latLngList
+  ) {
+    return new AutoValue_Visit(id, visitTitle, date, latLngList);
   }
 
   /**

@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.photour.R;
 import com.photour.databinding.FragmentPhotosBinding;
 import com.photour.helper.PermissionHelper;
-import com.photour.model.ImageElement;
+import com.photour.model.Photo;
 import com.photour.model.SectionElement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,10 +55,10 @@ public class PhotosFragment extends Fragment {
   private Activity activity;
 
   /**
-   * Finds or create a ImageFragment using FragmentManager. Used to retain state on rotation
+   * Finds or create a PhotoFragment using FragmentManager. Used to retain state on rotation
    *
    * @param fm FragmentManager
-   * @return ImageFragment
+   * @return PhotoFragment
    */
   public static PhotosFragment findOrCreateRetainFragment(FragmentManager fm) {
     PhotosFragment fragment = (PhotosFragment) fm.findFragmentByTag(TAG);
@@ -149,21 +149,22 @@ public class PhotosFragment extends Fragment {
   }
 
   /**
-   * Fucntion to reload recycler view. Splits ImageElements into section.
+   * Function to reload recycler view. Splits Photos into section.
    *
-   * @param imageElements List of ImageElements
+   * @param photos List of Photos
    */
 
-  private void resetGrid(List<ImageElement> imageElements) {
+  private void resetGrid(List<Photo> photos) {
 
     List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
-    List<ImageElement> elementList = new ArrayList<>();
+    List<Photo> photoList = new ArrayList<>();
     SectionedGridRecyclerViewAdapter.Section[] dummy =
         new SectionedGridRecyclerViewAdapter.Section[sections.size()];
 
-    List<SectionElement> sectionElements = sectionImages(imageElements);
-    //Prompts text if no images, else load images into lists
-    if (imageElements == null || imageElements.size() == 0) {
+    List<SectionElement> sectionElements = sectionImages(photos);
+
+    // Prompts text if no images, else load images into lists
+    if (photos == null || photos.size() == 0) {
       photosViewModel.setPlaceholderText(false);
     } else {
       int pos = 0;
@@ -171,14 +172,14 @@ public class PhotosFragment extends Fragment {
 
       for (SectionElement sectionElement : sectionElements) {
         sections.add(new SectionedGridRecyclerViewAdapter.Section(pos, sectionElement.getTitle()));
-        pos += sectionElement.getImageElements().size(); // add number of photos and title
+        pos += sectionElement.getPhotos().size(); // add number of photos and title
 
-        elementList.addAll(sectionElement.getImageElements());
+        photoList.addAll(sectionElement.getPhotos());
       }
     }
 
     // Parses values into adapters and update view
-    photoAdapter.setItems(elementList);
+    photoAdapter.setItems(photoList);
     photoAdapter.notifyDataSetChanged();
     mSectionedAdapter.setSections(sections.toArray(dummy));
     mSectionedAdapter.notifyDataSetChanged();
@@ -191,7 +192,7 @@ public class PhotosFragment extends Fragment {
    *
    * @return List lists of SectionElement, each representing a section in the gallery
    */
-  private List<SectionElement> sectionImages(List<ImageElement> images) {
+  private List<SectionElement> sectionImages(List<Photo> images) {
     List<SectionElement> sections = new ArrayList<>();
     Hashtable<String, Integer> titles = new Hashtable<>();
 
@@ -199,24 +200,24 @@ public class PhotosFragment extends Fragment {
       int i = photosViewModel.sortMode == R.id.by_date_asc ? images.size() - 1 : 0;
       int limit = photosViewModel.sortMode == R.id.by_date_asc ? -1 : images.size();
 
-      //Iterates through query and append them into SectionElement
+      // Iterates through query and append them into SectionElement
       while (i != limit) {
-        ImageElement imageElement = images.get(i);
+        Photo photo = images.get(i);
         String currentTitle;
         if (photosViewModel.sortMode == R.id.by_date_asc
             || photosViewModel.sortMode == R.id.by_date_desc) {
-          Date date = imageElement.date();
+          Date date = photo.date();
           SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
           currentTitle = sdf.format(date);
         } else {
-          currentTitle = imageElement.visitTitle();
+          currentTitle = ""; //TODO
         }
         if (!titles.containsKey(currentTitle)) {
           sections.add(new SectionElement(currentTitle));
           titles.put(currentTitle, sections.size() - 1);
         }
 
-        sections.get(titles.get(currentTitle)).addImageElement(imageElement);
+        sections.get(titles.get(currentTitle)).addPhoto(photo);
         if (photosViewModel.sortMode == R.id.by_date_asc) {
           i--;
         } else {
@@ -251,7 +252,7 @@ public class PhotosFragment extends Fragment {
   @Override
   public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
-    menu.findItem(R.id.image_filter).setVisible(true);
+    menu.findItem(R.id.photos_filter).setVisible(true);
   }
 
   /**

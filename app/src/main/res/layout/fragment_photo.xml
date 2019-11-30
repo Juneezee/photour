@@ -8,8 +8,8 @@
       type="String" />
 
     <variable
-      name="image"
-      type="com.photour.model.ImageElement" />
+      name="photo"
+      type="com.photour.model.Photo" />
   </data>
 
   <ScrollView
@@ -31,10 +31,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:rawImage="@{image.filePath()}" />
+        app:rawImage="@{photo.filePath()}" />
 
       <TextView
-        android:id="@+id/trip_label"
+        android:id="@+id/visit_label"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -54,10 +54,10 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{image.visitTitle()}"
+        android:text=""
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/trip_label" />
+        app:layout_constraintTop_toBottomOf="@id/visit_label" />
 
       <TextView
         android:id="@+id/date_label"
@@ -80,7 +80,7 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{image.dateInString}"
+        android:text="@{photo.dateInString}"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/date_label" />
@@ -120,7 +120,7 @@
         android:textColor="?android:textColorPrimary"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
-        android:visibility="@{image.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+        android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/map_lite_fragment" />
 
@@ -131,9 +131,9 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text='@{String.valueOf(unit.equals(@string/celsius) ? image.temperatureCelsius() : (image.temperatureFahrenheit())).concat(unit)}'
+        android:text='@{String.valueOf(unit.equals(@string/celsius) ? photo.temperatureCelsius() : (photo.temperatureFahrenheit())).concat(unit)}'
         android:textSize="16sp"
-        android:visibility="@{image.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+        android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/temperature_label" />
 
@@ -148,7 +148,7 @@
         android:textColor="?android:textColorPrimary"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
-        android:visibility="@{image.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+        android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_temperature" />
 
@@ -159,9 +159,9 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{image.pressure() + ` hPa`}"
+        android:text="@{photo.pressure() + ` hPa`}"
         android:textSize="16sp"
-        android:visibility="@{image.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+        android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pressure_label" />
 
@@ -186,7 +186,7 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{image.filePath()}"
+        android:text="@{photo.filePath()}"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/uri_label" />
@@ -194,5 +194,3 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
   </ScrollView>
 </layout>
-
-

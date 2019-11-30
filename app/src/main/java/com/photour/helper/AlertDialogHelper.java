@@ -26,7 +26,7 @@ public class AlertDialogHelper {
    * Constructor for {@link AlertDialogHelper}
    *
    * @param activity The {@link com.photour.MainActivity}
-   * @param message The message to show on the AlertDialog (unformat)
+   * @param message The message to show on the AlertDialog (unformatted)
    */
   public AlertDialogHelper(Activity activity, String message) {
     this.activity = activity;
@@ -34,7 +34,7 @@ public class AlertDialogHelper {
   }
 
   /**
-   * Create an
+   * Create an exit confirmation dialog
    *
    * @param activity The {@link com.photour.MainActivity}
    * @param listener An {@link AlertDialogListener} instance for callback

@@ -6,8 +6,8 @@
     <import type="android.view.View" />
 
     <variable
-      name="image"
-      type="com.photour.model.ImageElement" />
+      name="photo"
+      type="com.photour.model.Photo" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,9 +23,9 @@
       android:layout_marginBottom="2dp"
       android:adjustViewBounds="true"
       android:contentDescription="@string/image"
-      android:onClick="@{(view) -> image.onImageClick(view)}"
+      android:onClick="@{(view) -> photo.onImageClick(view)}"
       android:scaleType="centerCrop"
-      app:imageBitmap="@{image.filePath()}"
+      app:imageBitmap="@{photo.filePath()}"
       app:layout_constraintDimensionRatio="1:1"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent" />

@@ -26,22 +26,24 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
 
+<!--      app:rawImage="@{visit.visitCover()}"
+        app:reqHeight="@{360}"
+        app:reqWidth="@{240}"-->
+
       <ImageView
-        android:id="@+id/trip_image"
+        android:id="@+id/visit_image"
         android:layout_width="fill_parent"
         android:layout_height="150sp"
         android:contentDescription="@string/image"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_logo_vertical"
-        app:layout_constraintBottom_toTopOf="@id/trip_title"
+        app:layout_constraintBottom_toTopOf="@id/visit_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:rawImage="@{visit.visitCover()}"
-        app:reqHeight="@{360}"
-        app:reqWidth="@{240}" />
+         />
 
       <TextView
-        android:id="@+id/trip_title"
+        android:id="@+id/visit_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/fragment_horizontal_margin"
@@ -53,7 +55,7 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/image_count"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/trip_image" />
+        app:layout_constraintTop_toBottomOf="@id/visit_image" />
 
       <TextView
         android:id="@+id/image_count"
@@ -62,12 +64,12 @@
         android:layout_marginStart="@dimen/fragment_horizontal_margin"
         android:layout_marginEnd="@dimen/fragment_horizontal_margin"
         android:layout_marginBottom="@dimen/fragment_vertical_margin"
-        android:text="@{String.valueOf(visit.totalPhotos()) + ` photos`}"
+        android:text="@{` photos`}"
         android:textColor="@color/colorTitleGray"
         android:textSize="@dimen/min_text_size"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/trip_title" />
+        app:layout_constraintTop_toBottomOf="@id/visit_title" />
     </androidx.constraintlayout.widget.ConstraintLayout>
   </androidx.cardview.widget.CardView>
 

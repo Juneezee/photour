@@ -13,6 +13,7 @@ import androidx.exifinterface.media.ExifInterface;
 import androidx.navigation.Navigation;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
@@ -23,31 +24,35 @@ import com.photour.task.AsyncDrawable;
 import com.photour.task.BitmapRawTask;
 import com.photour.task.BitmapThumbnailTask;
 import com.photour.ui.photos.PhotosFragmentDirections;
-import com.photour.ui.photos.PhotosFragmentDirections.ActionViewImage;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 /**
- * Entity for Image Element
+ * Entity and Model class for Photo
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
 @AutoValue
-@Entity(tableName = "image_element")
-public abstract class ImageElement implements Parcelable {
+@Entity(tableName = "photos",
+    foreignKeys = @ForeignKey(
+        entity = Visit.class,
+        parentColumns = "id",
+        childColumns = "visitId",
+        onDelete = ForeignKey.CASCADE
+    )
+)
+public abstract class Photo implements Parcelable {
 
   @CopyAnnotations
-  @PrimaryKey
+  @PrimaryKey(autoGenerate = true)
   public abstract int id();
 
   @CopyAnnotations
   @ColumnInfo(name = "file_path")
   public abstract String filePath();
 
-  @CopyAnnotations
-  @ColumnInfo(name = "visit_title")
-  public abstract String visitTitle();
+  public abstract int visitId();
 
   public abstract Date date();
 
@@ -58,9 +63,43 @@ public abstract class ImageElement implements Parcelable {
   @Nullable
   public abstract float[] sensors();
 
-  public static ImageElement create(int id, String filePath, String visitTitle, Date date,
+  public static Photo create(int id, String filePath, int visitId, Date date,
       double latitude, double longitude, float[] sensors) {
-    return new AutoValue_ImageElement(id, filePath, visitTitle, date, latitude, longitude, sensors);
+    return new AutoValue_Photo(id, filePath, visitId, date, latitude, longitude, sensors);
+  }
+
+  public boolean hasSensorsReading() {
+    return sensors() != null;
+  }
+
+  public float temperatureCelsius() {
+    return sensors() == null ? 0 : sensors()[0];
+  }
+
+  public float temperatureFahrenheit() {
+    return sensors() == null ? 0 : (sensors()[0] * 1.8f) + 32f;
+  }
+
+  public float pressure() {
+    return sensors() == null ? 0 : sensors()[1];
+  }
+
+  /**
+   * Format the date into user-friendly format
+   *
+   * @return String The formatted date
+   */
+  public String getDateInString() {
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("E, dd MMM yyyy • HH:mm",
+        Locale.getDefault());
+    return simpleDateFormat.format(date());
+  }
+
+  /**
+   * Onclick listener of the image
+   */
+  public void onImageClick(View view) {
+    Navigation.findNavController(view).navigate(PhotosFragmentDirections.actionViewPhoto(this));
   }
 
   /**
@@ -73,7 +112,8 @@ public abstract class ImageElement implements Parcelable {
   public static void loadImageBitmap(ImageView imageView, String filepath) {
     final Context context = imageView.getContext();
 
-    Bitmap bitmap = ((MainActivity) context).cacheHelper.getBitmapFromMemCache(CacheHelper.getImageIdString(filepath));
+    Bitmap bitmap = ((MainActivity) context).cacheHelper
+        .getBitmapFromMemCache(CacheHelper.getImageIdString(filepath));
     if (bitmap != null) {
       imageView.setImageBitmap(bitmap);
     } else {
@@ -131,35 +171,5 @@ public abstract class ImageElement implements Parcelable {
       bitmapRawTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath);
     } catch (Exception ignored) {
     }
-  }
-
-  public boolean hasSensorsReading() {
-    return sensors() != null;
-  }
-
-  public float temperatureCelsius() {
-    return sensors() == null ? 0 : sensors()[0];
-  }
-
-  public float temperatureFahrenheit() {
-    return sensors() == null ? 0 : (sensors()[0]*1.8f)+32f;
-  }
-
-  public float pressure() {
-    return sensors() == null ? 0 : sensors()[1];
-  }
-
-  public String getDateInString() {
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("E, dd MMM yyyy • HH:mm",
-        Locale.getDefault());
-    return simpleDateFormat.format(date());
-  }
-
-  /**
-   * Onclick listener of the image
-   */
-  public void onImageClick(View view) {
-    ActionViewImage actionViewImage = PhotosFragmentDirections.actionViewImage(this);
-    Navigation.findNavController(view).navigate(actionViewImage);
   }
 }

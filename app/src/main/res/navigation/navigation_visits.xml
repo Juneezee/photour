@@ -17,7 +17,7 @@
 
   <fragment
       android:id="@+id/view_visit"
-      android:name="com.photour.ui.viewvisit.ViewVisitFragment"
+      android:name="com.photour.ui.visit.VisitFragment"
       android:label="@string/visits"
       tools:layout="@layout/fragment_view_visit">
 

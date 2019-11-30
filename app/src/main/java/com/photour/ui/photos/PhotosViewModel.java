@@ -11,8 +11,8 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.photour.R;
-import com.photour.database.ImageRepository;
-import com.photour.model.ImageElement;
+import com.photour.database.PhotoRepository;
+import com.photour.model.Photo;
 import java.util.List;
 
 /**
@@ -26,8 +26,8 @@ public class PhotosViewModel extends AndroidViewModel {
   public int sortMode;
 
   // Statics for readwrite images
-  private ImageRepository imageRepository;
-  public LiveData<List<ImageElement>> images;
+  private PhotoRepository photoRepository;
+  public LiveData<List<Photo>> images;
 
   private ContentObserver contentObserver = null;
 
@@ -38,8 +38,8 @@ public class PhotosViewModel extends AndroidViewModel {
    */
   public PhotosViewModel(@NonNull Application application) {
     super(application);
-    imageRepository = new ImageRepository(application);
-    sortMode = R.id.by_visit;
+    photoRepository = new PhotoRepository(application);
+    sortMode = R.id.by_date_desc;
     loadImages();
   }
 
@@ -80,7 +80,7 @@ public class PhotosViewModel extends AndroidViewModel {
    * viewmodel and calls this method if there is any change.
    */
   public void loadImages() {
-   images = imageRepository.getAllImages();
+   images = photoRepository.getAllPhotos();
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {
         @Override

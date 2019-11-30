@@ -1,5 +1,6 @@
 package com.photour.model;
 
+import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,7 @@ import java.util.List;
 public class SectionElement {
 
   private String title;
-  private List<ImageElement> imageElements;
+  private List<Photo> photos;
 
   /**
    * Constructor for Section Element
@@ -17,48 +18,48 @@ public class SectionElement {
    */
   public SectionElement(String title) {
     this.title = title;
-    this.imageElements = new ArrayList<>();
+    this.photos = new ArrayList<>();
   }
 
   /**
    * Constructor for Section Element
    *
    * @param title title of section
-   * @param imageElement Image Element in the section
+   * @param photo A list of photos in the section
    */
-  public SectionElement(String title, ImageElement imageElement) {
+  public SectionElement(String title, Photo photo) {
     this.title = title;
-    this.imageElements = new ArrayList<>();
-    this.imageElements.add(imageElement);
+    this.photos = new ArrayList<>();
+    this.photos.add(photo);
   }
 
   /**
    * Constructor for Section Element
    *
-   * @param title title of section
-   * @param imageElementList Image Elementx in the section
+   * @param title Title of section
+   * @param photoList A list of photos in the section
    */
-  public SectionElement(String title, List<ImageElement> imageElementList) {
+  public SectionElement(String title, List<Photo> photoList) {
     this.title = title;
-    this.imageElements = imageElementList;
+    this.photos = photoList;
   }
 
   /**
-   * Add Image Element to the section
+   * Add Photo to the section
    *
-   * @param imageElement ImageElement to be inserted
+   * @param photo Photo to be inserted
    */
-  public void addImageElement(ImageElement imageElement) {
-    this.imageElements.add(imageElement);
+  public void addPhoto(Photo photo) {
+    this.photos.add(photo);
   }
 
   /**
-   * Accessor to ImageElements in section
+   * Accessor to Photos in section
    *
-   * @return List of ImageElement
+   * @return List of Photo
    */
-  public List<ImageElement> getImageElements() {
-    return imageElements;
+  public List<Photo> getPhotos() {
+    return photos;
   }
 
   /**
@@ -75,7 +76,8 @@ public class SectionElement {
    *
    * @return string
    */
+  @NonNull
   public String toString() {
-    return title + ": " + imageElements.toString();
+    return title + ": " + photos.toString();
   }
 }

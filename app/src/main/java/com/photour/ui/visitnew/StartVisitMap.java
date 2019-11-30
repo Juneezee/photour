@@ -1,4 +1,4 @@
-package com.photour.ui.visit;
+package com.photour.ui.visitnew;
 
 import android.app.Activity;
 import android.graphics.Bitmap;

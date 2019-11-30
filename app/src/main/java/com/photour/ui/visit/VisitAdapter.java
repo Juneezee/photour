@@ -1,30 +1,30 @@
-package com.photour.ui.viewvisit;
+package com.photour.ui.visit;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.photour.databinding.ItemPagerBinding;
-import com.photour.model.ImageElement;
+import com.photour.model.Photo;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Adapter for images on {@link ViewVisitFragment}
+ * Adapter for images on {@link VisitFragment}
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
-public class ViewVisitAdapter extends RecyclerView.Adapter<ViewVisitAdapter.ScrollImage> {
+public class VisitAdapter extends RecyclerView.Adapter<VisitAdapter.ScrollImage> {
 
-  private static List<ImageElement> items = new ArrayList<>();
+  private static List<Photo> items = new ArrayList<>();
 
   /**
    * Setter for items
    *
    * @param items List of Uri for the adapter
    */
-  void setItems(List<ImageElement> items) {
-    ViewVisitAdapter.items = items;
+  void setItems(List<Photo> items) {
+    VisitAdapter.items = items;
   }
 
   /**
@@ -44,7 +44,7 @@ public class ViewVisitAdapter extends RecyclerView.Adapter<ViewVisitAdapter.Scro
     ItemPagerBinding itemPagerBinding = ItemPagerBinding
             .inflate(LayoutInflater.from(parent.getContext()), parent, false);
 
-    return new ViewVisitAdapter.ScrollImage(itemPagerBinding);
+    return new VisitAdapter.ScrollImage(itemPagerBinding);
   }
 
   /**
@@ -57,8 +57,8 @@ public class ViewVisitAdapter extends RecyclerView.Adapter<ViewVisitAdapter.Scro
    */
   @Override
   public void onBindViewHolder(@NonNull ScrollImage holder, int position) {
-    ImageElement imageElement = items.get(position);
-    holder.itemPagerBinding.setImagePager(imageElement);
+    Photo photo = items.get(position);
+    holder.itemPagerBinding.setPhotoPager(photo);
     holder.itemPagerBinding.executePendingBindings();
   }
 

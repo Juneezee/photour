@@ -22,7 +22,7 @@ public class CacheHelper {
   private boolean diskCacheStarting;
   private Context context;
 
-  public static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
+  private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
   private static final String DISK_CACHE_SUBDIR = "thumbnails";
 
   private LruCache<String, Bitmap> memoryCache;

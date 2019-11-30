@@ -1,4 +1,4 @@
-package com.photour.ui.visit;
+package com.photour.ui.visitnew;
 
 import android.Manifest;
 import android.app.Activity;
@@ -22,7 +22,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import com.esafirm.imagepicker.features.ImagePicker;
-import com.esafirm.imagepicker.model.Image;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
@@ -47,8 +46,10 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
   // Keys for storing activity state.
   private static final String KEY_CHRONOMETER = "chronometer";
+  private static final String KEY_INSERTED = "inserted";
   private static final String KEY_POLYLINE = "polyline";
   private static final String KEY_MARKER = "marker";
+  private static final String KEY_TITLE = "title";
 
   private static final String[] PERMISSIONS_REQUIRED = {
       Manifest.permission.ACCESS_FINE_LOCATION,
@@ -58,7 +59,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   private PermissionHelper permissionHelper;
 
   public final StartVisitMap startVisitMap = new StartVisitMap(this);
-  private VisitViewModel visitViewModel;
+  public NewVisitViewModel viewModel;
   private FragmentStartVisitBinding binding;
   private Activity activity;
 
@@ -81,10 +82,10 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
       if (mService.isRunning()) {
         restoreStateFromService();
-        mService.requestLocationUpdates(StartVisitFragment.this);
+        mService.startService(StartVisitFragment.this);
       } else {
         setStateToService();
-        mService.requestLocationUpdates(StartVisitFragment.this);
+        mService.startService(StartVisitFragment.this);
       }
 
       bound = true;
@@ -102,8 +103,9 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    * the values to use the fragment data
    */
   private void setStateToService() {
-    mService.newVisitTitle = visitViewModel.getNewVisitTitle().getValue();
-    mService.chronometerBase = visitViewModel.getElapsedTime();
+    mService.isVisitInserted = viewModel.isVisitInserted();
+    mService.newVisitTitle = viewModel.getNewVisitTitle().getValue();
+    mService.chronometerBase = viewModel.getElapsedTime();
     mService.latLngList.clear();
     mService.latLngList.addAll(startVisitMap.latLngList);
     mService.markerList.clear();
@@ -115,8 +117,9 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    * service
    */
   private void restoreStateFromService() {
-    visitViewModel.setNewVisitTitle(mService.newVisitTitle);
-    visitViewModel.setElapsedTime(mService.chronometerBase);
+    viewModel.setIsVisitInserted(mService.isVisitInserted);
+    viewModel.setNewVisitTitle(mService.newVisitTitle);
+    viewModel.setElapsedTime(mService.chronometerBase);
     initChronometer();
 
     if (!mService.latLngList.isEmpty() && startVisitMap.latLngList.isEmpty()) {
@@ -171,7 +174,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
       ViewGroup container,
       Bundle savedInstanceState
   ) {
-    visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
+    viewModel = new ViewModelProvider(this).get(NewVisitViewModel.class);
     accelerometer = new Accelerometer(activity);
 
     binding = FragmentStartVisitBinding.inflate(inflater, container, false);
@@ -220,7 +223,11 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    */
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
-    outState.putLong(KEY_CHRONOMETER, visitViewModel.getElapsedTime());
+    // Check if this ongoing visit has been inserted into the database
+    outState.putBoolean(KEY_INSERTED, viewModel.isVisitInserted());
+
+    outState.putString(KEY_TITLE, viewModel.getNewVisitTitle().getValue());
+    outState.putLong(KEY_CHRONOMETER, viewModel.getElapsedTime());
     outState.putParcelableArrayList(KEY_POLYLINE, startVisitMap.getLatLngList());
     outState.putParcelableArrayList(KEY_MARKER, startVisitMap.getMarkerList());
     super.onSaveInstanceState(outState);
@@ -240,12 +247,15 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     super.onViewStateRestored(savedInstanceState);
 
     if (savedInstanceState != null) {
+      viewModel.setIsVisitInserted(savedInstanceState.getBoolean(KEY_INSERTED));
+      viewModel.setNewVisitTitle(savedInstanceState.getString(KEY_TITLE));
+
       // Restore polyline and markers
       startVisitMap.setLatLngList(savedInstanceState.getParcelableArrayList(KEY_POLYLINE));
       startVisitMap.setMarkerList(savedInstanceState.getParcelableArrayList(KEY_MARKER));
 
       // Restore the chronometer time
-      visitViewModel.setElapsedTime(savedInstanceState.getLong(KEY_CHRONOMETER));
+      viewModel.setElapsedTime(savedInstanceState.getLong(KEY_CHRONOMETER));
       initChronometer();
     }
   }
@@ -312,10 +322,8 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
     if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
-      String imagePath =ImagePicker.getFirstImageOrNull(data).getPath();
+      String imagePath = ImagePicker.getFirstImageOrNull(data).getPath();
       System.out.println(imagePath);
-
-
 
       startVisitMap.addMarkerToCurrentLocation(mService, imagePath);
     }
@@ -341,10 +349,10 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
     // For horizontal scrolling effect, put in FrameLayout so chronometer won't reset the scroll
     binding.newVisitTitle.setSelected(true);
 
-    // Receive the new visit title from VisitFragment
+    // Receive the new visit title from NewVisitFragment
     if (getArguments() != null) {
       String newVisitTitle = StartVisitFragmentArgs.fromBundle(getArguments()).getNewVisitTitle();
-      visitViewModel.setNewVisitTitle(newVisitTitle);
+      viewModel.setNewVisitTitle(newVisitTitle);
     }
   }
 
@@ -354,15 +362,15 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   private void initChronometer() {
     Chronometer chronometer = binding.chronometer;
 
-    if (visitViewModel.getElapsedTime() == null) {
+    if (viewModel.getElapsedTime() == null) {
       // If the elapsed time is not defined, it's a new ViewModel so set it.
       long startTime = SystemClock.elapsedRealtime();
-      visitViewModel.setElapsedTime(startTime);
+      viewModel.setElapsedTime(startTime);
       chronometer.setBase(startTime);
     } else {
       // Otherwise the ViewModel has been retained, set the chronometer's base to the original
       // starting time.
-      chronometer.setBase(visitViewModel.getElapsedTime());
+      chronometer.setBase(viewModel.getElapsedTime());
     }
 
     chronometer.start();
@@ -399,7 +407,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   /**
    * Add a click listener to the Stop button, show exit confirmation dialog first. If positive
    * button is pressed, stop {@link StartVisitService} and replace current fragment with {@link
-   * VisitFragment}
+   * NewVisitFragment}
    */
   public void onStopClick() {
     AlertDialogHelper.createExitConfirmationDialog(activity, () -> {
@@ -425,5 +433,4 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
         .single().showCamera(false)
         .start();
   }
-
 }

@@ -4,7 +4,7 @@
   <data>
     <variable
       name="listener"
-      type="com.photour.ui.visit.VisitFragment" />
+      type="com.photour.ui.visitnew.NewVisitFragment" />
   </data>
 
   <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"

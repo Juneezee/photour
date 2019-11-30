@@ -24,9 +24,9 @@ import com.google.android.libraries.maps.model.LatLng;
 import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.helper.LocationHelper;
-import com.photour.ui.visit.ImageMarker;
-import com.photour.ui.visit.StartVisitFragment;
-import com.photour.ui.visit.StartVisitMap;
+import com.photour.ui.visitnew.ImageMarker;
+import com.photour.ui.visitnew.StartVisitFragment;
+import com.photour.ui.visitnew.StartVisitMap;
 import java.util.ArrayList;
 
 /**
@@ -45,6 +45,9 @@ public class StartVisitService extends Service {
   private static final float MIN_DISPLACEMENT = 5;
 
   public static boolean isRunning = false;
+
+  // Boolean to check if the current visit has been inserted into the database
+  public boolean isVisitInserted = false;
 
   // Title of the new visit
   public String newVisitTitle;
@@ -189,6 +192,32 @@ public class StartVisitService extends Service {
   }
 
   /**
+   * Start this foreground service
+   *
+   * @param startVisitFragment An instance of the current {@link StartVisitFragment}
+   */
+  public void startService(StartVisitFragment startVisitFragment) {
+    this.visitMap = startVisitFragment.startVisitMap;
+
+    Log.d(TAG, "Starting service...");
+    startService(new Intent(getApplicationContext(), StartVisitService.class));
+
+    if (!isRunning()) {
+      Log.d(TAG, "Starting foreground notification...");
+      startForeground(1, createNotification(newVisitTitle));
+    }
+
+    isRunning = true;
+
+    if (!isVisitInserted) {
+      startVisitFragment.viewModel.insertVisit();
+      isVisitInserted = true;
+    }
+
+    requestLocationUpdates();
+  }
+
+  /**
    * Check if this foreground service is already running
    *
    * @return boolean {@code true} if this foreground service is already running
@@ -229,9 +258,8 @@ public class StartVisitService extends Service {
   /**
    * Request location update
    */
-  public void requestLocationUpdates(StartVisitFragment startVisitFragment) {
+  public void requestLocationUpdates() {
     Log.d(TAG, "Requesting location updates");
-    this.visitMap = startVisitFragment.startVisitMap;
 
     LocationRequest locationRequest = new LocationRequest()
         .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -239,14 +267,6 @@ public class StartVisitService extends Service {
         .setFastestInterval(FASTEST_INTERVAL)
         .setMaxWaitTime(UPDATE_INTERVAL)
         .setSmallestDisplacement(MIN_DISPLACEMENT);
-
-    startService(new Intent(getApplicationContext(), StartVisitService.class));
-
-    if (!isRunning()) {
-      startForeground(1, createNotification(newVisitTitle));
-    }
-
-    isRunning = true;
 
     fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
         Looper.myLooper());

@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity
 
   /**
    * A visit is ongoing when the application was killed. Restore to {@link
-   * com.photour.ui.visit.StartVisitFragment}
+   * com.photour.ui.visitnew.StartVisitFragment}
    *
    * @param controller A {@link NavController}
    */

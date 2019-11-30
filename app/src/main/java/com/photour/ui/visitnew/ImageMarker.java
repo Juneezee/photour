@@ -1,4 +1,4 @@
-package com.photour.ui.visit;
+package com.photour.ui.visitnew;
 
 import android.os.Parcelable;
 import com.google.android.libraries.maps.model.LatLng;
