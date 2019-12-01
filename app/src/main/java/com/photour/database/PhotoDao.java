@@ -29,6 +29,9 @@ public interface PhotoDao {
   @Query("DELETE FROM photos")
   void deleteAll();
 
+  @Query("SELECT * FROM photos")
+  List<Photo> getAllPhotos();
+
   @Query("SELECT * FROM photos ORDER BY date DESC")
   LiveData<List<Photo>> getAllDesc();
 

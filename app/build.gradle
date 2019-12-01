@@ -72,6 +72,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-base:17.1.0'
     implementation 'com.google.android.gms:play-services-gcm:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation 'com.google.maps.android:android-maps-utils-sdk-v3-compat:0.1'
 
     // android-image-picker (https://github.com/esafirm/android-image-picker) (Approved by Fabio)
     // N.B. Glide is not used in this application, it is a dependency of android-image-picker

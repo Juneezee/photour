@@ -32,7 +32,7 @@ public class BitmapThumbnailTask extends BitmapTask {
    * Task being run async. Compresses the bitmap and crop it to 100x100. The bitmap is then saved in
    * LRU cache to used in the future.
    *
-   * @param filepaths File path of images that will be processed
+   * @param filepaths File path of photos that will be processed
    * @return Bitmap bitmap of the image
    */
   @Override

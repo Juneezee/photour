@@ -53,7 +53,7 @@ public class VisitViewModel extends AndroidViewModel {
   /**
    * Setter for detailsArray
    *
-   * @param currentImagePos position of Photo in images list
+   * @param currentImagePos position of Photo in photos list
    * @return LatLng of Photo
    */
   public LatLng setDetails(int currentImagePos) {
@@ -83,17 +83,17 @@ public class VisitViewModel extends AndroidViewModel {
   }
 
   /**
-   * Set the placeholder text as "No images for this visit"
+   * Set the placeholder text as "No photos for this visit"
    *
    * @param isEmpty True to set the placeholder text as empty
    */
   void setPlaceholderText(boolean isEmpty) {
     placeholderText.setValue(
-            isEmpty ? "" : "No images for this visit " + new String(Character.toChars(0x1F60A)));
+            isEmpty ? "" : "No photos for this visit " + new String(Character.toChars(0x1F60A)));
   }
 
   /**
-   * Helper function to setup images LiveData with the Room
+   * Helper function to setup photos LiveData with the Room
    */
   public void loadImages() {
     images = photoRepository.getAllPhotosInVisit(visit.id());

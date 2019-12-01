@@ -7,7 +7,7 @@ import android.widget.ImageView;
 import com.photour.helper.BitmapHelper;
 
 /**
- * A child class of {@link BitmapTask} for handling the async task for raw images
+ * A child class of {@link BitmapTask} for handling the async task for raw photos
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
@@ -45,10 +45,10 @@ public class BitmapRawTask extends BitmapTask {
   }
 
   /**
-   * Load raw images. Down sampled the image to 720x960 (default) for better performance and prevent
+   * Load raw photos. Down sampled the image to 720x960 (default) for better performance and prevent
    * scrolling lag
    *
-   * @param filepaths File path of the images that will be processed
+   * @param filepaths File path of the photos that will be processed
    * @return Bitmap bitmap of the uri
    */
   @Override

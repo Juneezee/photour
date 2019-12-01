@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 
-    android:layout_height="wrap_content"
-    android:layout_width="match_parent">
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content">
 
   <PreferenceCategory
     android:key="design"
     android:title="UI">
 
-  <ListPreference
+    <ListPreference
+      android:defaultValue="@string/celsius"
+      android:entries="@array/tempArray"
+      android:entryValues="@array/tempValues"
       android:icon="@drawable/ic_thermometer_grey"
-    android:key="temperature"
-    android:title="Temperature"
-    android:summary="Unit to display temperature"
-    android:defaultValue="@string/celsius"
-    android:entries="@array/tempArray"
-    android:entryValues="@array/tempValues"/>
-  <SwitchPreferenceCompat
+      android:key="temperature"
+      android:summary="Unit to display temperature"
+      android:title="Temperature" />
+    <SwitchPreferenceCompat
       android:icon="@drawable/ic_theme"
       android:key="theme"
-      android:title="Enable Dark Theme"
-      android:summary="Reduce glare &amp; improve night viewing"/>
+      android:summary="Reduce glare &amp; improve night viewing"
+      android:title="Enable Dark Theme" />
 
   </PreferenceCategory>
 
   <Preference
-      android:icon="@drawable/ic_info"
-      android:fragment="com.photour.ui.about.AboutFragment"
-      android:key="about_us"
-      android:title="About Us"/>
+    android:fragment="com.photour.ui.about.AboutFragment"
+    android:icon="@drawable/ic_info"
+    android:key="about_us"
+    android:title="About Us" />
 
 </PreferenceScreen>

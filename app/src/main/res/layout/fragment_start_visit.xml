@@ -3,8 +3,8 @@
 
   <data>
     <variable
-        name="unit"
-        type="String" />
+      name="unit"
+      type="String" />
     <variable
       name="fragment"
       type="com.photour.ui.visitnew.StartVisitFragment" />
@@ -57,8 +57,8 @@
       android:drawablePadding="8dp"
       android:paddingStart="@dimen/fragment_horizontal_margin"
       android:paddingEnd="@dimen/activity_horizontal_margin"
-      android:textSize="@dimen/min_text_size"
       android:textColor="?android:textColorPrimary"
+      android:textSize="@dimen/min_text_size"
       app:layout_constraintBottom_toBottomOf="@id/button_stop_visit"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="@id/button_stop_visit" />

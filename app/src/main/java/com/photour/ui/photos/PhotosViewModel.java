@@ -25,9 +25,9 @@ public class PhotosViewModel extends AndroidViewModel {
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
   public int sortMode;
 
-  // Statics for readwrite images
+  // Statics for readwrite photos
   private PhotoRepository photoRepository;
-  public LiveData<List<Photo>> images;
+  public LiveData<List<Photo>> photos;
 
   private ContentObserver contentObserver = null;
 
@@ -40,7 +40,6 @@ public class PhotosViewModel extends AndroidViewModel {
     super(application);
     photoRepository = new PhotoRepository(application);
     sortMode = R.id.by_date_desc;
-    loadImages();
   }
 
   /**
@@ -76,21 +75,30 @@ public class PhotosViewModel extends AndroidViewModel {
   }
 
   /**
-   * Calls queryImages() to get all images from external storage. Sets up an Observer to observe the
-   * viewmodel and calls this method if there is any change.
+   * Calls {@link PhotoRepository#getAllLivePhotosDesc()} to get all photos from database. Sets up an
+   * Observer to observe the viewmodel and calls this method if there is any change.
    */
-  public void loadImages() {
-   images = photoRepository.getAllPhotos();
+  void loadPhotos() {
+    photos = photoRepository.getAllLivePhotosDesc();
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {
         @Override
         public void onChange(boolean selfChange) {
           super.onChange(selfChange);
-          loadImages();
+          loadPhotos();
         }
       };
       this.getApplication().getContentResolver().registerContentObserver(
           MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, contentObserver);
     }
+  }
+
+  /**
+   * Calls {@link PhotoRepository#getAllPhotos()} to get all photos from database.
+   *
+   * @return List<Photo> A list of photos
+   */
+  List<Photo> loadPhotosForClusterMarker() {
+    return photoRepository.getAllPhotos();
   }
 }

@@ -121,7 +121,6 @@ public class MainActivity extends AppCompatActivity
       navGraphIds.add(R.navigation.navigation_visit);
       navGraphIds.add(R.navigation.navigation_photos);
       navGraphIds.add(R.navigation.navigation_visits);
-//      navGraphIds.add(R.navigation.navigation_settings);
 
       LiveData<NavController> controller = navView.setupWithNavController(
           navGraphIds,

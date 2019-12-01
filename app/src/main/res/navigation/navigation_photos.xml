@@ -19,12 +19,21 @@
   <fragment
     android:id="@+id/photo"
     android:name="com.photour.ui.photo.PhotoFragment"
+    android:label=""
     tools:layout="@layout/fragment_photo">
 
 
     <argument
       android:name="photo"
       app:argType="com.photour.model.Photo" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/photos_map"
+    android:name="com.photour.ui.photos.PhotosMapFragment"
+    android:label="Location photos map"
+    tools:layout="@layout/fragment_photos_map">
+
   </fragment>
 
   <include app:graph="@navigation/navigation_settings" />

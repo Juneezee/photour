@@ -67,7 +67,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
 
   /**
    * Called to have the fragment instantiate its user interface view. Visit argument is parsed here
-   * and loads images.
+   * and loads photos.
    *
    * @param inflater The LayoutInflater object that can be used to inflate any views in the
    * fragment,

@@ -127,7 +127,7 @@ public class PhotosFragment extends Fragment {
    * Initialize recycler view for photos
    */
   private void initializeRecyclerView() {
-
+    photosViewModel.loadPhotos();
     photosViewModel.setPlaceholderText(true);
 
     // Sets up recycler view and view model
@@ -137,7 +137,7 @@ public class PhotosFragment extends Fragment {
     mRecyclerView.setLayoutManager(new GridLayoutManager(activity,
         PhotosViewModel.calculateNoOfColumns(activity, IMAGE_WIDTH)));
 
-    // Sets up adapters, photoAdapter is in charge of images, mSectionedAdapter for titles and grid
+    // Sets up adapters, photoAdapter is in charge of photos, mSectionedAdapter for titles and grid
     photoAdapter = new PhotoAdapter();
 
     mSectionedAdapter = new
@@ -145,7 +145,7 @@ public class PhotosFragment extends Fragment {
         R.id.sorted_title_view, mRecyclerView, photoAdapter);
 
     // set observer to image list, on calls adapters to reset
-    photosViewModel.images.observe(getViewLifecycleOwner(), this::resetGrid);
+    photosViewModel.photos.observe(getViewLifecycleOwner(), this::resetGrid);
   }
 
   /**
@@ -163,7 +163,7 @@ public class PhotosFragment extends Fragment {
 
     List<SectionElement> sectionElements = sectionImages(photos);
 
-    // Prompts text if no images, else load images into lists
+    // Prompts text if no photos, else load photos into lists
     if (photos == null || photos.size() == 0) {
       photosViewModel.setPlaceholderText(false);
     } else {
@@ -187,7 +187,7 @@ public class PhotosFragment extends Fragment {
   }
 
   /**
-   * Uses Mediastore query to get all images from a given folder according to the sort
+   * Uses Mediastore query to get all photos from a given folder according to the sort
    * configuration.
    *
    * @return List lists of SectionElement, each representing a section in the gallery
@@ -236,7 +236,7 @@ public class PhotosFragment extends Fragment {
   private void switchSortMode(int type) {
     if (photosViewModel.sortMode != type) {
       photosViewModel.sortMode = type;
-      resetGrid(photosViewModel.images.getValue());
+      resetGrid(photosViewModel.photos.getValue());
     }
   }
 
@@ -253,6 +253,7 @@ public class PhotosFragment extends Fragment {
   public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
     menu.findItem(R.id.photos_filter).setVisible(true);
+    menu.findItem(R.id.photos_map).setVisible(true);
   }
 
   /**
@@ -265,9 +266,9 @@ public class PhotosFragment extends Fragment {
    */
   @Override
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-    if (permissionHelper.hasStoragePermission()) {
-      int itemId = item.getItemId();
+    int itemId = item.getItemId();
 
+    if (permissionHelper.hasStoragePermission()) {
       switch (itemId) {
         case R.id.by_date_desc:
         case R.id.by_date_asc:

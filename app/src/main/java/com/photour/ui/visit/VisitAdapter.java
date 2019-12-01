@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Adapter for images on {@link VisitFragment}
+ * Adapter for photos on {@link VisitFragment}
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */

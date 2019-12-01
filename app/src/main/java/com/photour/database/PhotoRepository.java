@@ -4,6 +4,9 @@ import android.app.Application;
 import androidx.lifecycle.LiveData;
 import com.photour.model.Photo;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Repository for Photos database
@@ -13,7 +16,6 @@ import java.util.List;
 public class PhotoRepository {
 
   private PhotoDao photoDao;
-  private LiveData<List<Photo>> photos;
 
   /**
    * Constructor of {@link PhotoRepository}
@@ -23,7 +25,6 @@ public class PhotoRepository {
   public PhotoRepository(Application application) {
     AppDatabase db = AppDatabase.getDatabase(application);
     photoDao = db.imageDao();
-    photos = photoDao.getAllDesc();
   }
 
   /**
@@ -36,12 +37,36 @@ public class PhotoRepository {
   }
 
   /**
-   * Get all Photos from database
+   * Get all Photos from database in LiveData form
    *
    * @return LiveData<List<Photo>> List of Photos
    */
-  public LiveData<List<Photo>> getAllPhotos() {
-    return photos;
+  public LiveData<List<Photo>> getAllLivePhotosDesc() {
+    Callable<LiveData<List<Photo>>> getCallable = () -> photoDao.getAllDesc();
+
+    Future<LiveData<List<Photo>>> future = AppDatabase.databaseWriteExecutor.submit(getCallable);
+
+    try {
+      return future.get();
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+    }
+
+    return null;
+  }
+
+  public List<Photo> getAllPhotos() {
+    Callable<List<Photo>> getCallable = () -> photoDao.getAllPhotos();
+
+    Future<List<Photo>> future = AppDatabase.databaseWriteExecutor.submit(getCallable);
+
+    try {
+      return future.get();
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+    }
+
+    return null;
   }
 
   /**
@@ -53,6 +78,4 @@ public class PhotoRepository {
   public LiveData<List<Photo>> getAllPhotosInVisit(int visitId) {
     return photoDao.findByVisit(visitId);
   }
-
-
 }

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="tempArray">
-        <item>Celsius</item>
-        <item>Fahrenheit</item>
-    </string-array>
-    <string-array name="tempValues">
-        <item>\u00B0C</item>
-        <item>\u00B0F</item>
-    </string-array>
+  <string-array name="tempArray">
+    <item>Celsius</item>
+    <item>Fahrenheit</item>
+  </string-array>
+  <string-array name="tempValues">
+    <item>\u00B0C</item>
+    <item>\u00B0F</item>
+  </string-array>
 </resources>

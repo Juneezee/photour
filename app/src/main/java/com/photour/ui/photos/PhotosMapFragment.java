@@ -1,4 +1,4 @@
-package com.photour.ui.photo;
+package com.photour.ui.photos;
 
 import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
@@ -10,38 +10,36 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
-import com.google.android.libraries.maps.CameraUpdateFactory;
+import androidx.lifecycle.ViewModelProvider;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
-import com.google.android.libraries.maps.model.MarkerOptions;
-import com.photour.MainActivity;
+import com.google.maps.android.clustering.ClusterManager;
 import com.photour.R;
-import com.photour.databinding.FragmentPhotoBinding;
 import com.photour.helper.PermissionHelper;
-import com.photour.helper.PreferenceHelper;
 import com.photour.model.Photo;
+import java.util.List;
 
 /**
- * Fragment to create when an photo has been clicked
+ * Fragment to create when the map icon has been clicked on {@link PhotosFragment}, show "location
+ * album"
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
-public class PhotoFragment extends Fragment implements OnMapReadyCallback {
+public class PhotosMapFragment extends Fragment implements OnMapReadyCallback {
 
   private static final String[] PERMISSIONS_REQUIRED = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
-  private FragmentPhotoBinding binding;
+  private PhotosViewModel photosViewModel;
   private Activity activity;
+  private View view;
 
   private GoogleMap googleMap;
-  private Photo photo;
+  private ClusterManager<ClusterMarker> clusterManager;
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -71,23 +69,12 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
    * saved state as given here.
    * @return View Return the View for the fragment's UI, or null.
    */
-  @Nullable
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
-
-    binding = FragmentPhotoBinding.inflate(inflater, container, false);
-    binding.setLifecycleOwner(this);
-
-    if (getArguments() != null) {
-      photo = PhotoFragmentArgs.fromBundle(getArguments()).getPhoto();
-      binding.setPhoto(photo);
-      binding.setUnit(PreferenceHelper.tempUnit(getContext()));
-    }
-
-    ((MainActivity) activity).setToolbarTitle("");
-
-    return binding.getRoot();
+    photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
+    view = inflater.inflate(R.layout.fragment_photos_map, container, false);
+    return view;
   }
 
   /**
@@ -100,51 +87,14 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
    */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    // Inflate MapFragment lite mode. Lite mode only work when using ViewStub to inflate it
-    ViewStub viewStub = binding.viewstubMap.getViewStub();
-    if (viewStub != null) {
-      viewStub.inflate();
+    super.onViewCreated(view, savedInstanceState);
+
+    if (savedInstanceState == null) {
+      // Prevent mini-lag when the map icon is clicked for first time
+      new Handler().post(this::initGoogleMap);
+    } else {
+      initGoogleMap();
     }
-
-    SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager()
-        .findFragmentById(R.id.map_lite_fragment);
-
-    if (supportMapFragment != null) {
-      // Disable click events in lite mode, prevent opening Google Maps
-      View mapview = supportMapFragment.getView();
-      if (mapview != null) {
-        supportMapFragment.getView().setClickable(false);
-      }
-
-      supportMapFragment.getMapAsync(this);
-    }
-  }
-
-  /**
-   * Called when fragment is initialised or resumed. Checks if has storage permission else exit to
-   * previous fragment
-   */
-  @Override
-  public void onResume() {
-    super.onResume();
-
-    if (!permissionHelper.hasStoragePermission()) {
-      Navigation.findNavController(binding.getRoot()).navigateUp();
-    }
-  }
-
-  /**
-   * Called when the map is ready to be used.
-   *
-   * @param googleMap A non-null instance of a GoogleMap associated with the MapFragment or MapView
-   * that defines the callback.
-   */
-  @Override
-  public void onMapReady(GoogleMap googleMap) {
-    this.googleMap = googleMap;
-    this.googleMap.getUiSettings().setMapToolbarEnabled(false);
-    this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(photo.latLng(), 15));
-    this.googleMap.addMarker(new MarkerOptions().position(photo.latLng()));
   }
 
   /**
@@ -159,4 +109,72 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
     // Do not show any menu items
     menu.clear();
   }
+
+  /**
+   * Callback for the result from requesting permissions. This method is invoked for every call on
+   * {@link #requestPermissions(String[], int)}.
+   *
+   * @param requestCode The request code passed in {@link #requestPermissions(String[], int)}.
+   * @param permissions The requested permissions. Never null.
+   * @param grantResults The grant results for the corresponding permissions which is either {@link
+   * android.content.pm.PackageManager#PERMISSION_GRANTED} or {@link android.content.pm.PackageManager#PERMISSION_DENIED}.
+   * Never null.
+   */
+  @Override
+  public void onRequestPermissionsResult(
+      int requestCode,
+      @NonNull String[] permissions,
+      @NonNull int[] grantResults
+  ) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+    permissionHelper.onRequestPermissionsResult(grantResults, this::initGoogleMap);
+  }
+
+  /**
+   * Called when the map is ready to be used.
+   *
+   * @param googleMap A non-null instance of a GoogleMap associated with the MapFragment or MapView
+   * that defines the callback.
+   */
+  @Override
+  public void onMapReady(GoogleMap googleMap) {
+    this.googleMap = googleMap;
+    this.googleMap.getUiSettings().setZoomControlsEnabled(true);
+    this.googleMap.getUiSettings().setMapToolbarEnabled(false);
+
+    permissionHelper.checkStoragePermission(this::setUpCluster);
+  }
+
+  /**
+   * Initialise Google Map
+   */
+  private void initGoogleMap() {
+    view.findViewById(R.id.viewstub_map).setVisibility(View.VISIBLE);
+
+    SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager()
+        .findFragmentById(R.id.map_fragment);
+
+    if (supportMapFragment != null) {
+      supportMapFragment.getMapAsync(this);
+    }
+  }
+
+  /**
+   * Set up <var>clusterManager</var>
+   */
+  private void setUpCluster() {
+    // Initialize the manager with the context and the map.
+    clusterManager = new ClusterManager<>(activity, googleMap);
+
+    googleMap.setOnCameraIdleListener(clusterManager);
+    googleMap.setOnMarkerClickListener(clusterManager);
+
+    List<Photo> photos = photosViewModel.loadPhotosForClusterMarker();
+
+    for (Photo photo : photos) {
+      clusterManager.addItem(new ClusterMarker(photo.filePath(), photo.latLng()));
+    }
+  }
+
 }

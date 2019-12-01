@@ -11,7 +11,7 @@ import com.photour.ui.photos.PhotosFragment;
 import java.io.File;
 
 /**
- * A helper class for managing cache for images
+ * A helper class for managing cache for photos
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */

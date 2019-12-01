@@ -24,6 +24,7 @@
       android:padding="@dimen/fragment_horizontal_margin"
       android:singleLine="true"
       android:text="@{title.title}"
+      android:textColor="?android:textColorPrimary"
       android:textSize="16sp" />
 
   </LinearLayout>

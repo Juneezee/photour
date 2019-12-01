@@ -26,9 +26,9 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
 
-<!--      app:rawImage="@{visit.visitCover()}"
-        app:reqHeight="@{360}"
-        app:reqWidth="@{240}"-->
+      <!--      app:rawImage="@{visit.visitCover()}"
+              app:reqHeight="@{360}"
+              app:reqWidth="@{240}"-->
 
       <ImageView
         android:id="@+id/visit_image"
@@ -39,8 +39,7 @@
         android:src="@drawable/ic_logo_vertical"
         app:layout_constraintBottom_toTopOf="@id/visit_title"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-         />
+        app:layout_constraintTop_toTopOf="parent" />
 
       <TextView
         android:id="@+id/visit_title"

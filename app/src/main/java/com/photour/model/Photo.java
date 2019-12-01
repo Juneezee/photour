@@ -111,7 +111,7 @@ public abstract class Photo implements Parcelable {
   }
 
   /**
-   * Data binding adapter for loading the thumbnail images
+   * Data binding adapter for loading the thumbnail photos
    *
    * @param imageView An {@link ImageView} object
    * @param filepath filepath of image
@@ -138,7 +138,7 @@ public abstract class Photo implements Parcelable {
   }
 
   /**
-   * Data binding adapter for loading the raw images
+   * Data binding adapter for loading the raw photos
    *
    * @param imageView An {@link ImageView} object
    * @param filepath filepath of image
