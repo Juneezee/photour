@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class VisitAdapter extends RecyclerView.Adapter<VisitAdapter.ScrollImage> {
 
-  private static List<Photo> items = new ArrayList<>();
+  private List<Photo> items = new ArrayList<>();
 
   /**
    * Setter for items
@@ -24,7 +24,7 @@ public class VisitAdapter extends RecyclerView.Adapter<VisitAdapter.ScrollImage>
    * @param items List of Uri for the adapter
    */
   void setItems(List<Photo> items) {
-    VisitAdapter.items = items;
+    this.items = items;
   }
 
   /**
@@ -77,7 +77,7 @@ public class VisitAdapter extends RecyclerView.Adapter<VisitAdapter.ScrollImage>
    *
    * @author Zer Jun Eng, Jia Hua Ng
    */
-  class ScrollImage extends  RecyclerView.ViewHolder {
+  class ScrollImage extends RecyclerView.ViewHolder {
 
     final ItemPagerBinding itemPagerBinding;
 

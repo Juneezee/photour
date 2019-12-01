@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import androidx.navigation.Navigation;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 import com.google.android.libraries.maps.model.LatLng;
@@ -40,14 +41,31 @@ public abstract class Visit implements Parcelable {
   @Nullable
   public abstract ArrayList<LatLng> latLngList();
 
+  public int imageCount;
+
+  public final int imageCount() {
+    return imageCount;
+  }
+
+  public String file_path;
+
+  public final String file_path() {
+    return file_path;
+  }
+
   public static Visit create(
       int id,
       String visitTitle,
       Date date,
       long elapsedTime,
-      ArrayList<LatLng> latLngList
+      ArrayList<LatLng> latLngList,
+      int imageCount,
+      String file_path
   ) {
-    return new AutoValue_Visit(id, visitTitle, date, elapsedTime, latLngList);
+    Visit visit = new AutoValue_Visit(id, visitTitle, date, elapsedTime, latLngList);
+    visit.imageCount = imageCount;
+    visit.file_path = file_path;
+    return visit;
   }
 
   /**

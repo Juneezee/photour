@@ -26,8 +26,7 @@ public class VisitViewModel extends AndroidViewModel {
   private MutableLiveData<String[]> detailsArray = new MutableLiveData<>();
   private PhotoRepository photoRepository;
   public Visit visit;
-  public LiveData<List<Photo>> images;
-  private boolean hasSensorsReading;
+  public LiveData<List<Photo>> photos;
 
   private ContentObserver contentObserver = null;
 
@@ -56,10 +55,9 @@ public class VisitViewModel extends AndroidViewModel {
    * @param currentImagePos position of Photo in photos list
    * @return LatLng of Photo
    */
-  public LatLng setDetails(int currentImagePos) {
+  public int setDetails(int currentImagePos) {
 
-    Photo photo = images.getValue().get(currentImagePos);
-    hasSensorsReading = photo.hasSensorsReading();
+    Photo photo = photos.getValue().get(currentImagePos);
     String unit = PreferenceHelper.tempUnit(getApplication());
     String[] tempArray = {
             visit.visitTitle(),
@@ -70,7 +68,7 @@ public class VisitViewModel extends AndroidViewModel {
             String.valueOf(photo.hasSensorsReading())};
     detailsArray.setValue(tempArray);
 
-    return photo.latLng();
+    return photo.id();
   }
 
   /**
@@ -96,7 +94,8 @@ public class VisitViewModel extends AndroidViewModel {
    * Helper function to setup photos LiveData with the Room
    */
   public void loadImages() {
-    images = photoRepository.getAllPhotosInVisit(visit.id());
+    photos = photoRepository.getAllPhotosInVisit(visit.id());
+    System.out.println("loadImages: "+photos.getValue());
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {
         @Override

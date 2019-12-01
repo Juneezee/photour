@@ -86,23 +86,28 @@ public class VisitsFragment extends Fragment {
     return binding.getRoot();
   }
 
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+
+    permissionHelper.checkStoragePermission(this::initializeRecyclerView);
+  }
+
   /**
    * Called when the fragment is created or resumed
    */
   @Override
   public void onResume() {
     super.onResume();
-
     visitsViewModel.setPlaceholderText(permissionHelper.hasStoragePermission());
-
     // Check if storage permission is granted or not
-    permissionHelper.checkStoragePermission(this::initializeRecyclerView);
   }
 
   /**
    * Helper function to initialise recyclerView. Observes visits list of ViewModel
    */
   private void initializeRecyclerView() {
+    visitsViewModel.loadVisit();
     visitsViewModel.setPlaceholderText(true);
 
     mRecyclerView = binding.gridRecyclerView;
@@ -121,9 +126,15 @@ public class VisitsFragment extends Fragment {
    * @param visits List of Visit
    */
   private void resetRecyler(List<Visit> visits) {
-    // Parses values into adapters and update view
-    visitAdapter.setItems(visits);
-    visitAdapter.notifyDataSetChanged();
+
+    if (visits == null || visits.size() == 0) {
+      visitsViewModel.setPlaceholderText(false);
+    } else {
+      // Parses values into adapters and update view
+      visitsViewModel.setPlaceholderText(true);
+      visitAdapter.setItems(visits);
+      visitAdapter.notifyDataSetChanged();
+    }
   }
 
   /**

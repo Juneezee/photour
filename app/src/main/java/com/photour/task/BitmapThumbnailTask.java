@@ -43,7 +43,7 @@ public class BitmapThumbnailTask extends BitmapTask {
       filepath = filepaths[0];
 
       final ExifInterface exifInterface = new ExifInterface(filepath);
-      String idStr = CacheHelper.getImageIdString(filepath);
+      String idStr = filepaths[1];
 
       /*
        * Case 1: Image is supported by ExifInterface and has thumbnail, then return embded thumbnail

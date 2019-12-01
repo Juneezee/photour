@@ -22,6 +22,7 @@ import com.google.android.libraries.maps.SupportMapFragment;
 import com.google.android.libraries.maps.model.MarkerOptions;
 import com.photour.MainActivity;
 import com.photour.R;
+import com.photour.database.VisitRepository;
 import com.photour.databinding.FragmentPhotoBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.helper.PreferenceHelper;
@@ -80,9 +81,11 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
     binding.setLifecycleOwner(this);
 
     if (getArguments() != null) {
+      VisitRepository visitRepository = new VisitRepository(getActivity().getApplication());
       photo = PhotoFragmentArgs.fromBundle(getArguments()).getPhoto();
       binding.setPhoto(photo);
       binding.setUnit(PreferenceHelper.tempUnit(getContext()));
+      binding.setVisitTitle(visitRepository.getVisitTitle(photo.visitId()));
     }
 
     ((MainActivity) activity).setToolbarTitle("");

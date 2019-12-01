@@ -44,9 +44,7 @@ public class CacheHelper {
     final int cacheSize = maxMemory / 4;
 
     //Creates or find PhotosFragment sets memory cache of PhotosFragment
-    PhotosFragment mRetainFragment =
-        PhotosFragment
-            .findOrCreateRetainFragment(((MainActivity) context).getSupportFragmentManager());
+//
     memoryCache = PhotosFragment.mRetainedCache;
     if (memoryCache == null) {
       memoryCache = new LruCache<String, Bitmap>(cacheSize) {

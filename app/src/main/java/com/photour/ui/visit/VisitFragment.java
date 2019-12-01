@@ -20,7 +20,9 @@ import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
+import com.google.android.libraries.maps.model.BitmapDescriptorFactory;
 import com.google.android.libraries.maps.model.LatLng;
+import com.google.android.libraries.maps.model.Marker;
 import com.google.android.libraries.maps.model.MarkerOptions;
 import com.photour.MainActivity;
 import com.photour.R;
@@ -28,6 +30,8 @@ import com.photour.databinding.FragmentViewVisitBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.model.Photo;
 import com.photour.model.Visit;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,6 +52,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   private VisitViewModel visitViewModel;
   private ViewPager2 mViewPager;
   private VisitAdapter visitAdapter;
+  private List<Marker> markerList = new ArrayList<>();
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -109,24 +114,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    // Inflate MapFragment lite mode. Lite mode only work when using ViewStub to inflate it
-    ViewStub viewStub = binding.viewstubMap.getViewStub();
-    if (viewStub != null) {
-      viewStub.inflate();
-    }
-
-    SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager()
-            .findFragmentById(R.id.map_lite_fragment);
-
-    if (supportMapFragment != null) {
-      // Disable click events in lite mode, prevent opening Google Maps
-      View mapview = supportMapFragment.getView();
-      if (mapview != null) {
-        supportMapFragment.getView().setClickable(false);
-      }
-
-      supportMapFragment.getMapAsync(this);
-    }
+    inflateMap();
 
     if (visit != null) { initializeViewPager();}
   }
@@ -153,7 +141,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     visitAdapter = new VisitAdapter();
     mViewPager.setAdapter(visitAdapter);
 
-    visitViewModel.images.observe(getViewLifecycleOwner(), this::resetViewPager);
+    visitViewModel.photos.observe(getViewLifecycleOwner(), this::resetViewPager);
   }
 
   /**
@@ -164,14 +152,34 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    */
   private void resetViewPager(List<Photo> photos) {
     if (photos != null && photos.size() > 0) {
-      LatLng point = visitViewModel.setDetails(mViewPager.getCurrentItem());
-      setMarker(point);
+      initializeMarker(photos);
       visitAdapter.setItems(photos);
       visitAdapter.notifyDataSetChanged();
       visitViewModel.setPlaceholderText(true);
       mViewPager.registerOnPageChangeCallback(callback);
     } else {
       visitViewModel.setPlaceholderText(false);
+    }
+  }
+
+  private void inflateMap() {
+    // Inflate MapFragment lite mode. Lite mode only work when using ViewStub to inflate it
+    ViewStub viewStub = binding.viewstubMap.getViewStub();
+    if (viewStub != null) {
+      viewStub.inflate();
+    }
+
+    SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager()
+            .findFragmentById(R.id.map_lite_fragment);
+
+    if (supportMapFragment != null) {
+      // Disable click events in lite mode, prevent opening Google Maps
+      View mapview = supportMapFragment.getView();
+      if (mapview != null) {
+        supportMapFragment.getView().setClickable(false);
+      }
+
+      supportMapFragment.getMapAsync(this);
     }
   }
 
@@ -187,14 +195,36 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     this.googleMap.getUiSettings().setMapToolbarEnabled(false);
   }
 
+  public void initializeMarker(List<Photo> photos) {
+    for (Photo photo : photos) {
+      LatLng point = photo.latLng();
+
+      Marker marker = this.googleMap.addMarker(new MarkerOptions().position(point)
+              .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+      marker.setTag(photo.id());
+      markerList.add(marker);
+    }
+
+  }
+
+
   /**
    * Helper function to set the marker for Photo when the ViewPager is scrolled
    *
-   * @param point LatLng object parsed from Photo
+   * @param id id parsed from Photo
    */
-  public void setMarker(LatLng point) {
-    this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 15));
-    this.googleMap.addMarker(new MarkerOptions().position(point));
+  public void setMarker(int id) {
+    for (Marker marker : markerList) {
+      if (id == (int)marker.getTag()) {
+        this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15));
+        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        marker.setZIndex(1.0f);
+      } else {
+        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        marker.setZIndex(0f);
+      }
+    }
+
   }
 
   /**
@@ -214,8 +244,8 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onPageSelected(int position) {
       super.onPageSelected(position);
-      LatLng point = visitViewModel.setDetails(position);
-      setMarker(point);
+      int id = visitViewModel.setDetails(position);
+      setMarker(id);
     }
   };
 }

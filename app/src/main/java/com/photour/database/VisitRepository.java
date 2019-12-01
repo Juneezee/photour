@@ -68,4 +68,19 @@ public class VisitRepository {
   public LiveData<List<Visit>> getAllVisits() {
     return visitDao.getAllVisits();
   }
+
+  public String getVisitTitle(final long id) {
+    Callable<String> titleCallable = () -> visitDao.getVisitTitle(id);
+    String title = "";
+
+    Future<String> future = AppDatabase.databaseWriteExecutor.submit(titleCallable);
+
+    try {
+      title = future.get();
+    } catch (ExecutionException | InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    return title;
+  };
 }

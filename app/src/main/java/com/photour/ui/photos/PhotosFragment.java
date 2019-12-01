@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.photour.R;
+import com.photour.database.VisitRepository;
 import com.photour.databinding.FragmentPhotosBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.model.Photo;
@@ -53,17 +54,6 @@ public class PhotosFragment extends Fragment {
   private PhotosViewModel photosViewModel;
   private FragmentPhotosBinding binding;
   private Activity activity;
-
-  /**
-   * Finds or create a PhotoFragment using FragmentManager. Used to retain state on rotation
-   *
-   * @param fm FragmentManager
-   * @return PhotoFragment
-   */
-  public static PhotosFragment findOrCreateRetainFragment(FragmentManager fm) {
-    PhotosFragment fragment = (PhotosFragment) fm.findFragmentByTag(TAG);
-    return fragment == null ? new PhotosFragment() : fragment;
-  }
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -110,6 +100,12 @@ public class PhotosFragment extends Fragment {
     return binding.getRoot();
   }
 
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+
+    permissionHelper.checkStoragePermission(this::initializeRecyclerView);
+  }
 
   /**
    * Called when the fragment is created or resumed
@@ -118,9 +114,6 @@ public class PhotosFragment extends Fragment {
   public void onResume() {
     super.onResume();
     photosViewModel.setPlaceholderText(permissionHelper.hasStoragePermission());
-
-    // Check if storage permission is granted or not
-    permissionHelper.checkStoragePermission(this::initializeRecyclerView);
   }
 
   /**
@@ -195,7 +188,7 @@ public class PhotosFragment extends Fragment {
   private List<SectionElement> sectionImages(List<Photo> images) {
     List<SectionElement> sections = new ArrayList<>();
     Hashtable<String, Integer> titles = new Hashtable<>();
-
+    VisitRepository visitRepository = new VisitRepository(getActivity().getApplication());
     if (images != null) {
       int i = photosViewModel.sortMode == R.id.by_date_asc ? images.size() - 1 : 0;
       int limit = photosViewModel.sortMode == R.id.by_date_asc ? -1 : images.size();
@@ -210,10 +203,11 @@ public class PhotosFragment extends Fragment {
           SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
           currentTitle = sdf.format(date);
         } else {
-          currentTitle = ""; //TODO
+          currentTitle = String.valueOf(photo.visitId());
         }
         if (!titles.containsKey(currentTitle)) {
-          sections.add(new SectionElement(currentTitle));
+          sections.add(new SectionElement(photosViewModel.sortMode == R.id.by_visit
+                   ? visitRepository.getVisitTitle(photo.visitId()) : currentTitle));
           titles.put(currentTitle, sections.size() - 1);
         }
 

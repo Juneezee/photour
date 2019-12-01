@@ -61,7 +61,7 @@ public class VisitsViewModel extends AndroidViewModel {
   /**
    * Helper function to setup visits LiveData with the Room
    */
-  private void loadVisit() {
+  public void loadVisit() {
     visits = visitRepository.getAllVisits();
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {

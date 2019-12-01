@@ -44,7 +44,7 @@ public class NewVisitViewModel extends AndroidViewModel {
   public void insertVisit() {
     if (visitRowId == 0) {
       visitRowId = visitRepository
-          .insert(Visit.create(0, newVisitTitle.getValue(), new Date(), 0, null));
+          .insert(Visit.create(0, newVisitTitle.getValue(), new Date(), 0, null, 0, ""));
     }
   }
 

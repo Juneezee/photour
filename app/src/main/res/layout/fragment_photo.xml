@@ -6,7 +6,9 @@
     <variable
       name="unit"
       type="String" />
-
+    <variable
+        name="visitTitle"
+        type="String" />
     <variable
       name="photo"
       type="com.photour.model.Photo" />
@@ -54,7 +56,7 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text=""
+        android:text="@{visitTitle}"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/visit_label" />

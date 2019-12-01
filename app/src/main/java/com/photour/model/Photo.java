@@ -52,17 +52,25 @@ public abstract class Photo implements Parcelable {
   @PrimaryKey(autoGenerate = true)
   public abstract int id();
 
+  @CopyAnnotations
+  @ColumnInfo(name = "visitId")
   public abstract int visitId();
 
   @CopyAnnotations
   @ColumnInfo(name = "file_path")
   public abstract String filePath();
 
+  @CopyAnnotations
+  @ColumnInfo(name = "date")
   public abstract Date date();
 
+  @CopyAnnotations
+  @ColumnInfo(name = "latLng")
   public abstract LatLng latLng();
 
   @Nullable
+  @CopyAnnotations
+  @ColumnInfo(name = "sensors")
   public abstract float[] sensors();
 
   public static Photo create(
@@ -116,12 +124,12 @@ public abstract class Photo implements Parcelable {
    * @param imageView An {@link ImageView} object
    * @param filepath filepath of image
    */
-  @BindingAdapter({"imageBitmap"})
-  public static void loadImageBitmap(ImageView imageView, String filepath) {
+  @BindingAdapter({"imageBitmap","elementId"})
+  public static void loadImageBitmap(ImageView imageView, String filepath, int elementId) {
     final Context context = imageView.getContext();
-
+    final String id = String.valueOf(elementId);
     Bitmap bitmap = ((MainActivity) context).cacheHelper
-        .getBitmapFromMemCache(CacheHelper.getImageIdString(filepath));
+        .getBitmapFromMemCache(id);
     if (bitmap != null) {
       imageView.setImageBitmap(bitmap);
     } else {
@@ -132,7 +140,7 @@ public abstract class Photo implements Parcelable {
         final AsyncDrawable asyncDrawable =
             new AsyncDrawable(context.getResources(), placeholder, task);
         imageView.setImageDrawable(asyncDrawable);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath);
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath, id);
       }
     }
   }

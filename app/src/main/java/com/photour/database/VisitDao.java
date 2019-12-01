@@ -26,8 +26,12 @@ public interface VisitDao {
   @Query("UPDATE visits SET elapsedTime = :elapsedTime, latLngList = :latLngList WHERE id = :id")
   void update(final long id, final long elapsedTime, final ArrayList<LatLng> latLngList);
 
-  @Query("SELECT * FROM visits")
+  @Query("SELECT visits.*, photos.file_path, COUNT(photos.visitId) AS imageCount FROM visits LEFT JOIN photos ON visits.id = photos.visitId GROUP BY photos.visitId")
   LiveData<List<Visit>> getAllVisits();
+
+  @Query("SELECT visitTitle FROM visits WHERE id =:id")
+  String getVisitTitle(final long id);
+
 
   @Query("SELECT * FROM visits INNER JOIN photos ON visits.id = photos.visitId")
   Visit findByImage();
