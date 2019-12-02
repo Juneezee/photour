@@ -30,4 +30,8 @@
   <string name="visit_title">Visit Title</string>
   <string name="visits">Visits</string>
   <string name="zer_jun">Zer Jun Ng (acb16zje)</string>
+  <string name="MAP_COPYRIGHTS_GOOGLE_ONLY">© %1$d Google</string>
+  <string name="MAP_COPYRIGHTS_FULL">© %1$d Google – Pictures © %2$d %3$s, Map Data © %4$d %5$s</string>
+  <string name="MAP_COPYRIGHTS_IMAGERY_ONLY">© %1$d Google – Pictures © %2$d %3$s</string>
+  <string name="MAP_COPYRIGHTS_MAP_DATA_ONLY">© %1$d Google – Map Data © %2$d %3$s</string>
 </resources>
