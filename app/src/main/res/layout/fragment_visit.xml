@@ -27,9 +27,10 @@
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/visit_label"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/placeholder" />
 
       <TextView
+        android:id="@+id/placeholder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:paddingStart="@dimen/fragment_horizontal_margin"
@@ -39,10 +40,10 @@
         android:textAlignment="center"
         android:textColor="?android:textColorPrimary"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@id/image_scroll"
+        android:visibility='@{visitItem.placeholderText.equals("") ? View.GONE : View.VISIBLE}'
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
       <TextView
         android:id="@+id/visit_label"

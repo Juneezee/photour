@@ -29,35 +29,45 @@ public class DiskLruImageCache {
   private DiskLruCache mDiskCache;
   private Bitmap.CompressFormat mCompressFormat = Bitmap.CompressFormat.JPEG;
 
+  /**
+   * Constructor for DiskLruImageCache.
+   *
+   * @param context Context of MainActivity
+   * @param uniqueName Name for the disk cache
+   * @param diskCacheSize Size of diskcache
+   */
   public DiskLruImageCache(Context context, String uniqueName, int diskCacheSize) {
     try {
       final File diskCacheDir = getDiskCacheDir(context, uniqueName);
       mDiskCache = DiskLruCache.open(diskCacheDir, APP_VERSION, VALUE_COUNT, diskCacheSize);
-//      mCompressFormat = compressFormat;
-//      mCompressQuality = quality;
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
+  /**
+   * Function to convert bitmap to compressed file
+   *
+   * @param bitmap Bitmap object that needs to be converted
+   * @param editor Editor object
+   * @return True if the compression is successful else return false
+   * @throws IOException Exeception if unable to access storage
+   */
   private boolean writeBitmapToFile(Bitmap bitmap, DiskLruCache.Editor editor) throws IOException {
     try (OutputStream out = new BufferedOutputStream(editor.newOutputStream(0),
         CacheHelper.IO_BUFFER_SIZE)) {
       int mCompressQuality = 70;
       return bitmap.compress(mCompressFormat, mCompressQuality, out);
     }
-
-//    try {
-//      out = new BufferedOutputStream( editor.newOutputStream( 0 ), CacheHelper.IO_BUFFER_SIZE );
-//      int mCompressQuality = 70;
-//      return bitmap.compress( mCompressFormat, mCompressQuality, out );
-//    } finally {
-//      if ( out != null ) {
-//        out.close();
-//      }
-//    }
   }
 
+  /**
+   * Function to get directory of disk cache
+   *
+   * @param context context Context of MainActivity
+   * @param uniqueName name of cache
+   * @return File generated from path to disk cache
+   */
   private File getDiskCacheDir(Context context, String uniqueName) {
 
     // Check if media is mounted or storage is built-in, if so, try and use external cache dir
@@ -71,6 +81,12 @@ public class DiskLruImageCache {
     return new File(cachePath + File.separator + uniqueName);
   }
 
+  /**
+   * Function to insert bitmap to disk cache
+   *
+   * @param key String key to find bitmap
+   * @param data the Bitmap object itself
+   */
   public void put(String key, Bitmap data) {
 
     DiskLruCache.Editor editor = null;
@@ -79,7 +95,6 @@ public class DiskLruImageCache {
       if (editor == null) {
         return;
       }
-
       if (writeBitmapToFile(data, editor)) {
         mDiskCache.flush();
         editor.commit();
@@ -103,9 +118,14 @@ public class DiskLruImageCache {
       } catch (IOException ignored) {
       }
     }
-
   }
 
+  /**
+   * Accessor to retrieve bitmap from disk cache
+   *
+   * @param key String to identify Bitmap
+   * @return Bitmap object or null if the Bitmap doesn't exist
+   */
   public Bitmap getBitmap(String key) {
 
     Bitmap bitmap = null;
@@ -123,34 +143,19 @@ public class DiskLruImageCache {
       e.printStackTrace();
     }
 
-//    try {
-//
-//      snapshot = mDiskCache.get(key);
-//      if (snapshot == null) {
-//        return null;
-//      }
-//      final InputStream in = snapshot.getInputStream(0);
-//      if (in != null) {
-//        final BufferedInputStream buffIn =
-//            new BufferedInputStream(in, CacheHelper.IO_BUFFER_SIZE);
-//        bitmap = BitmapFactory.decodeStream(buffIn);
-//      }
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    } finally {
-//      if (snapshot != null) {
-//        snapshot.close();
-//      }
-//    }
-
     if (BuildConfig.DEBUG) {
       Log.d(TAG, bitmap == null ? "" : "image read from disk " + key);
     }
 
     return bitmap;
-
   }
 
+  /**
+   * Check if disk cache contains a bitmap
+   *
+   * @param key String to indentify Bitmap
+   * @return True if the bitmap is in the cache, else False
+   */
   public boolean containsKey(String key) {
 
     boolean contained = false;
@@ -159,35 +164,7 @@ public class DiskLruImageCache {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
-//    try {
-//      snapshot = mDiskCache.get(key);
-//      contained = snapshot != null;
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    } finally {
-//      if (snapshot != null) {
-//        snapshot.close();
-//      }
-//    }
-
     return contained;
-
-  }
-
-  public void clearCache() {
-    if (BuildConfig.DEBUG) {
-      Log.d(TAG, "disk cache CLEARED");
-    }
-    try {
-      mDiskCache.delete();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  public File getCacheFolder() {
-    return mDiskCache.getDirectory();
   }
 
 }
