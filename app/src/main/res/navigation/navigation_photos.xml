@@ -34,6 +34,9 @@
     android:label="Location photos map"
     tools:layout="@layout/fragment_photos_map">
 
+    <action
+      android:id="@+id/action_view_photo"
+      app:destination="@id/photo" />
   </fragment>
 
   <include app:graph="@navigation/navigation_settings" />

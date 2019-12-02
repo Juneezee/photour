@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,7 +39,7 @@ import java.util.Locale;
  */
 public class PhotosFragment extends Fragment {
 
-  private static final String TAG = "PhotosFragment";
+  private static final String TAG = PhotosFragment.class.getSimpleName();
 
   public static LruCache<String, Bitmap> mRetainedCache;
 
@@ -188,7 +187,7 @@ public class PhotosFragment extends Fragment {
   private List<SectionElement> sectionImages(List<Photo> images) {
     List<SectionElement> sections = new ArrayList<>();
     Hashtable<String, Integer> titles = new Hashtable<>();
-    VisitRepository visitRepository = new VisitRepository(getActivity().getApplication());
+    VisitRepository visitRepository = new VisitRepository(activity.getApplication());
     if (images != null) {
       int i = photosViewModel.sortMode == R.id.by_date_asc ? images.size() - 1 : 0;
       int limit = photosViewModel.sortMode == R.id.by_date_asc ? -1 : images.size();
@@ -207,7 +206,7 @@ public class PhotosFragment extends Fragment {
         }
         if (!titles.containsKey(currentTitle)) {
           sections.add(new SectionElement(photosViewModel.sortMode == R.id.by_visit
-                   ? visitRepository.getVisitTitle(photo.visitId()) : currentTitle));
+              ? visitRepository.getVisitTitle(photo.visitId()) : currentTitle));
           titles.put(currentTitle, sections.size() - 1);
         }
 
@@ -233,7 +232,6 @@ public class PhotosFragment extends Fragment {
       resetGrid(photosViewModel.photos.getValue());
     }
   }
-
 
   /**
    * Initialize the contents of the Fragment host's standard options menu.

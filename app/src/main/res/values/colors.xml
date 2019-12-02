@@ -5,9 +5,7 @@
   <color name="colorAccent">#5E7CE2</color>
   <color name="colorTitleGray">#5f6368</color>
   <color name="colorSubtitleGray">#66758c</color>
-  <color name="colorLightGray">#D0D2DD</color>
-  <color name="colorBlack">#000</color>
-  <color name="colorWhite">#fff</color>
+  <color name="colorLightGray">#D0D2DD</color>s
   <color name="colorGhostWhite">#F7F7FF</color>
   <color name="colorCancel">#c53929</color>
 </resources>

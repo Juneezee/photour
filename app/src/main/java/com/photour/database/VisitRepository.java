@@ -39,7 +39,7 @@ public class VisitRepository {
     Callable<Long> insertCallable = () -> visitDao.insert(visit);
     long rowId = 0;
 
-    Future<Long> future = AppDatabase.databaseWriteExecutor.submit(insertCallable);
+    Future<Long> future = AppDatabase.databaseExecutor.submit(insertCallable);
 
     try {
       rowId = future.get();
@@ -57,7 +57,7 @@ public class VisitRepository {
    * @param latLngList The new list of LatLng
    */
   public void update(final long id, final long elapsedTime, final ArrayList<LatLng> latLngList) {
-    AppDatabase.databaseWriteExecutor.execute(() -> visitDao.update(id, elapsedTime, latLngList));
+    AppDatabase.databaseExecutor.execute(() -> visitDao.update(id, elapsedTime, latLngList));
   }
 
   /**
@@ -73,7 +73,7 @@ public class VisitRepository {
     Callable<String> titleCallable = () -> visitDao.getVisitTitle(id);
     String title = "";
 
-    Future<String> future = AppDatabase.databaseWriteExecutor.submit(titleCallable);
+    Future<String> future = AppDatabase.databaseExecutor.submit(titleCallable);
 
     try {
       title = future.get();

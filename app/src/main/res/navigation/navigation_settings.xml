@@ -18,7 +18,7 @@
   <fragment
     android:id="@+id/about"
     android:name="com.photour.ui.about.AboutFragment"
-    android:label="@string/about"
+    android:label="About Us"
     tools:layout="@layout/fragment_about" />
 
 </navigation>

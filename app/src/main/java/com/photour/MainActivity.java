@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity
   private BottomNavExtension navView;
   private Toolbar toolbar;
   public CacheHelper cacheHelper;
-  public PreferenceHelper preferenceHelper;
 
   /**
    * Perform the required actions when the activity is created

@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import com.photour.database.PhotoRepository;
 import com.photour.database.VisitRepository;
 import com.photour.model.Visit;
 import java.util.List;

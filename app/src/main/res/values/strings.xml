@@ -5,15 +5,20 @@
   <string name="add_a_title">Add a title</string>
   <string name="app_name">Photour</string>
   <string name="celsius">\u00B0C</string>
+  <string name="date">Date</string>
   <string name="developed_by">Developed By</string>
   <string name="dialog_image">Dialog image</string>
   <string name="fahrenheit">\u00B0F</string>
+  <string name="file_path">File Path</string>
   <string name="image">Image</string>
   <string name="jia_hua">Jia Hua Ng (acb16jhn)</string>
+  <string name="location">Location</string>
   <string name="new_visit">New Visit</string>
+  <string name="photo">Photo</string>
   <string name="photos">Photos</string>
   <string name="photour_horizontal_logo">Photour horizontal logo</string>
   <string name="photour_vertical_logo">Photour vertical logo</string>
+  <string name="pressure">Pressure</string>
   <string name="settings">Settings</string>
   <string name="sort">Sort</string>
   <string name="sort_by_newest_first">Sort by: Newest first</string>
@@ -22,13 +27,9 @@
   <string name="start">Start</string>
   <string name="start_a_new_visit">Start a New Visit</string>
   <string name="stop">Stop</string>
+  <string name="temperature">Temperature</string>
   <string name="title_activity_maps">Map</string>
   <string name="visit_title">Visit Title</string>
-  <string name="date">Date</string>
-  <string name="location">Location</string>
-  <string name="temperature">Temperature</string>
-  <string name="pressure">Pressure</string>
-  <string name="file_path">File Path</string>
   <string name="visits">Visits</string>
   <string name="zer_jun">Zer Jun Ng (acb16zje)</string>
 </resources>

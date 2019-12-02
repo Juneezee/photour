@@ -1,9 +1,9 @@
 package com.photour.ui.about;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
@@ -18,6 +18,13 @@ import com.photour.R;
  */
 public class AboutFragment extends Fragment {
 
+  /**
+   * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
+   * and before {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+   *
+   * @param savedInstanceState If the fragment is being re-created from a previous saved state, this
+   * is the state.
+   */
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -44,11 +51,16 @@ public class AboutFragment extends Fragment {
     return inflater.inflate(R.layout.fragment_about, container, false);
   }
 
+  /**
+   * Prepare the Fragment host's standard options menu to be displayed.
+   *
+   * @param menu The options menu as last shown or first initialized by onCreateOptionsMenu().
+   * @see #setHasOptionsMenu
+   * @see #onCreateOptionsMenu
+   */
   @Override
-  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-    super.onCreateOptionsMenu(menu, inflater);
-
-    // Do not show the settings icon once we are in settings fragment
+  public void onPrepareOptionsMenu(@NonNull Menu menu) {
+    // Do not show any menu items
     menu.clear();
   }
 }

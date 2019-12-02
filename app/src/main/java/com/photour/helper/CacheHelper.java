@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.LruCache;
-import com.photour.MainActivity;
 import com.photour.database.DiskLruImageCache;
 import com.photour.ui.photos.PhotosFragment;
 import java.io.File;

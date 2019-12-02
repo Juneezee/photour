@@ -17,6 +17,9 @@ public class BitmapTask extends AsyncTask<String, Void, Bitmap> {
   WeakReference<Context> contextReference;
   private WeakReference<ImageView> imageViewWeakReference;
 
+  BitmapTask() {
+  }
+
   /**
    * Constructor for BitmapTask
    *
@@ -28,6 +31,21 @@ public class BitmapTask extends AsyncTask<String, Void, Bitmap> {
     this.imageViewWeakReference = new WeakReference<>(imageView);
   }
 
+  /**
+   * Constructor for BitmapTask
+   *
+   * @param imageView imageView that the bitmap will be set on
+   */
+  BitmapTask(ImageView imageView) {
+    this.imageViewWeakReference = new WeakReference<>(imageView);
+  }
+
+  /**
+   * Perform computation on background thread
+   *
+   * @param filepaths The file path of photos
+   * @return Bitmap A {@link Bitmap} object
+   */
   @Override
   protected Bitmap doInBackground(String... filepaths) {
     return null;

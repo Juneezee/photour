@@ -33,7 +33,7 @@ public class PhotoRepository {
    * @param photo Photo object to be inserted into the database
    */
   public void insert(Photo photo) {
-    AppDatabase.databaseWriteExecutor.execute(() -> photoDao.insert(photo));
+    AppDatabase.databaseExecutor.execute(() -> photoDao.insert(photo));
   }
 
   /**
@@ -44,7 +44,7 @@ public class PhotoRepository {
   public LiveData<List<Photo>> getAllLivePhotosDesc() {
     Callable<LiveData<List<Photo>>> getCallable = () -> photoDao.getAllDesc();
 
-    Future<LiveData<List<Photo>>> future = AppDatabase.databaseWriteExecutor.submit(getCallable);
+    Future<LiveData<List<Photo>>> future = AppDatabase.databaseExecutor.submit(getCallable);
 
     try {
       return future.get();
@@ -55,10 +55,15 @@ public class PhotoRepository {
     return null;
   }
 
+  /**
+   * Get all Photos from database
+   *
+   * @return List<Photo>
+   */
   public List<Photo> getAllPhotos() {
     Callable<List<Photo>> getCallable = () -> photoDao.getAllPhotos();
 
-    Future<List<Photo>> future = AppDatabase.databaseWriteExecutor.submit(getCallable);
+    Future<List<Photo>> future = AppDatabase.databaseExecutor.submit(getCallable);
 
     try {
       return future.get();

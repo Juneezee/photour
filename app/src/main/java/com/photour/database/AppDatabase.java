@@ -7,8 +7,6 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import com.photour.converter.DateConverter;
 import com.photour.converter.FloatArrayConverter;
-import com.photour.converter.LatLngConverter;
-import com.photour.converter.LatLngListConverter;
 import com.photour.model.Photo;
 import com.photour.model.Visit;
 import java.util.concurrent.ExecutorService;
@@ -29,8 +27,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
   private static volatile AppDatabase INSTANCE;
   private static final int NUMBER_OF_THREADS = 4;
-  static final ExecutorService databaseWriteExecutor = Executors
-      .newFixedThreadPool(NUMBER_OF_THREADS);
+  static final ExecutorService databaseExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
   /**
    * Initialise the database if not yet initialised, else return the database object.

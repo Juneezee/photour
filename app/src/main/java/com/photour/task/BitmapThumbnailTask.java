@@ -7,7 +7,6 @@ import android.widget.ImageView;
 import androidx.exifinterface.media.ExifInterface;
 import com.photour.MainActivity;
 import com.photour.helper.BitmapHelper;
-import com.photour.helper.CacheHelper;
 
 /**
  * A child class of {@link BitmapTask} for handling the async task for thumbnails

@@ -4,8 +4,6 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.photour.database.PhotoRepository;
 import com.photour.databinding.ItemVisitBinding;
 import com.photour.model.Visit;
 import com.photour.ui.visits.VisitAdapter.VisitCard;

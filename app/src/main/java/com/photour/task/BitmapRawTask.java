@@ -1,6 +1,5 @@
 package com.photour.task;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.ImageView;
@@ -19,11 +18,10 @@ public class BitmapRawTask extends BitmapTask {
   /**
    * Constructor for BitmapRawTask
    *
-   * @param context contextReference of activity
    * @param imageView imageView that the bitmap will be set on
    */
-  public BitmapRawTask(Context context, ImageView imageView) {
-    super(context, imageView);
+  public BitmapRawTask(ImageView imageView) {
+    super(imageView);
   }
 
   /**

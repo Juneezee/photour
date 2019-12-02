@@ -23,7 +23,7 @@ import java.util.List;
 public class PhotosViewModel extends AndroidViewModel {
 
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
-  public int sortMode;
+  int sortMode;
 
   // Statics for readwrite photos
   private PhotoRepository photoRepository;

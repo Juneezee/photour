@@ -9,8 +9,8 @@
 
     <style name="AppTheme.NoActionBar">
         <item name="colorPrimary">@color/colorPrimaryDark</item>
-        <item name="visitTitle">@color/colorWhite</item>
-        <item name="detailTitle">@color/colorWhite</item>
+        <item name="visitTitle">@android:color/white</item>
+        <item name="detailTitle">@android:color/white</item>
         <item name="colorButtonNormal">@color/colorPrimaryDark</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.libraries.maps.model.LatLng;
 import com.photour.database.PhotoRepository;
 import com.photour.helper.PreferenceHelper;
 import com.photour.model.Photo;

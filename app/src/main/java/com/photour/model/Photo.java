@@ -14,15 +14,16 @@ import androidx.navigation.Navigation;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 import com.google.android.libraries.maps.model.LatLng;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.maps.android.clustering.ClusterItem;
 import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.converter.LatLngConverter;
-import com.photour.helper.CacheHelper;
 import com.photour.task.AsyncDrawable;
 import com.photour.task.BitmapRawTask;
 import com.photour.task.BitmapThumbnailTask;
@@ -38,6 +39,7 @@ import java.util.Locale;
  */
 @AutoValue
 @Entity(tableName = "photos",
+    indices = @Index("visitId"),
     foreignKeys = @ForeignKey(
         entity = Visit.class,
         parentColumns = "id",
@@ -46,7 +48,7 @@ import java.util.Locale;
     )
 )
 @TypeConverters({LatLngConverter.class})
-public abstract class Photo implements Parcelable {
+public abstract class Photo implements Parcelable, ClusterItem {
 
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
@@ -82,6 +84,21 @@ public abstract class Photo implements Parcelable {
       float[] sensors
   ) {
     return new AutoValue_Photo(id, visitId, filePath, date, latLng, sensors);
+  }
+
+  @Override
+  public LatLng getPosition() {
+    return latLng();
+  }
+
+  @Override
+  public String getTitle() {
+    return null;
+  }
+
+  @Override
+  public String getSnippet() {
+    return null;
   }
 
   public boolean hasSensorsReading() {
@@ -160,9 +177,7 @@ public abstract class Photo implements Parcelable {
       int reqWidth,
       int reqHeight
   ) {
-    final Context context = imageView.getContext();
-
-    BitmapRawTask bitmapRawTask = new BitmapRawTask(imageView.getContext(), imageView);
+    BitmapRawTask bitmapRawTask = new BitmapRawTask(imageView);
 
     if (reqWidth != 0) {
       bitmapRawTask.setReqWidth(reqWidth);
@@ -173,6 +188,7 @@ public abstract class Photo implements Parcelable {
     }
 
     try {
+      final Context context = imageView.getContext();
       ExifInterface exifInterface = new ExifInterface(filepath);
 
       // Show the thumbnail first, then async load the raw image

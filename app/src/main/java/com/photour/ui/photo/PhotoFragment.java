@@ -5,7 +5,6 @@ import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 import android.Manifest;
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -81,7 +80,7 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
     binding.setLifecycleOwner(this);
 
     if (getArguments() != null) {
-      VisitRepository visitRepository = new VisitRepository(getActivity().getApplication());
+      VisitRepository visitRepository = new VisitRepository(activity.getApplication());
       photo = PhotoFragmentArgs.fromBundle(getArguments()).getPhoto();
       binding.setPhoto(photo);
       binding.setUnit(PreferenceHelper.tempUnit(getContext()));

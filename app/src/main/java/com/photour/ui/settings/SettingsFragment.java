@@ -2,7 +2,6 @@ package com.photour.ui.settings;
 
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuInflater;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceFragmentCompat;
@@ -35,17 +34,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
   }
 
   /**
-   * Initialize the contents of the Fragment host's standard options menu. Menu items should be
-   * placed in <var>menu</var>.  For this method to be called, it must have first called {@link
-   * #setHasOptionsMenu}.
+   * Prepare the Fragment host's standard options menu to be displayed.
    *
-   * @param menu The options menu in which you place your items. shown.
+   * @param menu The options menu as last shown or first initialized by onCreateOptionsMenu().
+   * @see #setHasOptionsMenu
+   * @see #onCreateOptionsMenu
    */
   @Override
-  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-    super.onCreateOptionsMenu(menu, inflater);
-
-    // Do not show the settings icon once we are in settings fragment
+  public void onPrepareOptionsMenu(@NonNull Menu menu) {
+    // Do not show any menu items
     menu.clear();
   }
 }

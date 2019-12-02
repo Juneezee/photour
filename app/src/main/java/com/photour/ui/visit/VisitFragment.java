@@ -30,7 +30,6 @@ import com.photour.databinding.FragmentViewVisitBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.model.Photo;
 import com.photour.model.Visit;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,7 +85,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   @Nullable
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                           @Nullable Bundle savedInstanceState) {
+      @Nullable Bundle savedInstanceState) {
 
     visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
 
@@ -116,7 +115,9 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     inflateMap();
 
-    if (visit != null) { initializeViewPager();}
+    if (visit != null) {
+      initializeViewPager();
+    }
   }
 
   /**
@@ -145,8 +146,8 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   }
 
   /**
-   * Helper function to reset viewPager when dataset changes
-   * Adds listener to ViewPager to update details onPageChange
+   * Helper function to reset viewPager when dataset changes Adds listener to ViewPager to update
+   * details onPageChange
    *
    * @param photos List of Photo
    */
@@ -170,7 +171,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     }
 
     SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager()
-            .findFragmentById(R.id.map_lite_fragment);
+        .findFragmentById(R.id.map_lite_fragment);
 
     if (supportMapFragment != null) {
       // Disable click events in lite mode, prevent opening Google Maps
@@ -200,7 +201,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
       LatLng point = photo.latLng();
 
       Marker marker = this.googleMap.addMarker(new MarkerOptions().position(point)
-              .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+          .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
       marker.setTag(photo.id());
       markerList.add(marker);
     }
@@ -215,7 +216,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    */
   public void setMarker(int id) {
     for (Marker marker : markerList) {
-      if (id == (int)marker.getTag()) {
+      if (id == (int) marker.getTag()) {
         this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15));
         marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         marker.setZIndex(1.0f);
