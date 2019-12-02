@@ -27,7 +27,7 @@ public class LatLngListConverter {
 
     for (LatLng latLng : latLngList) {
       string.append("[").append(latLng.latitude).append(",");
-      string.append(latLng.longitude).append("]").append(",");
+      string.append(latLng.longitude).append("]").append(";");
     }
 
     // Remove the last comma
@@ -48,14 +48,14 @@ public class LatLngListConverter {
       return null;
     }
 
-    final String[] arr = string.split(",");
+    final String[] arr = string.split(";");
     final ArrayList<LatLng> latLngList = new ArrayList<>();
 
     for (String s : arr) {
       // Remove square brackets and store latitude and longitude into another array
       String[] latLngString = s.replaceAll("[\\[\\]]", "").split(",");
       latLngList.add(
-          new LatLng(Double.parseDouble(latLngString[0]), Double.parseDouble(latLngString[0]))
+          new LatLng(Double.parseDouble(latLngString[0]), Double.parseDouble(latLngString[1]))
       );
     }
 

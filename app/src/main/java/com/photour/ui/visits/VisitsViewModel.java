@@ -35,7 +35,6 @@ public class VisitsViewModel extends AndroidViewModel {
   public VisitsViewModel(@NonNull Application application) {
     super(application);
     visitRepository = new VisitRepository(application);
-    loadVisit();
   }
 
   /**

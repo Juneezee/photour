@@ -12,7 +12,10 @@ import com.photour.database.PhotoRepository;
 import com.photour.helper.PreferenceHelper;
 import com.photour.model.Photo;
 import com.photour.model.Visit;
+
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A ViewModel for {@link VisitFragment}
@@ -55,11 +58,19 @@ public class VisitViewModel extends AndroidViewModel {
    * @return LatLng of Photo
    */
   public int setDetails(int currentImagePos) {
+    if (currentImagePos < 0) {
+      String[] tempArray = {
+              visit.visitTitle(),
+              milliSecConverter(visit.elapsedTime())};
+      detailsArray.setValue(tempArray);
 
+      return -1;
+    }
     Photo photo = photos.getValue().get(currentImagePos);
     String unit = PreferenceHelper.tempUnit(getApplication());
     String[] tempArray = {
             visit.visitTitle(),
+            milliSecConverter(visit.elapsedTime()),
             photo.getDateInString(),
             String.valueOf(unit.equals("c") ? (photo.temperatureCelsius()):(photo.temperatureFahrenheit())).concat(unit),
             String.valueOf(photo.pressure()),
@@ -92,9 +103,8 @@ public class VisitViewModel extends AndroidViewModel {
   /**
    * Helper function to setup photos LiveData with the Room
    */
-  public void loadImages() {
+  void loadImages() {
     photos = photoRepository.getAllPhotosInVisit(visit.id());
-    System.out.println("loadImages: "+photos.getValue());
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {
         @Override
@@ -106,5 +116,14 @@ public class VisitViewModel extends AndroidViewModel {
       this.getApplication().getContentResolver().registerContentObserver(
               MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, contentObserver);
     }
+  }
+
+  private String milliSecConverter(long milliseconds) {
+    long seconds = milliseconds / 1000;
+    long minutes = seconds / 60;
+    long hours = minutes / 60;
+    long days = hours / 24;
+    return (days != 0 ? days + "Days " : "") + (hours != 0 ? hours % 24 + "Hours " : "")
+            + minutes % 60 + ":" + seconds % 60;
   }
 }

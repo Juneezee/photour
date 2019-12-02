@@ -1,7 +1,5 @@
 package com.photour.ui.visits;
 
-import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
-
 import android.Manifest.permission;
 import android.app.Activity;
 import android.os.Bundle;
@@ -11,18 +9,23 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.photour.R;
 import com.photour.databinding.FragmentVisitsBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.model.Visit;
+
 import java.util.Collections;
 import java.util.List;
+
+import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
 /**
  * Fragment for Visits page
@@ -100,15 +103,14 @@ public class VisitsFragment extends Fragment {
   public void onResume() {
     super.onResume();
     visitsViewModel.setPlaceholderText(permissionHelper.hasStoragePermission());
-    // Check if storage permission is granted or not
   }
 
   /**
    * Helper function to initialise recyclerView. Observes visits list of ViewModel
    */
   private void initializeRecyclerView() {
-    visitsViewModel.loadVisit();
     visitsViewModel.setPlaceholderText(true);
+    visitsViewModel.loadVisit();
 
     mRecyclerView = binding.gridRecyclerView;
     mRecyclerView.setHasFixedSize(true);

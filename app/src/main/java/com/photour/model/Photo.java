@@ -189,18 +189,23 @@ public abstract class Photo implements Parcelable, ClusterItem {
 
     try {
       final Context context = imageView.getContext();
-      ExifInterface exifInterface = new ExifInterface(filepath);
+      if (filepath.equals("")) {
+        imageView.setImageBitmap(
+                BitmapFactory.decodeResource(context.getResources(), R.drawable.placeholder));
+      } else {
+        ExifInterface exifInterface = new ExifInterface(filepath);
 
-      // Show the thumbnail first, then async load the raw image
-      Bitmap placeholder = exifInterface.hasThumbnail()
-          ? exifInterface.getThumbnailBitmap()
-          : BitmapFactory.decodeResource(context.getResources(), R.drawable.placeholder);
+        // Show the thumbnail first, then async load the raw image
+        Bitmap placeholder = exifInterface.hasThumbnail()
+                ? exifInterface.getThumbnailBitmap()
+                : BitmapFactory.decodeResource(context.getResources(), R.drawable.placeholder);
 
-      final AsyncDrawable asyncDrawable =
-          new AsyncDrawable(context.getResources(), placeholder, bitmapRawTask);
+        final AsyncDrawable asyncDrawable =
+                new AsyncDrawable(context.getResources(), placeholder, bitmapRawTask);
 
-      imageView.setImageDrawable(asyncDrawable);
-      bitmapRawTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath);
+        imageView.setImageDrawable(asyncDrawable);
+        bitmapRawTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath);
+      }
     } catch (Exception ignored) {
     }
   }

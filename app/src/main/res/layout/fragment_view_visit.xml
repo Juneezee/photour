@@ -39,10 +39,10 @@
         android:textAlignment="center"
         android:textColor="?android:textColorPrimary"
         android:textSize="20sp"
-        android:visibility="@{visitItem.detailsArray.length == 0 ? View.GONE : View.VISIBLE}"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/image_scroll"/>
 
       <TextView
         android:id="@+id/visit_label"
@@ -55,7 +55,6 @@
         android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
-        android:visibility="@{visitItem.detailsArray.length == 0 ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/image_scroll" />
 
@@ -68,9 +67,34 @@
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:text="@{visitItem.detailsArray[0]}"
         android:textSize="16sp"
-        android:visibility="@{visitItem.detailsArray.length == 0 ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/visit_label" />
+
+      <TextView
+          android:id="@+id/time_label"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/activity_horizontal_margin"
+          android:layout_marginTop="@dimen/activity_vertical_margin"
+          android:layout_marginEnd="@dimen/activity_horizontal_margin"
+          android:text="@string/time_elapsed"
+          android:textColor="?detailTitle"
+          android:textSize="@dimen/min_text_size"
+          android:textStyle="bold"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/text_visit" />
+
+      <TextView
+          android:id="@+id/text_time"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/activity_horizontal_margin"
+          android:layout_marginEnd="@dimen/activity_horizontal_margin"
+          android:layout_marginBottom="@dimen/activity_vertical_margin"
+          android:text="@{visitItem.detailsArray[1]}"
+          android:textSize="16sp"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/time_label" />
 
       <TextView
         android:id="@+id/date_label"
@@ -83,9 +107,9 @@
         android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
-        android:visibility="@{visitItem.detailsArray.length == 0 ? View.GONE : View.VISIBLE}"
+        android:visibility="@{visitItem.detailsArray.length == 2 ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_visit" />
+        app:layout_constraintTop_toBottomOf="@id/text_time" />
 
       <TextView
         android:id="@+id/text_date"
@@ -94,9 +118,9 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{visitItem.detailsArray[1]}"
+        android:text="@{visitItem.detailsArray[2]}"
         android:textSize="16sp"
-        android:visibility="@{visitItem.detailsArray.length == 0 ? View.GONE : View.VISIBLE}"
+        android:visibility="@{visitItem.detailsArray.length == 2 ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/date_label" />
 
@@ -111,7 +135,7 @@
         android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
-        android:visibility="@{visitItem.detailsArray.length == 0 ? View.GONE : View.VISIBLE}"
+        android:visibility="@{visitItem.detailsArray.length == 2 ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_date" />
 
@@ -136,7 +160,7 @@
         android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
-        android:visibility="@{Boolean.parseBoolean(visitItem.detailsArray[5]) ? View.VISIBLE : View.GONE}"
+        android:visibility="@{Boolean.parseBoolean(visitItem.detailsArray[6]) ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/map_lite_fragment" />
 
@@ -147,9 +171,9 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{visitItem.detailsArray[2]}"
+        android:text="@{visitItem.detailsArray[3]}"
         android:textSize="16sp"
-        android:visibility="@{Boolean.parseBoolean(visitItem.detailsArray[5]) ? View.VISIBLE : View.GONE}"
+        android:visibility="@{Boolean.parseBoolean(visitItem.detailsArray[6]) ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/temperature_label" />
 
@@ -164,7 +188,7 @@
         android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
-        android:visibility="@{Boolean.parseBoolean(visitItem.detailsArray[5]) ? View.VISIBLE : View.GONE}"
+        android:visibility="@{Boolean.parseBoolean(visitItem.detailsArray[6]) ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_temperature" />
 
@@ -175,9 +199,9 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{visitItem.detailsArray[3] + ` hPa`}"
+        android:text="@{visitItem.detailsArray[4] + ` hPa`}"
         android:textSize="16sp"
-        android:visibility="@{Boolean.parseBoolean(visitItem.detailsArray[5]) ? View.VISIBLE : View.GONE}"
+        android:visibility="@{Boolean.parseBoolean(visitItem.detailsArray[6]) ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pressure_label" />
 
@@ -192,7 +216,7 @@
         android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
-        android:visibility="@{visitItem.detailsArray.length == 0 ? View.GONE : View.VISIBLE}"
+        android:visibility="@{visitItem.detailsArray.length == 2 ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_pressure" />
 
@@ -203,9 +227,9 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{visitItem.detailsArray[4]}"
+        android:text="@{visitItem.detailsArray[5]}"
         android:textSize="16sp"
-        android:visibility="@{visitItem.detailsArray.length == 0 ? View.GONE : View.VISIBLE}"
+        android:visibility="@{visitItem.detailsArray.length == 2 ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/uri_label" />
 

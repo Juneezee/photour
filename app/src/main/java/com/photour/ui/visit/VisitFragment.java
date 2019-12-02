@@ -4,6 +4,9 @@ import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
 import android.Manifest;
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,10 +23,14 @@ import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
+import com.google.android.libraries.maps.model.BitmapDescriptor;
 import com.google.android.libraries.maps.model.BitmapDescriptorFactory;
+import com.google.android.libraries.maps.model.JointType;
 import com.google.android.libraries.maps.model.LatLng;
+import com.google.android.libraries.maps.model.LatLngBounds;
 import com.google.android.libraries.maps.model.Marker;
 import com.google.android.libraries.maps.model.MarkerOptions;
+import com.google.android.libraries.maps.model.PolylineOptions;
 import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.databinding.FragmentViewVisitBinding;
@@ -32,6 +39,7 @@ import com.photour.model.Photo;
 import com.photour.model.Visit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Fragment for ViewVisit page
@@ -113,11 +121,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    inflateMap();
-
-    if (visit != null) {
-      initializeViewPager();
-    }
+    if (visit != null) { initializeViewPager();}
   }
 
   /**
@@ -137,6 +141,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    * Helper function to initialise ViewPager and observe image in ViewModel
    */
   private void initializeViewPager() {
+    inflateMap();
 
     mViewPager = binding.imageScroll;
     visitAdapter = new VisitAdapter();
@@ -153,13 +158,14 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    */
   private void resetViewPager(List<Photo> photos) {
     if (photos != null && photos.size() > 0) {
-      initializeMarker(photos);
+      initializeMarker(visitViewModel.photos.getValue());
       visitAdapter.setItems(photos);
       visitAdapter.notifyDataSetChanged();
       visitViewModel.setPlaceholderText(true);
       mViewPager.registerOnPageChangeCallback(callback);
     } else {
       visitViewModel.setPlaceholderText(false);
+      visitViewModel.setDetails(-1);
     }
   }
 
@@ -194,20 +200,39 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   public void onMapReady(GoogleMap googleMap) {
     this.googleMap = googleMap;
     this.googleMap.getUiSettings().setMapToolbarEnabled(false);
+
+    initializePolyLine();
   }
 
-  public void initializeMarker(List<Photo> photos) {
+  private void initializePolyLine() {
+    List<LatLng> polyLine = visit.latLngList();
+
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+    for (LatLng latLng :polyLine) {
+      builder.include(latLng);
+    }
+
+    LatLngBounds bounds = builder.build();
+    this.googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,5));
+
+    PolylineOptions options = new PolylineOptions()
+            .width(5)
+            .color(Color.rgb(190, 41, 236))
+            .jointType(JointType.BEVEL)
+            .addAll(polyLine);
+    this.googleMap.addPolyline(options);
+  }
+
+  private void initializeMarker(List<Photo> photos) {
     for (Photo photo : photos) {
       LatLng point = photo.latLng();
-
-      Marker marker = this.googleMap.addMarker(new MarkerOptions().position(point)
-          .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+      Marker marker = this.googleMap.addMarker(new MarkerOptions().position(point));
       marker.setTag(photo.id());
       markerList.add(marker);
     }
 
+    setMarker(1);
   }
-
 
   /**
    * Helper function to set the marker for Photo when the ViewPager is scrolled
@@ -216,16 +241,26 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    */
   public void setMarker(int id) {
     for (Marker marker : markerList) {
-      if (id == (int) marker.getTag()) {
-        this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15));
-        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        marker.setZIndex(1.0f);
+      if (id == (int)marker.getTag()) {
+        marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMarker(true)));
+        marker.setZIndex(1f);
       } else {
-        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMarker(false)));
         marker.setZIndex(0f);
       }
     }
+  }
 
+  /**
+   * Helper function to parse the appropriate marker bitmap to setMarker
+   * @param selected is the marker selected
+   * @return Bitmap of marker
+   */
+  private Bitmap resizeMarker(boolean selected) {
+    Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),
+            selected ? R.drawable.focused_marker : R.drawable.unfocused_marker);
+    final int size = selected ? 100 : 80;
+    return Bitmap.createScaledBitmap(imageBitmap, size, size, false);
   }
 
   /**

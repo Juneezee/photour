@@ -37,7 +37,7 @@
         app:layout_constraintBottom_toTopOf="@id/visit_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:rawImage="@{visit.file_path()}"
+        app:rawImage="@{visit.file_path() == null ? `` : visit.file_path()}"
         app:reqHeight="@{360}"
         app:reqWidth="@{240}" />
 
