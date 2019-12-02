@@ -35,7 +35,6 @@ import com.photour.helper.AlertDialogHelper;
 import com.photour.helper.LocationHelper;
 import com.photour.helper.PermissionHelper;
 import com.photour.helper.PreferenceHelper;
-import com.photour.helper.ToastHelper;
 import com.photour.model.Photo;
 import com.photour.sensor.Accelerometer;
 import com.photour.sensor.AmbientSensor;

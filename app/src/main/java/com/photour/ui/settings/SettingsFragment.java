@@ -1,10 +1,14 @@
 package com.photour.ui.settings;
 
+import android.app.Activity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceScreen;
 import com.photour.R;
 
 /**
@@ -15,8 +19,8 @@ import com.photour.R;
 public class SettingsFragment extends PreferenceFragmentCompat {
 
   /**
-   * Called to do initial creation of a fragment.  This is called after * {@link
-   * #onAttach(Activity)} and before * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+   * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
+   * and before {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
    *
    * @param savedInstanceState If the fragment is being re-created from a previous saved state, this
    * is the state.
@@ -27,7 +31,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     setHasOptionsMenu(true);
   }
 
-
+  /**
+   * Called during {@link #onCreate(Bundle)} to supply the preferences for this fragment.
+   *
+   * @param savedInstanceState If the fragment is being re-created from a previous saved state, this
+   * is the state.
+   * @param rootKey If non-null, this preference fragment should be rooted at the {@link
+   * PreferenceScreen} with this key.
+   */
   @Override
   public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
     setPreferencesFromResource(R.xml.fragment_settings, rootKey);

@@ -17,11 +17,14 @@ public class BitmapTask extends AsyncTask<String, Void, Bitmap> {
   WeakReference<Context> contextReference;
   private WeakReference<ImageView> imageViewWeakReference;
 
+  /**
+   * Default constructor of {@link BitmapTask}
+   */
   BitmapTask() {
   }
 
   /**
-   * Constructor for BitmapTask
+   * Constructor for {@link BitmapTask}
    *
    * @param context context of activity
    * @param imageView imageView that the bitmap will be set on
@@ -32,7 +35,7 @@ public class BitmapTask extends AsyncTask<String, Void, Bitmap> {
   }
 
   /**
-   * Constructor for BitmapTask
+   * Constructor for {@link BitmapTask}
    *
    * @param imageView imageView that the bitmap will be set on
    */

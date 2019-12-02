@@ -61,13 +61,14 @@ public class MainActivity extends AppCompatActivity
     setSupportActionBar(toolbar);
     cacheHelper = new CacheHelper(this);
 
+    // Bottom navigation bar only needs to be setup once
     if (savedInstanceState == null) {
       setupBottomNavigationBar();
     }
 
     preloadPlayServices();
 
-    // Restore ongoing visit if available
+    // Restore ongoing visit if the foreground service is running and state is persisted
     if (PermissionHelper.hasLocationPermission(this) && currentNavController != null
         && currentNavController.getValue() != null && StartVisitService.isRunning
     ) {
@@ -103,7 +104,8 @@ public class MainActivity extends AppCompatActivity
         mv.onCreate(null);
         mv.onPause();
         mv.onDestroy();
-      } catch (Exception ignored) {
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     }).start();
   }

@@ -17,7 +17,7 @@ import java.util.Arrays;
  * @author Zer Jun Eng, Jia Hua Ng
  */
 public class SectionedGridRecyclerViewAdapter extends
-        RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
   private static final int SECTION_TYPE = 0;
   private final Context mContext;
@@ -29,15 +29,15 @@ public class SectionedGridRecyclerViewAdapter extends
   /**
    * Constructor class of SectionedGridRecyclerViewAdapter
    *
-   * @param context           Context of MainActivity
+   * @param context Context of MainActivity
    * @param sectionResourceId ID for view of section title
-   * @param textResourceId    ID for view of section items
-   * @param recyclerView      RecyclerView object being handled by adapter
-   * @param baseAdapter       Adapter responsible for dealing with the items
+   * @param textResourceId ID for view of section items
+   * @param recyclerView RecyclerView object being handled by adapter
+   * @param baseAdapter Adapter responsible for dealing with the items
    */
   SectionedGridRecyclerViewAdapter(Context context, int sectionResourceId,
-                                   int textResourceId, RecyclerView recyclerView,
-                                   PhotoAdapter baseAdapter) {
+      int textResourceId, RecyclerView recyclerView,
+      PhotoAdapter baseAdapter) {
 
     mSectionResourceId = sectionResourceId;
     mTextResourceId = textResourceId;
@@ -92,8 +92,8 @@ public class SectionedGridRecyclerViewAdapter extends
    * <p>
    * Checks if typeView is title or item. If is item, call mBaseAdapter to handle.
    *
-   * @param parent   The ViewGroup into which the new View will be added after it is bound to an
-   *                 adapter position.
+   * @param parent The ViewGroup into which the new View will be added after it is bound to an
+   * adapter position.
    * @param typeView The view type of the new View.
    * @return {@link RecyclerView.ViewHolder} The created viewholder
    */
@@ -102,7 +102,7 @@ public class SectionedGridRecyclerViewAdapter extends
   public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int typeView) {
     if (typeView == SECTION_TYPE) {
       FragmentPhotosSortBinding fragmentPhotosSortBinding = DataBindingUtil.inflate(
-              LayoutInflater.from(mContext), mSectionResourceId, parent, false);
+          LayoutInflater.from(mContext), mSectionResourceId, parent, false);
       return new SectionViewHolder(fragmentPhotosSortBinding);
     } else {
       return mBaseAdapter.onCreateViewHolder(parent, typeView - 1);
@@ -115,9 +115,9 @@ public class SectionedGridRecyclerViewAdapter extends
    * <p>
    * Checks if given position is title or item. If is item, call mBaseAdapter to handle.
    *
-   * @param sectionViewHolder the ViewHolder which should be updated to represent the contents of the item at
-   *                          the given position in the data set.
-   * @param position          The position of the item within the adapter's data set.
+   * @param sectionViewHolder the ViewHolder which should be updated to represent the contents of
+   * the item at the given position in the data set.
+   * @param position The position of the item within the adapter's data set.
    */
   @Override
   public void onBindViewHolder(@NonNull RecyclerView.ViewHolder sectionViewHolder, int position) {
@@ -126,13 +126,13 @@ public class SectionedGridRecyclerViewAdapter extends
       ((SectionViewHolder) sectionViewHolder).fragmentPhotosSortBinding.setTitle(section);
       ((SectionViewHolder) sectionViewHolder).fragmentPhotosSortBinding.executePendingBindings();
     } else {
-      mBaseAdapter.onBindViewHolder((PhotoAdapter.ImageCard) sectionViewHolder, sectionedPositionToPosition(position));
+      mBaseAdapter.onBindViewHolder((PhotoAdapter.ImageCard) sectionViewHolder,
+          sectionedPositionToPosition(position));
     }
   }
 
   /**
-   * Getter for item view type.
-   * Checks with SECTION_TYPE to see if said position is a title or item
+   * Getter for item view type. Checks with SECTION_TYPE to see if said position is a title or item
    *
    * @param position position of current item on data set
    * @return Type of item, 0 represents HEADER
@@ -140,8 +140,8 @@ public class SectionedGridRecyclerViewAdapter extends
   @Override
   public int getItemViewType(int position) {
     return isSectionHeaderPosition(position)
-            ? SECTION_TYPE
-            : mBaseAdapter.getItemViewType(sectionedPositionToPosition(position)) + 1;
+        ? SECTION_TYPE
+        : mBaseAdapter.getItemViewType(sectionedPositionToPosition(position)) + 1;
   }
 
   /**
@@ -204,8 +204,8 @@ public class SectionedGridRecyclerViewAdapter extends
   @Override
   public long getItemId(int position) {
     return isSectionHeaderPosition(position)
-            ? Integer.MAX_VALUE - mSections.indexOfKey(position)
-            : mBaseAdapter.getItemId(sectionedPositionToPosition(position));
+        ? Integer.MAX_VALUE - mSections.indexOfKey(position)
+        : mBaseAdapter.getItemId(sectionedPositionToPosition(position));
   }
 
   /**
@@ -236,6 +236,8 @@ public class SectionedGridRecyclerViewAdapter extends
 
   /**
    * Class for section
+   *
+   * @author Zer Jun Eng, Jia Hua Ng
    */
   public static class Section {
 

@@ -19,7 +19,7 @@ public class LatLngListConverter {
    */
   @TypeConverter
   public static String fromArrayList(ArrayList<LatLng> latLngList) {
-    if (latLngList == null || latLngList.size() == 0) {
+    if (latLngList == null || latLngList.isEmpty()) {
       return "";
     }
 

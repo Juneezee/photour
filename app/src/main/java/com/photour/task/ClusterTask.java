@@ -7,11 +7,19 @@ import androidx.exifinterface.media.ExifInterface;
 import com.photour.helper.BitmapHelper;
 import java.lang.ref.WeakReference;
 
+/**
+ * @author Zer Jun Eng, Jia Hua Ng
+ */
 public class ClusterTask extends BitmapTask {
 
   private final WeakReference<ImageView> imageViewWeakReference;
   private final LoadMarkerListener listener;
 
+  /**
+   *
+   * @param imageView
+   * @param listener
+   */
   public ClusterTask(ImageView imageView, LoadMarkerListener listener) {
     this.imageViewWeakReference = new WeakReference<>(imageView);
     this.listener = listener;
@@ -66,8 +74,16 @@ public class ClusterTask extends BitmapTask {
 
   }
 
+  /**
+   * An interface to handle the callback when marker has been loaded
+   *
+   * @author Zer Jun Eng, Jia Hua Ng
+   */
   public interface LoadMarkerListener {
 
+    /**
+     * Callback when marker is loaded successfully in {@link ClusterTask}
+     */
     void markerLoaded();
   }
 }

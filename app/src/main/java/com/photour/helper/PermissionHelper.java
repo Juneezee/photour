@@ -320,7 +320,7 @@ public class PermissionHelper {
   }
 
   /**
-   * Callback on various cases on checking permission
+   * An interface to handle callbacks on various cases in checking permission
    *
    * 1. Below M, runtime permission not needed. In that case onPermissionGranted() would be called.
    * If permission is already granted, onPermissionGranted() would be called.

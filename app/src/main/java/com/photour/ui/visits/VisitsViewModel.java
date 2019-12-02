@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import com.photour.R;
 import com.photour.database.VisitRepository;
 import com.photour.model.Visit;
 import java.util.List;
@@ -20,7 +21,6 @@ import java.util.List;
 public class VisitsViewModel extends AndroidViewModel {
 
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
-  int sortMode;
 
   private VisitRepository visitRepository;
   public LiveData<List<Visit>> visits;
@@ -58,9 +58,18 @@ public class VisitsViewModel extends AndroidViewModel {
   }
 
   /**
+   * Check if the current sorting mode is by oldest date first
+   *
+   * @return boolean {@code true} if the visits are to sort by oldest date first
+   */
+  boolean isSortByAsc(int sortMode) {
+    return sortMode == R.id.visits_asc;
+  }
+
+  /**
    * Helper function to setup visits LiveData with the Room
    */
-  void loadVisit() {
+  private void loadVisit() {
     visits = visitRepository.getAllVisits();
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {

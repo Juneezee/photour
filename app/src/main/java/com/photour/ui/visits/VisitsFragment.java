@@ -17,11 +17,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.common.collect.Lists;
 import com.photour.R;
 import com.photour.databinding.FragmentVisitsBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.model.Visit;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -98,7 +98,7 @@ public class VisitsFragment extends Fragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    permissionHelper.checkStoragePermission(this::initializeRecyclerView);
+    permissionHelper.checkStoragePermission(this::initRecyclerView);
   }
 
   /**
@@ -113,7 +113,7 @@ public class VisitsFragment extends Fragment {
   /**
    * Helper function to initialise recyclerView. Observes visits list of ViewModel
    */
-  private void initializeRecyclerView() {
+  private void initRecyclerView() {
     visitsViewModel.setPlaceholderText(true);
 
     mRecyclerView = binding.gridRecyclerView;
@@ -123,7 +123,7 @@ public class VisitsFragment extends Fragment {
     visitAdapter = new VisitAdapter();
     mRecyclerView.setAdapter(visitAdapter);
 
-    visitsViewModel.visits.observe(getViewLifecycleOwner(), this::resetRecyler);
+    visitsViewModel.visits.observe(getViewLifecycleOwner(), this::resetRecycler);
   }
 
   /**
@@ -131,9 +131,9 @@ public class VisitsFragment extends Fragment {
    *
    * @param visits List of Visit
    */
-  private void resetRecyler(List<Visit> visits) {
+  private void resetRecycler(List<Visit> visits) {
 
-    if (visits == null || visits.size() == 0) {
+    if (visits == null || visits.isEmpty()) {
       visitsViewModel.setPlaceholderText(false);
     } else {
       // Parses values into adapters and update view
@@ -187,10 +187,14 @@ public class VisitsFragment extends Fragment {
    * @param type The type to sort the photos (by date or by path)
    */
   private void switchSortMode(int type) {
-    if (visitsViewModel.sortMode != type) {
-      visitsViewModel.sortMode = type;
-      Collections.reverse(visitsViewModel.visits.getValue());
-      resetRecyler(visitsViewModel.visits.getValue());
+    if (visitsViewModel.visits.getValue() == null) {
+      return;
+    }
+
+    if (visitsViewModel.isSortByAsc(type)) {
+      resetRecycler(Lists.reverse(visitsViewModel.visits.getValue()));
+    } else {
+      resetRecycler(visitsViewModel.visits.getValue());
     }
   }
 
@@ -212,7 +216,6 @@ public class VisitsFragment extends Fragment {
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-    permissionHelper.onRequestPermissionsResult(grantResults, () -> {
-    });
+    permissionHelper.onRequestPermissionsResult(grantResults, this::initRecyclerView);
   }
 }

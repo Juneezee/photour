@@ -208,6 +208,11 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   private void initializePolyLine() {
     List<LatLng> polyLine = visit.latLngList();
 
+    // Edge case: latLngList is null or empty
+    if (polyLine == null || polyLine.isEmpty()) {
+      return;
+    }
+
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
     for (LatLng latLng : polyLine) {
       builder.include(latLng);

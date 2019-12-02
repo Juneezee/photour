@@ -151,7 +151,7 @@ public class PhotosFragment extends Fragment {
         photosViewModel.isSortByAsc() ? Lists.reverse(photos) : photos);
 
     // Prompts text if no photos, else load photos into lists
-    if (photos == null || photos.size() == 0) {
+    if (photos == null || photos.isEmpty()) {
       photosViewModel.setPlaceholderText(false);
     } else {
       int pos = 0;
@@ -191,17 +191,24 @@ public class PhotosFragment extends Fragment {
     for (Photo photo : photos) {
       String currentTitle = photosViewModel.isSortByVisit()
           ? String.valueOf(photo.visitId())
-          : DateHelper.regularFormat(photo.date());
+          : DateHelper.regularFormat(photo.date()
+          );
 
       if (!titles.containsKey(currentTitle)) {
-        sections.add(new SectionElement(photosViewModel.sortMode == R.id.by_visit
+        sections.add(new SectionElement(photosViewModel.isSortByVisit()
             ? photosViewModel.getVisitTitle(photo.visitId())
-            : currentTitle));
+            : currentTitle)
+        );
 
         titles.put(currentTitle, sections.size() - 1);
       }
 
-      sections.get(titles.get(currentTitle)).addPhoto(photo);
+      // Null-checking
+      Integer value = titles.get(currentTitle);
+
+      if (value != null) {
+        sections.get(value).addPhoto(photo);
+      }
     }
 
     return sections;
