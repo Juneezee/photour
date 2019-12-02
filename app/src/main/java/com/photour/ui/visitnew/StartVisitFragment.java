@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,6 +35,7 @@ import com.photour.helper.AlertDialogHelper;
 import com.photour.helper.LocationHelper;
 import com.photour.helper.PermissionHelper;
 import com.photour.helper.PreferenceHelper;
+import com.photour.helper.ToastHelper;
 import com.photour.model.Photo;
 import com.photour.sensor.Accelerometer;
 import com.photour.sensor.AmbientSensor;
@@ -209,6 +211,11 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
+
+    // No camera floating action button if the device does not have any cameras
+    if (!activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+      binding.fabCamera.setVisibility(View.INVISIBLE);
+    }
 
     initStartNewVisitTitle();
 
