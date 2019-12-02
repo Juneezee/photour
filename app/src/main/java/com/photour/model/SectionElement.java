@@ -22,29 +22,6 @@ public class SectionElement {
   }
 
   /**
-   * Constructor for Section Element
-   *
-   * @param title title of section
-   * @param photo A list of photos in the section
-   */
-  public SectionElement(String title, Photo photo) {
-    this.title = title;
-    this.photos = new ArrayList<>();
-    this.photos.add(photo);
-  }
-
-  /**
-   * Constructor for Section Element
-   *
-   * @param title Title of section
-   * @param photoList A list of photos in the section
-   */
-  public SectionElement(String title, List<Photo> photoList) {
-    this.title = title;
-    this.photos = photoList;
-  }
-
-  /**
    * Add Photo to the section
    *
    * @param photo Photo to be inserted

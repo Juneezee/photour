@@ -41,6 +41,15 @@ public class  BottomNavExtension extends BottomNavigationView {
     super(context, attrs, defStyleAttr);
   }
 
+  /**
+   * Manages the various graphs needed for BottomNavigationView.
+   *
+   * @param navGraphIds List of Ids of nav graphs
+   * @param fragmentManager Fragment Manager of MainActivity
+   * @param containerId Id of navHostFragment
+   * @param intent Intent of MainActivity
+   * @return
+   */
   public LiveData<NavController> setupWithNavController(List<Integer> navGraphIds,
       FragmentManager fragmentManager, int containerId, Intent intent) {
 
@@ -166,6 +175,14 @@ public class  BottomNavExtension extends BottomNavigationView {
     return selectedNavController;
   }
 
+  /**
+   * Allow BottomNavigationView to able to handle Deep Links
+   *
+   * @param navGraphIds List of Ids of nav graphs
+   * @param fragmentManager Fragment Manager of MainActivity
+   * @param containerId Id of navHostFragment
+   * @param intent Intent of MainActivity
+   */
   private void setupDeepLinks(
       List<Integer> navGraphIds,
       FragmentManager fragmentManager,
@@ -185,10 +202,19 @@ public class  BottomNavExtension extends BottomNavigationView {
     }
   }
 
+  /**
+   * Set the id of currently selected item
+   * @param itemId id of the selected item
+   */
   private void listenerSetSelectedItemId(int itemId) {
     this.setSelectedItemId(itemId);
   }
 
+  /**
+   * Detach the navHostFragment from fragmentManager
+   * @param fragmentManager FragmentManager of Mainactivity
+   * @param navHostFragment NavHostFragment to be detached
+   */
   private void detachNavHostFragment(
       FragmentManager fragmentManager,
       NavHostFragment navHostFragment
@@ -196,6 +222,12 @@ public class  BottomNavExtension extends BottomNavigationView {
     fragmentManager.beginTransaction().detach(navHostFragment).commitNow();
   }
 
+  /**
+   * Attach the navHostFragment from fragmentManager
+   * @param fragmentManager FragmentManager of Mainactivity
+   * @param navHostFragment NavHostFragment to be attached
+   * @param isPrimaryNavFragment Boolean if the given fragment is the first fragment
+   */
   private void attachNavHostFragment(
       FragmentManager fragmentManager,
       NavHostFragment navHostFragment,
@@ -209,6 +241,14 @@ public class  BottomNavExtension extends BottomNavigationView {
     ft.commitNow();
   }
 
+  /**
+   *
+   * @param fragmentManager
+   * @param fragmentTag
+   * @param navGraphId
+   * @param containerId
+   * @return
+   */
   private NavHostFragment obtainNavHostFragment(
       FragmentManager fragmentManager,
       String fragmentTag,
@@ -229,6 +269,11 @@ public class  BottomNavExtension extends BottomNavigationView {
     }
   }
 
+  /**
+   * Getter for tag of fragment
+   * @param index current selected tab of bottomNavigationView
+   * @return String tag of fragment
+   */
   private String getFragmentTag(int index) {
     return "fragment#" + index;
   }

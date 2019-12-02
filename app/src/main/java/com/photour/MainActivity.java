@@ -257,6 +257,14 @@ public class MainActivity extends AppCompatActivity
     return super.dispatchTouchEvent(ev);
   }
 
+  /**
+   * Handles fragment calling in preference(Setting)
+   * automatically links to About page as it is the only page
+   *
+   * @param caller Caller object to get fragment
+   * @param pref Preference object that is calling the fragment
+   * @return True if the call is completed, else False
+   */
   @Override
   public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
     if (pref.getFragment().equals("com.photour.ui.about.AboutFragment")

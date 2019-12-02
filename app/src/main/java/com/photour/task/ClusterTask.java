@@ -16,9 +16,10 @@ public class ClusterTask extends BitmapTask {
   private final LoadMarkerListener listener;
 
   /**
+   * Constructor for ClusterTask
    *
-   * @param imageView
-   * @param listener
+   * @param imageView ImageView that is used to hold the image
+   * @param listener listener to be added to the imageView for zooming changes
    */
   public ClusterTask(ImageView imageView, LoadMarkerListener listener) {
     this.imageViewWeakReference = new WeakReference<>(imageView);

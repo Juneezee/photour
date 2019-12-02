@@ -1,5 +1,6 @@
 package com.photour.helper;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -42,8 +43,7 @@ public class CacheHelper {
     final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     final int cacheSize = maxMemory / 4;
 
-    //Creates or find PhotosFragment sets memory cache of PhotosFragment
-//
+
     memoryCache = PhotosFragment.mRetainedCache;
     if (memoryCache == null) {
       memoryCache = new LruCache<String, Bitmap>(cacheSize) {
@@ -112,6 +112,7 @@ public class CacheHelper {
   /**
    * Async task class to initialise disk cache
    */
+  @SuppressLint("StaticFieldLeak")
   class InitDiskCacheTask extends AsyncTask<String, Void, Void> {
 
     @Override
@@ -144,17 +145,5 @@ public class CacheHelper {
    */
   public static File getExternalCacheDir(Context context) {
     return context.getExternalCacheDir();
-  }
-
-  /**
-   * Function to convert filename to key that disk cache accepts
-   *
-   * @param filepath file name of image
-   * @return String key for image
-   */
-  public static String getImageIdString(String filepath) {
-    String idStr = filepath.substring(filepath.lastIndexOf('/') + 1).replaceAll("[+() .@]", "_")
-        .toLowerCase();
-    return idStr.substring(0, Math.min(idStr.length(), 64));
   }
 }

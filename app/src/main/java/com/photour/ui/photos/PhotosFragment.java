@@ -136,12 +136,14 @@ public class PhotosFragment extends Fragment {
   }
 
   /**
-   * Function to reload recycler view. Splits Photos into section.
+   * Function to reload recycler view. Calls sectionImage to split images.
+   * The adapters are then notified to take change
    *
    * @param photos List of Photos
    */
   private void resetGrid(List<Photo> photos) {
 
+    //Intialises lists to store grid objects
     List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
     List<Photo> photoList = new ArrayList<>();
     SectionedGridRecyclerViewAdapter.Section[] dummy =
@@ -177,6 +179,7 @@ public class PhotosFragment extends Fragment {
   /**
    * Uses Mediastore query to get all photos from database according to the sort configuration.
    *
+   * @param photos List of images to be sectioned
    * @return List lists of SectionElement, each representing a section in the gallery
    */
   private List<SectionElement> sectionImages(List<Photo> photos) {
@@ -187,19 +190,18 @@ public class PhotosFragment extends Fragment {
       return sections;
     }
 
-    //  Iterates through query and append them into SectionElement
+    //  Iterates through Photo objects and append them into SectionElement
     for (Photo photo : photos) {
       String currentTitle = photosViewModel.isSortByVisit()
           ? String.valueOf(photo.visitId())
           : DateHelper.regularFormat(photo.date()
-          );
+      );
 
       if (!titles.containsKey(currentTitle)) {
         sections.add(new SectionElement(photosViewModel.isSortByVisit()
             ? photosViewModel.getVisitTitle(photo.visitId())
             : currentTitle)
         );
-
         titles.put(currentTitle, sections.size() - 1);
       }
 

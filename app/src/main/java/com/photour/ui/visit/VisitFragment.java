@@ -205,6 +205,12 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     initializePolyLine();
   }
 
+  /**
+   * Function to initialize polyline to indicate visit path
+   * Starts with getting LatLngBounds for the camera to be able to fit in the entire visit
+   * Finally add all LatLng into PolyLine Object to draw it on the map
+   *
+   */
   private void initializePolyLine() {
     List<LatLng> polyLine = visit.latLngList();
 
@@ -229,6 +235,12 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     this.googleMap.addPolyline(options);
   }
 
+  /**
+   * Add in all the markers of the photo on the map
+   * The markers are then added into a list for future reference
+   *
+   * @param photos List of photos in the visit
+   */
   private void initializeMarker(List<Photo> photos) {
     for (Photo photo : photos) {
       LatLng point = photo.latLng();
@@ -283,6 +295,11 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     menu.clear();
   }
 
+  /**
+   * Callback on page scroll on ViewPager
+   * Details for the image are parsed through ViewModel and marker for the image is set on the map.
+   *
+   */
   private ViewPager2.OnPageChangeCallback callback = new ViewPager2.OnPageChangeCallback() {
     @Override
     public void onPageSelected(int position) {

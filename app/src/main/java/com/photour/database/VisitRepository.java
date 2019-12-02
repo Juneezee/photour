@@ -4,6 +4,8 @@ import android.app.Application;
 import androidx.lifecycle.LiveData;
 import com.google.android.libraries.maps.model.LatLng;
 import com.photour.model.Visit;
+import com.photour.ui.photo.PhotoFragment;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -69,6 +71,12 @@ public class VisitRepository {
     return visitDao.getAllVisits();
   }
 
+  /**
+   * Function to get visit title for {@link PhotoFragment}
+   *
+   * @param id ID of Visit
+   * @return String title of Visit
+   */
   public String getVisitTitle(final long id) {
     Callable<String> titleCallable = () -> visitDao.getVisitTitle(id);
 
@@ -81,5 +89,5 @@ public class VisitRepository {
     }
 
     return "";
-  };
+  }
 }
