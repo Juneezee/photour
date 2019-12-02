@@ -21,13 +21,24 @@ import java.util.concurrent.Executors;
 @TypeConverters({DateConverter.class, FloatArrayConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 
-  public abstract VisitDao visitDao();
-
-  public abstract PhotoDao imageDao();
-
   private static volatile AppDatabase INSTANCE;
   private static final int NUMBER_OF_THREADS = 4;
   static final ExecutorService databaseExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+
+
+  /**
+   * Get the object instance of {@link VisitDao}
+   *
+   * @return {@link VisitDao} An object instance of {@link VisitDao}
+   */
+  public abstract VisitDao visitDao();
+
+  /**
+   * Get the object instance of {@link PhotoDao}
+   *
+   * @return {@link PhotoDao} An object instance of {@link PhotoDao}
+   */
+  public abstract PhotoDao imageDao();
 
   /**
    * Initialise the database if not yet initialised, else return the database object.

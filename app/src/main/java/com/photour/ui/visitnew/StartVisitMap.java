@@ -195,12 +195,8 @@ public class StartVisitMap implements OnMapReadyCallback, OnMarkerClickListener 
    * Draw all markers on map
    */
   private void drawMarkers() {
-    final int POINTS = markerList.size();
-
-    for (int i = 0; i < POINTS; i++) {
-      ImageMarker imageMarker = markerList.get(i);
-      googleMap.addMarker(
-          new MarkerOptions().position(imageMarker.latLng()).title(imageMarker.imagePath()));
+    for (ImageMarker marker : markerList) {
+      googleMap.addMarker(new MarkerOptions().position(marker.latLng()).title(marker.imagePath()));
     }
   }
 

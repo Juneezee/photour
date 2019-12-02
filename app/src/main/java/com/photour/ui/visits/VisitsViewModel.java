@@ -20,7 +20,7 @@ import java.util.List;
 public class VisitsViewModel extends AndroidViewModel {
 
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
-  public int sortMode;
+  int sortMode;
 
   private VisitRepository visitRepository;
   public LiveData<List<Visit>> visits;
@@ -59,7 +59,7 @@ public class VisitsViewModel extends AndroidViewModel {
   /**
    * Helper function to setup visits LiveData with the Room
    */
-  public void loadVisit() {
+  void loadVisit() {
     visits = visitRepository.getAllVisits();
     if (contentObserver == null) {
       contentObserver = new ContentObserver(new Handler()) {

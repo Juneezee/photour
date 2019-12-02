@@ -7,8 +7,8 @@
       name="unit"
       type="String" />
     <variable
-        name="visitTitle"
-        type="String" />
+      name="visitTitle"
+      type="String" />
     <variable
       name="photo"
       type="com.photour.model.Photo" />
@@ -28,7 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:adjustViewBounds="true"
-        android:contentDescription="@string/image"
+        android:contentDescription="@string/photo"
         android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

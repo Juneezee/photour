@@ -36,7 +36,7 @@ import java.util.List;
  * @author Zer Jun Eng, Jia Hua Ng
  */
 public class MainActivity extends AppCompatActivity
-        implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+    implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
   private LiveData<NavController> currentNavController;
   private AppBarConfiguration appBarConfiguration;
@@ -257,8 +257,11 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
-    if (pref.getFragment().equals("com.photour.ui.about.AboutFragment")) {
-      currentNavController.getValue().navigate(SettingsFragmentDirections.actionActionSettingsToAbout());
+    if (pref.getFragment().equals("com.photour.ui.about.AboutFragment")
+        && currentNavController.getValue() != null
+    ) {
+      currentNavController.getValue()
+          .navigate(SettingsFragmentDirections.actionActionSettingsToAbout());
     }
     return true;
   }

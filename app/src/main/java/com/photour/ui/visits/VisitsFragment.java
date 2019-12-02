@@ -1,5 +1,7 @@
 package com.photour.ui.visits;
 
+import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
+
 import android.Manifest.permission;
 import android.app.Activity;
 import android.os.Bundle;
@@ -9,23 +11,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.photour.R;
 import com.photour.databinding.FragmentVisitsBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.model.Visit;
-
 import java.util.Collections;
 import java.util.List;
-
-import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
 /**
  * Fragment for Visits page
@@ -89,6 +86,14 @@ public class VisitsFragment extends Fragment {
     return binding.getRoot();
   }
 
+  /**
+   * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} has returned,
+   * but before any saved state has been restored in to the view.
+   *
+   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+   * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
+   * saved state as given here.
+   */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);

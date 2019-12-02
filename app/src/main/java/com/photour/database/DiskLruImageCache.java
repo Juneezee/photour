@@ -22,11 +22,12 @@ import java.io.OutputStream;
  */
 public class DiskLruImageCache {
 
-  private DiskLruCache mDiskCache;
-  private Bitmap.CompressFormat mCompressFormat = Bitmap.CompressFormat.JPEG;
   private static final int APP_VERSION = 1;
   private static final int VALUE_COUNT = 1;
-  private static final String TAG = "DiskLruImageCache";
+  private static final String TAG = DiskLruImageCache.class.getSimpleName();
+
+  private DiskLruCache mDiskCache;
+  private Bitmap.CompressFormat mCompressFormat = Bitmap.CompressFormat.JPEG;
 
   public DiskLruImageCache(Context context, String uniqueName, int diskCacheSize) {
     try {
@@ -83,17 +84,17 @@ public class DiskLruImageCache {
         mDiskCache.flush();
         editor.commit();
         if (BuildConfig.DEBUG) {
-          Log.d("cache_test_DISK_", "image put on disk cache " + key);
+          Log.d(TAG, "image put on disk cache " + key);
         }
       } else {
         editor.abort();
         if (BuildConfig.DEBUG) {
-          Log.d("cache_test_DISK_", "ERROR on: image put on disk cache " + key);
+          Log.d(TAG, "ERROR on: image put on disk cache " + key);
         }
       }
     } catch (IOException e) {
       if (BuildConfig.DEBUG) {
-        Log.d("cache_test_DISK_", "ERROR on: image put on disk cache " + key);
+        Log.d(TAG, "ERROR on: image put on disk cache " + key);
       }
       try {
         if (editor != null) {
@@ -143,7 +144,7 @@ public class DiskLruImageCache {
 //    }
 
     if (BuildConfig.DEBUG) {
-      Log.d("cache_test_DISK_", bitmap == null ? "" : "image read from disk " + key);
+      Log.d(TAG, bitmap == null ? "" : "image read from disk " + key);
     }
 
     return bitmap;
@@ -176,7 +177,7 @@ public class DiskLruImageCache {
 
   public void clearCache() {
     if (BuildConfig.DEBUG) {
-      Log.d("cache_test_DISK_", "disk cache CLEARED");
+      Log.d(TAG, "disk cache CLEARED");
     }
     try {
       mDiskCache.delete();

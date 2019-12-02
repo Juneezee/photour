@@ -11,8 +11,8 @@ import com.google.android.libraries.maps.model.LatLng;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.photour.converter.LatLngListConverter;
+import com.photour.helper.DateHelper;
 import com.photour.ui.visits.VisitsFragmentDirections;
-import com.photour.ui.visits.VisitsFragmentDirections.ActionViewVisit;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -67,10 +67,18 @@ public abstract class Visit implements Parcelable {
   }
 
   /**
+   * Format the date into user-friendly format
+   *
+   * @return String The formatted date
+   */
+  public String getDateInString() {
+    return DateHelper.regularFormatWithNameTime(date());
+  }
+
+  /**
    * Onclick listener of the image
    */
   public void onImageClick(View view) {
-    ActionViewVisit actionViewVisit = VisitsFragmentDirections.actionViewVisit(this);
-    Navigation.findNavController(view).navigate(actionViewVisit);
+    Navigation.findNavController(view).navigate(VisitsFragmentDirections.actionViewVisit(this));
   }
 }

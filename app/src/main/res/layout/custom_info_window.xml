@@ -9,7 +9,7 @@
     android:layout_width="80dp"
     android:layout_height="80dp"
     android:adjustViewBounds="true"
-    android:contentDescription="@string/image"
+    android:contentDescription="@string/photo"
     android:scaleType="centerCrop" />
 
 </LinearLayout>

@@ -71,16 +71,15 @@ public class VisitRepository {
 
   public String getVisitTitle(final long id) {
     Callable<String> titleCallable = () -> visitDao.getVisitTitle(id);
-    String title = "";
 
     Future<String> future = AppDatabase.databaseExecutor.submit(titleCallable);
 
     try {
-      title = future.get();
+      return future.get();
     } catch (ExecutionException | InterruptedException e) {
       e.printStackTrace();
     }
 
-    return title;
+    return "";
   };
 }

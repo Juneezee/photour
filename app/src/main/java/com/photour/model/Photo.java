@@ -24,13 +24,12 @@ import com.google.maps.android.clustering.ClusterItem;
 import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.converter.LatLngConverter;
+import com.photour.helper.DateHelper;
 import com.photour.task.AsyncDrawable;
 import com.photour.task.BitmapRawTask;
 import com.photour.task.BitmapThumbnailTask;
 import com.photour.ui.photos.PhotosFragmentDirections;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * Entity and Model class for Photo
@@ -123,9 +122,7 @@ public abstract class Photo implements Parcelable, ClusterItem {
    * @return String The formatted date
    */
   public String getDateInString() {
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("E, dd MMM yyyy • HH:mm",
-        Locale.getDefault());
-    return simpleDateFormat.format(date());
+    return DateHelper.regularFormatWithNameTime(date());
   }
 
   /**
@@ -141,7 +138,7 @@ public abstract class Photo implements Parcelable, ClusterItem {
    * @param imageView An {@link ImageView} object
    * @param filepath filepath of image
    */
-  @BindingAdapter({"imageBitmap","elementId"})
+  @BindingAdapter({"imageBitmap", "elementId"})
   public static void loadImageBitmap(ImageView imageView, String filepath, int elementId) {
     final Context context = imageView.getContext();
     final String id = String.valueOf(elementId);

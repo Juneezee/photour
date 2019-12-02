@@ -15,22 +15,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.common.collect.Lists;
 import com.photour.R;
-import com.photour.database.VisitRepository;
 import com.photour.databinding.FragmentPhotosBinding;
+import com.photour.helper.DateHelper;
 import com.photour.helper.PermissionHelper;
 import com.photour.model.Photo;
 import com.photour.model.SectionElement;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Fragment for Photos page
@@ -38,8 +36,6 @@ import java.util.Locale;
  * @author Zer Jun Eng, Jia Hua Ng
  */
 public class PhotosFragment extends Fragment {
-
-  private static final String TAG = PhotosFragment.class.getSimpleName();
 
   public static LruCache<String, Bitmap> mRetainedCache;
 
@@ -84,7 +80,6 @@ public class PhotosFragment extends Fragment {
    * saved state as given here.
    * @return View Return the View for the fragment's UI, or null.
    */
-
   public View onCreateView(
       @NonNull LayoutInflater inflater,
       ViewGroup container,
@@ -103,7 +98,7 @@ public class PhotosFragment extends Fragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    permissionHelper.checkStoragePermission(this::initializeRecyclerView);
+    permissionHelper.checkStoragePermission(this::initRecyclerView);
   }
 
   /**
@@ -118,7 +113,7 @@ public class PhotosFragment extends Fragment {
   /**
    * Initialize recycler view for photos
    */
-  private void initializeRecyclerView() {
+  private void initRecyclerView() {
     photosViewModel.loadPhotos();
     photosViewModel.setPlaceholderText(true);
 
@@ -145,7 +140,6 @@ public class PhotosFragment extends Fragment {
    *
    * @param photos List of Photos
    */
-
   private void resetGrid(List<Photo> photos) {
 
     List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
@@ -153,7 +147,8 @@ public class PhotosFragment extends Fragment {
     SectionedGridRecyclerViewAdapter.Section[] dummy =
         new SectionedGridRecyclerViewAdapter.Section[sections.size()];
 
-    List<SectionElement> sectionElements = sectionImages(photos);
+    List<SectionElement> sectionElements = sectionImages(
+        photosViewModel.isSortByAsc() ? Lists.reverse(photos) : photos);
 
     // Prompts text if no photos, else load photos into lists
     if (photos == null || photos.size() == 0) {
@@ -164,6 +159,7 @@ public class PhotosFragment extends Fragment {
 
       for (SectionElement sectionElement : sectionElements) {
         sections.add(new SectionedGridRecyclerViewAdapter.Section(pos, sectionElement.getTitle()));
+
         pos += sectionElement.getPhotos().size(); // add number of photos and title
 
         photoList.addAll(sectionElement.getPhotos());
@@ -179,45 +175,35 @@ public class PhotosFragment extends Fragment {
   }
 
   /**
-   * Uses Mediastore query to get all photos from a given folder according to the sort
-   * configuration.
+   * Uses Mediastore query to get all photos from database according to the sort configuration.
    *
    * @return List lists of SectionElement, each representing a section in the gallery
    */
-  private List<SectionElement> sectionImages(List<Photo> images) {
-    List<SectionElement> sections = new ArrayList<>();
-    Hashtable<String, Integer> titles = new Hashtable<>();
-    VisitRepository visitRepository = new VisitRepository(activity.getApplication());
-    if (images != null) {
-      int i = photosViewModel.sortMode == R.id.by_date_asc ? images.size() - 1 : 0;
-      int limit = photosViewModel.sortMode == R.id.by_date_asc ? -1 : images.size();
+  private List<SectionElement> sectionImages(List<Photo> photos) {
+    final List<SectionElement> sections = new ArrayList<>();
+    final ArrayMap<String, Integer> titles = new ArrayMap<>();
 
-      // Iterates through query and append them into SectionElement
-      while (i != limit) {
-        Photo photo = images.get(i);
-        String currentTitle;
-        if (photosViewModel.sortMode == R.id.by_date_asc
-            || photosViewModel.sortMode == R.id.by_date_desc) {
-          Date date = photo.date();
-          SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
-          currentTitle = sdf.format(date);
-        } else {
-          currentTitle = String.valueOf(photo.visitId());
-        }
-        if (!titles.containsKey(currentTitle)) {
-          sections.add(new SectionElement(photosViewModel.sortMode == R.id.by_visit
-              ? visitRepository.getVisitTitle(photo.visitId()) : currentTitle));
-          titles.put(currentTitle, sections.size() - 1);
-        }
-
-        sections.get(titles.get(currentTitle)).addPhoto(photo);
-        if (photosViewModel.sortMode == R.id.by_date_asc) {
-          i--;
-        } else {
-          i++;
-        }
-      }
+    if (photos == null) {
+      return sections;
     }
+
+    //  Iterates through query and append them into SectionElement
+    for (Photo photo : photos) {
+      String currentTitle = photosViewModel.isSortByVisit()
+          ? String.valueOf(photo.visitId())
+          : DateHelper.regularFormat(photo.date());
+
+      if (!titles.containsKey(currentTitle)) {
+        sections.add(new SectionElement(photosViewModel.sortMode == R.id.by_visit
+            ? photosViewModel.getVisitTitle(photo.visitId())
+            : currentTitle));
+
+        titles.put(currentTitle, sections.size() - 1);
+      }
+
+      sections.get(titles.get(currentTitle)).addPhoto(photo);
+    }
+
     return sections;
   }
 
@@ -291,6 +277,6 @@ public class PhotosFragment extends Fragment {
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-    permissionHelper.onRequestPermissionsResult(grantResults, this::initializeRecyclerView);
+    permissionHelper.onRequestPermissionsResult(grantResults, this::initRecyclerView);
   }
 }

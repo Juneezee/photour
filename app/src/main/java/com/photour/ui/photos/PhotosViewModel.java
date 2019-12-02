@@ -12,6 +12,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.photour.R;
 import com.photour.database.PhotoRepository;
+import com.photour.database.VisitRepository;
 import com.photour.model.Photo;
 import java.util.List;
 
@@ -25,8 +26,9 @@ public class PhotosViewModel extends AndroidViewModel {
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
   int sortMode;
 
-  // Statics for readwrite photos
   private PhotoRepository photoRepository;
+  private VisitRepository visitRepository;
+
   public LiveData<List<Photo>> photos;
 
   private ContentObserver contentObserver = null;
@@ -39,6 +41,7 @@ public class PhotosViewModel extends AndroidViewModel {
   public PhotosViewModel(@NonNull Application application) {
     super(application);
     photoRepository = new PhotoRepository(application);
+    visitRepository = new VisitRepository(application);
     sortMode = R.id.by_date_desc;
   }
 
@@ -62,13 +65,41 @@ public class PhotosViewModel extends AndroidViewModel {
   }
 
   /**
+   * Get the visit title of a photo
+   *
+   * @param id The primary key ID of the visit
+   * @return String The title of the visit
+   */
+  String getVisitTitle(long id) {
+    return visitRepository.getVisitTitle(id);
+  }
+
+  /**
+   * Check if the current sorting mode is by oldest date first
+   *
+   * @return boolean {@code true} if the images are to sort by oldest date first
+   */
+  boolean isSortByAsc() {
+    return sortMode == R.id.by_date_asc;
+  }
+
+  /**
+   * Check if the current sorting mode is by visit title
+   *
+   * @return boolean {@code true} if the images are to sort by visit title
+   */
+  boolean isSortByVisit() {
+    return sortMode == R.id.by_visit;
+  }
+
+  /**
    * Helper function to recalculate number of columns
    *
    * @param context Context of application
    * @param columnWidthDp Size of column in dp
    * @return int number of columns
    */
-  static int calculateNoOfColumns(Context context, float columnWidthDp) {
+  public static int calculateNoOfColumns(Context context, float columnWidthDp) {
     DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
     float screenWidthDp = displayMetrics.widthPixels / displayMetrics.density;
     return (int) (screenWidthDp / columnWidthDp + 0.5);
@@ -98,7 +129,7 @@ public class PhotosViewModel extends AndroidViewModel {
    *
    * @return List<Photo> A list of photos
    */
-  List<Photo> loadPhotosForClusterMarker() {
+  public List<Photo> loadPhotosForClusterMarker() {
     return photoRepository.getAllPhotos();
   }
 }

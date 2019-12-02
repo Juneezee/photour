@@ -22,11 +22,11 @@
       android:layout_marginTop="2dp"
       android:layout_marginBottom="2dp"
       android:adjustViewBounds="true"
-      android:contentDescription="@string/image"
+      android:contentDescription="@string/photo"
       android:onClick="@{(view) -> photo.onImageClick(view)}"
       android:scaleType="centerCrop"
-      app:imageBitmap="@{photo.filePath()}"
       app:elementId="@{photo.id()}"
+      app:imageBitmap="@{photo.filePath()}"
       app:layout_constraintDimensionRatio="1:1"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent" />

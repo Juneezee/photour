@@ -22,7 +22,6 @@
     android:label=""
     tools:layout="@layout/fragment_photo">
 
-
     <argument
       android:name="photo"
       app:argType="com.photour.model.Photo" />
@@ -30,9 +29,29 @@
 
   <fragment
     android:id="@+id/photos_map"
-    android:name="com.photour.ui.photos.PhotosMapFragment"
+    android:name="com.photour.ui.photos.map.PhotosMapFragment"
     android:label="Location photos map"
     tools:layout="@layout/fragment_photos_map">
+
+    <action
+      android:id="@+id/action_view_photo"
+      app:destination="@id/photo" />
+
+    <action
+      android:id="@+id/action_view_photos"
+      app:destination="@id/photos_cluster" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/photos_cluster"
+    android:name="com.photour.ui.photos.map.PhotosClusterFragment"
+    tools:layout="@layout/fragment_photos">
+
+    <argument
+      android:name="photos"
+      android:defaultValue="@null"
+      app:argType="com.photour.model.Photo[]"
+      app:nullable="true" />
 
     <action
       android:id="@+id/action_view_photo"

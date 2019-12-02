@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
-import com.photour.databinding.FragmentVisitBinding;
+import com.photour.databinding.FragmentVisitNewBinding;
 import com.photour.helper.AlertDialogHelper;
 import com.photour.helper.LocationHelper;
 import com.photour.helper.PermissionHelper;
@@ -44,7 +44,7 @@ public class NewVisitFragment extends Fragment {
   private PermissionHelper permissionHelper;
 
   private Activity activity;
-  private FragmentVisitBinding binding;
+  private FragmentVisitNewBinding binding;
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -78,7 +78,7 @@ public class NewVisitFragment extends Fragment {
       ViewGroup container,
       Bundle savedInstanceState) {
 
-    binding = FragmentVisitBinding.inflate(inflater, container, false);
+    binding = FragmentVisitNewBinding.inflate(inflater, container, false);
     binding.setListener(this);
 
     return binding.getRoot();

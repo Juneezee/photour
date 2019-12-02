@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
 
-  private static List<Photo> items = new ArrayList<>();
+  private List<Photo> items = new ArrayList<>();
 
   /**
    * Accessor for items
@@ -24,7 +24,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ImageCard> {
    * @param items List of Uri for the adapter
    */
   public void setItems(List<Photo> items) {
-    PhotoAdapter.items = items;
+    this.items = items;
   }
 
   /**

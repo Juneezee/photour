@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
-  <string name="about">About</string>
-  <string name="activities">Activities</string>
+  <string name="about_us">About Us</string>
   <string name="add_a_title">Add a title</string>
   <string name="app_name">Photour</string>
   <string name="celsius">\u00B0C</string>
@@ -16,7 +15,6 @@
   <string name="new_visit">New Visit</string>
   <string name="photo">Photo</string>
   <string name="photos">Photos</string>
-  <string name="photour_horizontal_logo">Photour horizontal logo</string>
   <string name="photour_vertical_logo">Photour vertical logo</string>
   <string name="pressure">Pressure</string>
   <string name="settings">Settings</string>
@@ -28,9 +26,8 @@
   <string name="start_a_new_visit">Start a New Visit</string>
   <string name="stop">Stop</string>
   <string name="temperature">Temperature</string>
-  <string name="title_activity_maps">Map</string>
+  <string name="time_elapsed">Time Elapsed</string>
   <string name="visit_title">Visit Title</string>
   <string name="visits">Visits</string>
   <string name="zer_jun">Zer Jun Ng (acb16zje)</string>
-    <string name="time_elapsed">Time Elapsed</string>
 </resources>

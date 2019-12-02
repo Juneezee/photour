@@ -23,7 +23,6 @@ import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
-import com.google.android.libraries.maps.model.BitmapDescriptor;
 import com.google.android.libraries.maps.model.BitmapDescriptorFactory;
 import com.google.android.libraries.maps.model.JointType;
 import com.google.android.libraries.maps.model.LatLng;
@@ -33,13 +32,12 @@ import com.google.android.libraries.maps.model.MarkerOptions;
 import com.google.android.libraries.maps.model.PolylineOptions;
 import com.photour.MainActivity;
 import com.photour.R;
-import com.photour.databinding.FragmentViewVisitBinding;
+import com.photour.databinding.FragmentVisitBinding;
 import com.photour.helper.PermissionHelper;
 import com.photour.model.Photo;
 import com.photour.model.Visit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Fragment for ViewVisit page
@@ -51,7 +49,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   private static final String[] PERMISSIONS_REQUIRED = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
-  private FragmentViewVisitBinding binding;
+  private FragmentVisitBinding binding;
   private Activity activity;
 
   private GoogleMap googleMap;
@@ -97,7 +95,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
 
     visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
 
-    binding = FragmentViewVisitBinding.inflate(inflater, container, false);
+    binding = FragmentVisitBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
     binding.setVisitItem(visitViewModel);
 
@@ -113,15 +111,18 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   }
 
   /**
-   * Called when Fragment View has been inflated. Map is initialised here.
+   * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} has returned,
+   * but before any saved state has been restored in to the view.
    *
-   * @param view View for the fragment's UI
+   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
    * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
    * saved state as given here.
    */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    if (visit != null) { initializeViewPager();}
+    if (visit != null) {
+      initializeViewPager();
+    }
   }
 
   /**
@@ -208,18 +209,18 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     List<LatLng> polyLine = visit.latLngList();
 
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
-    for (LatLng latLng :polyLine) {
+    for (LatLng latLng : polyLine) {
       builder.include(latLng);
     }
 
     LatLngBounds bounds = builder.build();
-    this.googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,5));
+    this.googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 5));
 
     PolylineOptions options = new PolylineOptions()
-            .width(5)
-            .color(Color.rgb(190, 41, 236))
-            .jointType(JointType.BEVEL)
-            .addAll(polyLine);
+        .width(5)
+        .color(Color.rgb(190, 41, 236))
+        .jointType(JointType.BEVEL)
+        .addAll(polyLine);
     this.googleMap.addPolyline(options);
   }
 
@@ -241,7 +242,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    */
   public void setMarker(int id) {
     for (Marker marker : markerList) {
-      if (id == (int)marker.getTag()) {
+      if (id == (int) marker.getTag()) {
         marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMarker(true)));
         marker.setZIndex(1f);
       } else {
@@ -253,12 +254,13 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
 
   /**
    * Helper function to parse the appropriate marker bitmap to setMarker
+   *
    * @param selected is the marker selected
    * @return Bitmap of marker
    */
   private Bitmap resizeMarker(boolean selected) {
     Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),
-            selected ? R.drawable.focused_marker : R.drawable.unfocused_marker);
+        selected ? R.drawable.focused_marker : R.drawable.unfocused_marker);
     final int size = selected ? 100 : 80;
     return Bitmap.createScaledBitmap(imageBitmap, size, size, false);
   }

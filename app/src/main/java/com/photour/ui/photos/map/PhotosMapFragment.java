@@ -1,4 +1,4 @@
-package com.photour.ui.photos;
+package com.photour.ui.photos.map;
 
 import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
@@ -18,12 +18,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
 import com.google.android.libraries.maps.model.BitmapDescriptorFactory;
-import com.google.android.libraries.maps.model.LatLng;
 import com.google.android.libraries.maps.model.LatLngBounds;
 import com.google.android.libraries.maps.model.Marker;
 import com.google.android.libraries.maps.model.MarkerOptions;
@@ -39,9 +39,10 @@ import com.photour.R;
 import com.photour.helper.PermissionHelper;
 import com.photour.model.Photo;
 import com.photour.task.ClusterTask;
-import java.util.Date;
+import com.photour.ui.photos.PhotosFragment;
+import com.photour.ui.photos.PhotosViewModel;
+import com.photour.ui.photos.map.PhotosMapFragmentDirections.ActionViewPhotos;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Fragment to create when the map icon has been clicked on {@link PhotosFragment}, show "location
@@ -57,6 +58,7 @@ public class PhotosMapFragment extends Fragment implements OnMapReadyCallback,
 
   private PhotosViewModel photosViewModel;
   private Activity activity;
+  private View view;
 
   private GoogleMap googleMap;
   private ClusterManager<Photo> clusterManager;
@@ -90,10 +92,15 @@ public class PhotosMapFragment extends Fragment implements OnMapReadyCallback,
    * @return View Return the View for the fragment's UI, or null.
    */
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
+  public View onCreateView(
+      @NonNull LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      @Nullable Bundle savedInstanceState
+  ) {
     photosViewModel = new ViewModelProvider(this).get(PhotosViewModel.class);
-    return inflater.inflate(R.layout.fragment_photos_map, container, false);
+    view = inflater.inflate(R.layout.fragment_photos_map, container, false);
+
+    return view;
   }
 
   /**
@@ -156,7 +163,7 @@ public class PhotosMapFragment extends Fragment implements OnMapReadyCallback,
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-    permissionHelper.onRequestPermissionsResult(grantResults, this::initGoogleMap);
+    permissionHelper.onRequestPermissionsResult(grantResults, this::setUpCluster);
   }
 
   /**
@@ -204,11 +211,12 @@ public class PhotosMapFragment extends Fragment implements OnMapReadyCallback,
 
     PhotoRenderer() {
       super(activity, googleMap, clusterManager);
+      int dimension = (int) getResources().getDimension(R.dimen.custom_photo_marker);
+
+      int padding = (int) getResources().getDimension(R.dimen.custom_photo_padding);
 
       imageView = new ImageView(activity);
-      int dimension = (int) getResources().getDimension(R.dimen.custom_photo_marker);
       imageView.setLayoutParams(new LayoutParams(dimension, dimension));
-      int padding = (int) getResources().getDimension(R.dimen.custom_photo_padding);
       imageView.setPadding(padding, padding, padding, padding);
       iconGenerator.setContentView(imageView);
     }
@@ -256,8 +264,11 @@ public class PhotosMapFragment extends Fragment implements OnMapReadyCallback,
   @Override
   public boolean onClusterClick(Cluster<Photo> cluster) {
     if (cluster.getSize() <= 50) {
-      // TODO open another recycler view
-      return false;
+      ActionViewPhotos actionViewPhotos = PhotosMapFragmentDirections.actionViewPhotos();
+      actionViewPhotos.setPhotos(cluster.getItems().toArray(new Photo[0]));
+      Navigation.findNavController(view).navigate(actionViewPhotos);
+
+      return true;
     }
 
     // Zoom in the cluster. Need to create LatLngBounds and including all the cluster items
@@ -268,12 +279,9 @@ public class PhotosMapFragment extends Fragment implements OnMapReadyCallback,
       builder.include(item.getPosition());
     }
 
-    // Get the LatLngBounds
-    final LatLngBounds bounds = builder.build();
-
-    // Animate camera to the bounds
+    // Animate camera to the bounds by calling builder.build()
     try {
-      googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+      googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -291,7 +299,7 @@ public class PhotosMapFragment extends Fragment implements OnMapReadyCallback,
    */
   @Override
   public boolean onClusterItemClick(Photo photo) {
-    photo.onImageClick(getView());
+    photo.onImageClick(view);
     return true;
   }
 
@@ -302,18 +310,19 @@ public class PhotosMapFragment extends Fragment implements OnMapReadyCallback,
     DisplayMetrics metrics = new DisplayMetrics();
     activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-    // Initialize the manager with the context and the map.
+    // Initialize the manager with the context and the map. Set algorithm to enable lazy load
     clusterManager = new ClusterManager<>(activity, googleMap);
     clusterManager.setRenderer(new PhotoRenderer());
     clusterManager.setAlgorithm(
         new NonHierarchicalViewBasedAlgorithm<>(metrics.widthPixels, metrics.heightPixels));
 
+    // Register click listener
     googleMap.setOnCameraIdleListener(clusterManager);
     googleMap.setOnMarkerClickListener(clusterManager);
-
     clusterManager.setOnClusterClickListener(this);
     clusterManager.setOnClusterItemClickListener(this);
 
+    // Add items
     addPhotosToCluster();
     clusterManager.cluster();
   }
