@@ -115,7 +115,6 @@ public class VisitsFragment extends Fragment {
    */
   private void initializeRecyclerView() {
     visitsViewModel.setPlaceholderText(true);
-    visitsViewModel.loadVisit();
 
     mRecyclerView = binding.gridRecyclerView;
     mRecyclerView.setHasFixedSize(true);
