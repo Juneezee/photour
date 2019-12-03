@@ -5,8 +5,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.photour.databinding.ItemVisitBinding;
+import com.photour.helper.FileHelper;
 import com.photour.model.Visit;
-import com.photour.ui.visits.VisitAdapter.VisitCard;
+import com.photour.ui.visits.VisitsAdapter.VisitCard;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +18,7 @@ import java.util.List;
  *
  * @author Zer Jun Eng, Jia Hua Ng
  */
-public class VisitAdapter extends RecyclerView.Adapter<VisitCard> {
+public class VisitsAdapter extends RecyclerView.Adapter<VisitCard> {
 
   private static List<Visit> items = new ArrayList<>();
 
@@ -25,7 +28,7 @@ public class VisitAdapter extends RecyclerView.Adapter<VisitCard> {
    * @param items List of Uri for the adapter
    */
   void setItems(List<Visit> items) {
-    VisitAdapter.items = items;
+    VisitsAdapter.items = items;
   }
 
   /**
@@ -60,6 +63,7 @@ public class VisitAdapter extends RecyclerView.Adapter<VisitCard> {
   public void onBindViewHolder(@NonNull VisitCard holder, int position) {
     Visit visit = items.get(position);
     holder.itemVisitBinding.setVisit(visit);
+    holder.itemVisitBinding.setValidPath(FileHelper.fileExist(visit.file_path));
     holder.itemVisitBinding.executePendingBindings();
   }
 

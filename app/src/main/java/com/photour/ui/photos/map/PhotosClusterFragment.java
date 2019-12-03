@@ -17,6 +17,7 @@ import com.photour.model.Photo;
 import com.photour.ui.photos.PhotoAdapter;
 import com.photour.ui.photos.PhotosViewModel;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Fragment for viewing cluster photos
@@ -27,6 +28,7 @@ public class PhotosClusterFragment extends Fragment {
 
   private FragmentPhotosClusterBinding binding;
   private Activity activity;
+  private RecyclerView recyclerView;
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -88,7 +90,8 @@ public class PhotosClusterFragment extends Fragment {
   @Override
   public void onConfigurationChanged(@NonNull Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
-    initRecyclerView();
+    ((GridLayoutManager) Objects.requireNonNull(recyclerView.getLayoutManager())).setSpanCount(
+            PhotosViewModel.calculateNoOfColumns(activity, 100));
   }
 
   /**
@@ -118,7 +121,7 @@ public class PhotosClusterFragment extends Fragment {
       return;
     }
 
-    final RecyclerView recyclerView = binding.gridRecyclerView;
+    recyclerView = binding.gridRecyclerView;
     final int IMAGE_WIDTH = 100;
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(new GridLayoutManager(

@@ -39,8 +39,7 @@ public class VisitsFragment extends Fragment {
   private VisitsViewModel visitsViewModel;
   private Activity activity;
   private FragmentVisitsBinding binding;
-  private RecyclerView mRecyclerView;
-  private VisitAdapter visitAdapter;
+  private VisitsAdapter visitsAdapter;
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -114,12 +113,12 @@ public class VisitsFragment extends Fragment {
   private void initRecyclerView() {
     visitsViewModel.setPlaceholderText(true);
 
-    mRecyclerView = binding.gridRecyclerView;
+    RecyclerView mRecyclerView = binding.gridRecyclerView;
     mRecyclerView.setHasFixedSize(true);
     mRecyclerView.setLayoutManager(new LinearLayoutManager(activity));
 
-    visitAdapter = new VisitAdapter();
-    mRecyclerView.setAdapter(visitAdapter);
+    visitsAdapter = new VisitsAdapter();
+    mRecyclerView.setAdapter(visitsAdapter);
 
     visitsViewModel.visits.observe(getViewLifecycleOwner(), this::resetRecycler);
   }
@@ -136,8 +135,8 @@ public class VisitsFragment extends Fragment {
     } else {
       // Parses values into adapters and update view
       visitsViewModel.setPlaceholderText(true);
-      visitAdapter.setItems(visits);
-      visitAdapter.notifyDataSetChanged();
+      visitsAdapter.setItems(visits);
+      visitsAdapter.notifyDataSetChanged();
     }
   }
 

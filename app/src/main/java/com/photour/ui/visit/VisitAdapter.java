@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import com.photour.databinding.ItemPagerBinding;
+import com.photour.helper.FileHelper;
 import com.photour.model.Photo;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,10 +49,14 @@ public class VisitAdapter extends RecyclerView.Adapter<VisitAdapter.ScrollImage>
 
     // Zoom photo when clicked
     View view = itemPagerBinding.getRoot();
-    view.setOnClickListener(v ->
+    view.setOnClickListener(v -> {
+      Photo photo = itemPagerBinding.getPhotoPager();
+
+      if (FileHelper.fileExist(photo.filePath())) {
         Navigation.findNavController(view)
-            .navigate(VisitFragmentDirections.actionZoomPhoto(itemPagerBinding.getPhotoPager()))
-    );
+                .navigate(VisitFragmentDirections.actionZoomPhoto(photo));
+      }
+    });
 
     return new VisitAdapter.ScrollImage(itemPagerBinding);
   }

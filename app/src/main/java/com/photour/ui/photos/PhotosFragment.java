@@ -30,6 +30,7 @@ import com.photour.model.Photo;
 import com.photour.model.SectionElement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Fragment for Photos page
@@ -117,13 +118,15 @@ public class PhotosFragment extends Fragment {
   @Override
   public void onConfigurationChanged(@NonNull Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
-    initRecyclerView();
+    ((GridLayoutManager) Objects.requireNonNull(mRecyclerView.getLayoutManager())).setSpanCount(
+            PhotosViewModel.calculateNoOfColumns(activity, 100));
   }
 
   /**
    * Initialize recycler view for photos
    */
   private void initRecyclerView() {
+    System.out.println("INIT");
     photosViewModel.loadPhotos();
     photosViewModel.setPlaceholderText(true);
 
@@ -152,7 +155,7 @@ public class PhotosFragment extends Fragment {
    * @param photos List of Photos
    */
   private void resetGrid(List<Photo> photos) {
-
+      System.out.println("RESET");
     //Intialises lists to store grid objects
     List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
     List<Photo> photoList = new ArrayList<>();
