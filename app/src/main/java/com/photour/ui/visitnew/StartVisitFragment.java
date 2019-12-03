@@ -49,8 +49,6 @@ import java.util.Date;
  */
 public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
 
-  private static final String TAG = StartVisitFragment.class.getSimpleName();
-
   // Keys for storing activity state.
   private static final String KEY_CHRONOMETER = "chronometer";
   private static final String KEY_POLYLINE = "polyline";
@@ -58,6 +56,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   private static final String KEY_TITLE = "title";
   private static final String KEY_ID = "id";
 
+  // Permissions
   private static final String[] PERMISSIONS_REQUIRED = {
       Manifest.permission.ACCESS_FINE_LOCATION,
       Manifest.permission.CAMERA,
@@ -65,6 +64,7 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
   };
   private PermissionHelper permissionHelper;
 
+  // Class instances
   public final StartVisitMap startVisitMap = new StartVisitMap(this);
   public NewVisitViewModel viewModel;
   private FragmentStartVisitBinding binding;

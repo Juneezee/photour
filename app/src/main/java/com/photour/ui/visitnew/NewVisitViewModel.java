@@ -22,6 +22,7 @@ public class NewVisitViewModel extends AndroidViewModel {
   private VisitRepository visitRepository;
   private PhotoRepository photoRepository;
 
+  // visitRowId is 0 if the current new visit has not been inserted into the database
   private long visitRowId = 0;
 
   private MutableLiveData<String> newVisitTitle = new MutableLiveData<>();

@@ -37,6 +37,7 @@
 
     <activity
       android:name="com.photour.MainActivity"
+      android:configChanges="screenLayout|screenSize|orientation"
       android:launchMode="singleTop"
       android:theme="@style/SplashScreenTheme"
       android:windowSoftInputMode="adjustNothing">

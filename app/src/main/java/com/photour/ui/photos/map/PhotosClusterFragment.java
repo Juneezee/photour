@@ -1,6 +1,7 @@
 package com.photour.ui.photos.map;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -80,6 +81,30 @@ public class PhotosClusterFragment extends Fragment {
   }
 
   /**
+   * Called by the system when the device configuration changes while your activity is running
+   *
+   * @param newConfig The new device configuration.
+   */
+  @Override
+  public void onConfigurationChanged(@NonNull Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    initRecyclerView();
+  }
+
+  /**
+   * Prepare the Fragment host's standard options menu to be displayed.
+   *
+   * @param menu The options menu as last shown or first initialized by onCreateOptionsMenu().
+   * @see #setHasOptionsMenu
+   * @see #onCreateOptionsMenu
+   */
+  @Override
+  public void onPrepareOptionsMenu(@NonNull Menu menu) {
+    // Do not show any menu items
+    menu.clear();
+  }
+
+  /**
    * Initialise recycler view for cluster photos
    */
   private void initRecyclerView() {
@@ -103,18 +128,5 @@ public class PhotosClusterFragment extends Fragment {
     photoAdapter.setItems(Arrays.asList(photos));
 
     recyclerView.setAdapter(photoAdapter);
-  }
-
-  /**
-   * Prepare the Fragment host's standard options menu to be displayed.
-   *
-   * @param menu The options menu as last shown or first initialized by onCreateOptionsMenu().
-   * @see #setHasOptionsMenu
-   * @see #onCreateOptionsMenu
-   */
-  @Override
-  public void onPrepareOptionsMenu(@NonNull Menu menu) {
-    // Do not show any menu items
-    menu.clear();
   }
 }

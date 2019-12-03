@@ -4,6 +4,7 @@ import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
 
 import android.Manifest.permission;
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.LruCache;
@@ -106,6 +107,17 @@ public class PhotosFragment extends Fragment {
   public void onResume() {
     super.onResume();
     photosViewModel.setPlaceholderText(permissionHelper.hasStoragePermission());
+  }
+
+  /**
+   * Called by the system when the device configuration changes while your activity is running
+   *
+   * @param newConfig The new device configuration.
+   */
+  @Override
+  public void onConfigurationChanged(@NonNull Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    initRecyclerView();
   }
 
   /**
