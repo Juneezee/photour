@@ -1,5 +1,6 @@
 package com.photour.task;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.ImageView;
@@ -18,10 +19,11 @@ public class BitmapRawTask extends BitmapTask {
   /**
    * Constructor for BitmapRawTask
    *
+   * @param context contextReference of activity
    * @param imageView imageView that the bitmap will be set on
    */
-  public BitmapRawTask(ImageView imageView) {
-    super(imageView);
+  public BitmapRawTask(Context context, ImageView imageView) {
+    super(context, imageView);
   }
 
   /**
@@ -30,7 +32,9 @@ public class BitmapRawTask extends BitmapTask {
    * @param reqWidth The required width of the decoded image
    */
   public void setReqWidth(int reqWidth) {
-    this.reqWidth = reqWidth;
+    if (reqWidth != 0) {
+      this.reqWidth = reqWidth;
+    }
   }
 
   /**
@@ -39,7 +43,9 @@ public class BitmapRawTask extends BitmapTask {
    * @param reqHeight The required height of the decoded image
    */
   public void setReqHeight(int reqHeight) {
-    this.reqHeight = reqHeight;
+    if (reqHeight != 0) {
+      this.reqHeight = reqHeight;
+    }
   }
 
   /**

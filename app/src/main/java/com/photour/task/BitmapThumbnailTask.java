@@ -36,7 +36,6 @@ public class BitmapThumbnailTask extends BitmapTask {
    */
   @Override
   protected Bitmap doInBackground(String... filepaths) {
-    Bitmap bitmap;
     try {
       final Context contextRef = contextReference.get();
       filepath = filepaths[0];
@@ -51,7 +50,7 @@ public class BitmapThumbnailTask extends BitmapTask {
        * Else case: Decode the thumbnail manually
        *
        */
-      bitmap = exifInterface.hasThumbnail()
+      Bitmap bitmap = exifInterface.hasThumbnail()
           ? exifInterface.getThumbnailBitmap()
           : ((MainActivity) contextRef).cacheHelper.getBitmapFromDiskCache(idStr) != null
               ? ((MainActivity) contextRef).cacheHelper.getBitmapFromDiskCache(idStr)
@@ -62,7 +61,8 @@ public class BitmapThumbnailTask extends BitmapTask {
         bitmap = BitmapFactory.decodeFile(filepath);
       }
 
-      ((MainActivity) contextRef).cacheHelper.addBitmapToMemoryCache(idStr, bitmap);
+      // Save into cache
+      ((MainActivity) contextRef).cacheHelper.addBitmapToCache(idStr, bitmap);
 
       return bitmap;
     } catch (Exception e) {

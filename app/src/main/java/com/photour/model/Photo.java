@@ -30,6 +30,7 @@ import com.photour.task.BitmapRawTask;
 import com.photour.task.BitmapThumbnailTask;
 import com.photour.ui.photos.PhotosFragmentDirections;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Entity and Model class for Photo
@@ -105,15 +106,22 @@ public abstract class Photo implements Parcelable, ClusterItem {
   }
 
   public float temperatureCelsius() {
-    return sensors() == null ? 0 : sensors()[0];
+    return sensors() == null ? 0 : Objects.requireNonNull(sensors())[0];
   }
 
   public float temperatureFahrenheit() {
-    return sensors() == null ? 0 : (sensors()[0] * 1.8f) + 32f;
+    if (sensors() == null) {
+      return 0;
+    }
+
+    float value = Objects.requireNonNull(sensors())[0] * 1.8f + 32f;
+
+    // Round to 1 decimal
+    return ((float) ((int) ((value - (int) value) >= 0.5f ? value + 1 : value))) / 100;
   }
 
   public float pressure() {
-    return sensors() == null ? 0 : sensors()[1];
+    return sensors() == null ? 0 : Objects.requireNonNull(sensors())[1];
   }
 
   /**
@@ -137,25 +145,26 @@ public abstract class Photo implements Parcelable, ClusterItem {
    *
    * @param imageView An {@link ImageView} object
    * @param filepath filepath of image
+   * @param photoId The ID of the photo
    */
-  @BindingAdapter({"imageBitmap", "elementId"})
-  public static void loadImageBitmap(ImageView imageView, String filepath, int elementId) {
+  @BindingAdapter({"thumbnailPhoto", "photoId"})
+  public static void loadThumbnailPhoto(ImageView imageView, String filepath, int photoId) {
     final Context context = imageView.getContext();
-    final String id = String.valueOf(elementId);
-    Bitmap bitmap = ((MainActivity) context).cacheHelper
-        .getBitmapFromMemCache(id);
+    final String id = String.valueOf(photoId);
+    Bitmap bitmap = ((MainActivity) context).cacheHelper.getBitmapFromMemCache(id);
     if (bitmap != null) {
       imageView.setImageBitmap(bitmap);
-    } else {
-      if (BitmapThumbnailTask.shouldCancelTask(filepath, imageView)) {
-        BitmapThumbnailTask task = new BitmapThumbnailTask(context, imageView);
-        Bitmap placeholder = BitmapFactory
-            .decodeResource(context.getResources(), R.drawable.placeholder);
-        final AsyncDrawable asyncDrawable =
-            new AsyncDrawable(context.getResources(), placeholder, task);
-        imageView.setImageDrawable(asyncDrawable);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath, id);
-      }
+      return;
+    }
+
+    if (BitmapThumbnailTask.shouldCancelTask(filepath, imageView)) {
+      BitmapThumbnailTask task = new BitmapThumbnailTask(context, imageView);
+      Bitmap placeholder = BitmapFactory
+          .decodeResource(context.getResources(), R.drawable.placeholder);
+      final AsyncDrawable asyncDrawable =
+          new AsyncDrawable(context.getResources(), placeholder, task);
+      imageView.setImageDrawable(asyncDrawable);
+      task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath, id);
     }
   }
 
@@ -167,43 +176,41 @@ public abstract class Photo implements Parcelable, ClusterItem {
    * @param reqWidth The required width for the decoded bitmap
    * @param reqHeight The required height for the decoded bitmap
    */
-  @BindingAdapter(value = {"rawImage", "reqWidth", "reqHeight"}, requireAll = false)
-  public static void loadRawImage(
+  @BindingAdapter(value = {"rawPhoto", "reqWidth", "reqHeight"}, requireAll = false)
+  public static void loadRawPhoto(
       ImageView imageView,
       String filepath,
       int reqWidth,
       int reqHeight
   ) {
-    BitmapRawTask bitmapRawTask = new BitmapRawTask(imageView);
+    final Context context = imageView.getContext();
 
-    if (reqWidth != 0) {
-      bitmapRawTask.setReqWidth(reqWidth);
+    // No photo, show placeholder and return
+    if (filepath.equals("")) {
+      imageView.setImageBitmap(
+          BitmapFactory.decodeResource(context.getResources(), R.drawable.placeholder));
+      return;
     }
 
-    if (reqHeight != 0) {
-      bitmapRawTask.setReqHeight(reqHeight);
-    }
+    BitmapRawTask bitmapRawTask = new BitmapRawTask(context, imageView);
+    bitmapRawTask.setReqWidth(reqWidth);
+    bitmapRawTask.setReqHeight(reqHeight);
 
     try {
-      final Context context = imageView.getContext();
-      if (filepath.equals("")) {
-        imageView.setImageBitmap(
-                BitmapFactory.decodeResource(context.getResources(), R.drawable.placeholder));
-      } else {
-        ExifInterface exifInterface = new ExifInterface(filepath);
+      ExifInterface exifInterface = new ExifInterface(filepath);
 
-        // Show the thumbnail first, then async load the raw image
-        Bitmap placeholder = exifInterface.hasThumbnail()
-                ? exifInterface.getThumbnailBitmap()
-                : BitmapFactory.decodeResource(context.getResources(), R.drawable.placeholder);
+      // Show the thumbnail first, then async load the raw image
+      Bitmap placeholder = exifInterface.hasThumbnail()
+          ? exifInterface.getThumbnailBitmap()
+          : BitmapFactory.decodeResource(context.getResources(), R.drawable.placeholder);
 
-        final AsyncDrawable asyncDrawable =
-                new AsyncDrawable(context.getResources(), placeholder, bitmapRawTask);
+      final AsyncDrawable asyncDrawable =
+          new AsyncDrawable(context.getResources(), placeholder, bitmapRawTask);
 
-        imageView.setImageDrawable(asyncDrawable);
-        bitmapRawTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath);
-      }
-    } catch (Exception ignored) {
+      imageView.setImageDrawable(asyncDrawable);
+      bitmapRawTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, filepath);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 }

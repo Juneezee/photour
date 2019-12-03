@@ -23,6 +23,7 @@ import com.google.android.libraries.maps.CameraUpdateFactory;
 import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
+import com.google.android.libraries.maps.model.BitmapDescriptor;
 import com.google.android.libraries.maps.model.BitmapDescriptorFactory;
 import com.google.android.libraries.maps.model.JointType;
 import com.google.android.libraries.maps.model.LatLng;
@@ -90,13 +91,16 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    */
   @Nullable
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-
+  public View onCreateView(
+      @NonNull LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      @Nullable Bundle savedInstanceState
+  ) {
     visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
 
     binding = FragmentVisitBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
+    binding.setFragment(this);
     binding.setVisitItem(visitViewModel);
 
     if (getArguments() != null) {
@@ -105,7 +109,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
       visitViewModel.loadImages();
     }
 
-    ((MainActivity) activity).setToolbarTitle("");
+    ((MainActivity) activity).setToolbarTitle(visitViewModel.visit.visitTitle());
 
     return binding.getRoot();
   }
@@ -155,21 +159,24 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    * Helper function to reset viewPager when dataset changes Adds listener to ViewPager to update
    * details onPageChange
    *
-   * @param photos List of Photo
+   * @param photos List of {@link Photo}
    */
   private void resetViewPager(List<Photo> photos) {
-    if (photos != null && photos.size() > 0) {
-      initializeMarker(visitViewModel.photos.getValue());
+    if (photos == null || photos.isEmpty()) {
+      visitViewModel.setPlaceholderText(false);
+      visitViewModel.setDetails(-1);
+    } else {
+      initialiseMarker(photos);
       visitAdapter.setItems(photos);
       visitAdapter.notifyDataSetChanged();
       visitViewModel.setPlaceholderText(true);
       mViewPager.registerOnPageChangeCallback(callback);
-    } else {
-      visitViewModel.setPlaceholderText(false);
-      visitViewModel.setDetails(-1);
     }
   }
 
+  /**
+   * Inflate the ViewStub, then initialise the Google Map
+   */
   private void inflateMap() {
     // Inflate MapFragment lite mode. Lite mode only work when using ViewStub to inflate it
     ViewStub viewStub = binding.viewstubMap.getViewStub();
@@ -202,16 +209,15 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     this.googleMap = googleMap;
     this.googleMap.getUiSettings().setMapToolbarEnabled(false);
 
-    initializePolyLine();
+    initialisePolyLine();
   }
 
   /**
-   * Function to initialize polyline to indicate visit path
-   * Starts with getting LatLngBounds for the camera to be able to fit in the entire visit
-   * Finally add all LatLng into PolyLine Object to draw it on the map
-   *
+   * Function to initialise polyline to indicate visit path Starts with getting LatLngBounds for the
+   * camera to be able to fit in the entire visit Finally add all LatLng into PolyLine Object to
+   * draw it on the map
    */
-  private void initializePolyLine() {
+  private void initialisePolyLine() {
     List<LatLng> polyLine = visit.latLngList();
 
     // Edge case: latLngList is null or empty
@@ -236,15 +242,15 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   }
 
   /**
-   * Add in all the markers of the photo on the map
-   * The markers are then added into a list for future reference
+   * Add in all the markers of the photo on the map The markers are then added into a list for
+   * future reference
    *
-   * @param photos List of photos in the visit
+   * @param photos The list of photos in the visit to be added as marker
    */
-  private void initializeMarker(List<Photo> photos) {
+
+  private void initialiseMarker(List<Photo> photos) {
     for (Photo photo : photos) {
-      LatLng point = photo.latLng();
-      Marker marker = this.googleMap.addMarker(new MarkerOptions().position(point));
+      Marker marker = this.googleMap.addMarker(new MarkerOptions().position(photo.latLng()));
       marker.setTag(photo.id());
       markerList.add(marker);
     }
@@ -257,29 +263,23 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    *
    * @param id id parsed from Photo
    */
-  public void setMarker(int id) {
+  private void setMarker(int id) {
     for (Marker marker : markerList) {
-      if (id == (int) marker.getTag()) {
-        marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMarker(true)));
-        marker.setZIndex(1f);
-      } else {
-        marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMarker(false)));
-        marker.setZIndex(0f);
-      }
-    }
-  }
+      boolean photoEqualsMarkerTag = id == (int) marker.getTag();
 
-  /**
-   * Helper function to parse the appropriate marker bitmap to setMarker
-   *
-   * @param selected is the marker selected
-   * @return Bitmap of marker
-   */
-  private Bitmap resizeMarker(boolean selected) {
-    Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),
-        selected ? R.drawable.focused_marker : R.drawable.unfocused_marker);
-    final int size = selected ? 100 : 80;
-    return Bitmap.createScaledBitmap(imageBitmap, size, size, false);
+      marker.setZIndex(photoEqualsMarkerTag ? 1f : 0);
+
+      if (photoEqualsMarkerTag) {
+        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+      } else {
+        Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.unfocused_marker);
+        Bitmap smallMarker = Bitmap.createScaledBitmap(b, 50, 50, false);
+        BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
+
+        marker.setIcon(smallMarkerIcon);
+      }
+
+    }
   }
 
   /**
@@ -296,9 +296,8 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   }
 
   /**
-   * Callback on page scroll on ViewPager
-   * Details for the image are parsed through ViewModel and marker for the image is set on the map.
-   *
+   * Callback on page scroll on ViewPager Details for the image are parsed through ViewModel and
+   * marker for the image is set on the map.
    */
   private ViewPager2.OnPageChangeCallback callback = new ViewPager2.OnPageChangeCallback() {
     @Override

@@ -113,8 +113,6 @@ public class PhotosMapFragment extends Fragment implements OnMapReadyCallback,
    */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-
     if (savedInstanceState == null) {
       // Prevent mini-lag when the map icon is clicked for first time
       new Handler().post(this::initGoogleMap);

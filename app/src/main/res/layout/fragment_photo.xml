@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
+
   <data>
     <import type="android.view.View" />
     <variable
       name="unit"
       type="String" />
+
     <variable
       name="visitTitle"
       type="String" />
+
+    <variable
+      name="fragment"
+      type="com.photour.ui.photo.PhotoFragment" />
+
     <variable
       name="photo"
       type="com.photour.model.Photo" />
@@ -26,14 +34,16 @@
       <ImageView
         android:id="@+id/image_raw"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="275dp"
         android:adjustViewBounds="true"
         android:contentDescription="@string/photo"
+        android:onClick="@{() -> fragment.zoomImage()}"
         android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:rawImage="@{photo.filePath()}" />
+        app:photoId="@{photo.id()}"
+        app:thumbnailPhoto="@{photo.filePath()}" />
 
       <TextView
         android:id="@+id/visit_label"
@@ -124,7 +134,8 @@
         android:textStyle="bold"
         android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/map_lite_fragment" />
+        app:layout_constraintTop_toBottomOf="@id/map_lite_fragment"
+        tools:ignore="NotSibling" />
 
       <TextView
         android:id="@+id/text_temperature"

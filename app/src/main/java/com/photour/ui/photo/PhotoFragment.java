@@ -19,7 +19,6 @@ import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
 import com.google.android.libraries.maps.model.MarkerOptions;
-import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.database.VisitRepository;
 import com.photour.databinding.FragmentPhotoBinding;
@@ -40,7 +39,6 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
   private FragmentPhotoBinding binding;
   private Activity activity;
 
-  private GoogleMap googleMap;
   private Photo photo;
 
   /**
@@ -53,8 +51,9 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    activity = getActivity();
     setHasOptionsMenu(true);
+
+    activity = getActivity();
     permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
     permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
   }
@@ -78,6 +77,7 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
 
     binding = FragmentPhotoBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
+    binding.setFragment(this);
 
     if (getArguments() != null) {
       VisitRepository visitRepository = new VisitRepository(activity.getApplication());
@@ -86,8 +86,6 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
       binding.setUnit(PreferenceHelper.tempUnit(getContext()));
       binding.setVisitTitle(visitRepository.getVisitTitle(photo.visitId()));
     }
-
-    ((MainActivity) activity).setToolbarTitle("");
 
     return binding.getRoot();
   }
@@ -113,8 +111,8 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
 
     if (supportMapFragment != null) {
       // Disable click events in lite mode, prevent opening Google Maps
-      View mapview = supportMapFragment.getView();
-      if (mapview != null) {
+      View mapFragmentView = supportMapFragment.getView();
+      if (mapFragmentView != null) {
         supportMapFragment.getView().setClickable(false);
       }
 
@@ -143,10 +141,9 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
    */
   @Override
   public void onMapReady(GoogleMap googleMap) {
-    this.googleMap = googleMap;
-    this.googleMap.getUiSettings().setMapToolbarEnabled(false);
-    this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(photo.latLng(), 15));
-    this.googleMap.addMarker(new MarkerOptions().position(photo.latLng()));
+    googleMap.getUiSettings().setMapToolbarEnabled(false);
+    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(photo.latLng(), 15));
+    googleMap.addMarker(new MarkerOptions().position(photo.latLng()));
   }
 
   /**
@@ -160,5 +157,13 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
   public void onPrepareOptionsMenu(@NonNull Menu menu) {
     // Do not show any menu items
     menu.clear();
+  }
+
+  /**
+   * Navigate to {@link PhotoZoomFragment} to show the image in full screen and allow zoom
+   */
+  public void zoomImage() {
+    Navigation.findNavController(binding.getRoot())
+        .navigate(PhotoFragmentDirections.actionZoomPhoto(photo));
   }
 }

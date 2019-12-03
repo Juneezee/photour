@@ -209,8 +209,6 @@ public class StartVisitFragment extends Fragment implements OnMapReadyCallback {
    */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-
     // No camera floating action button if the device does not have any cameras
     if (!activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
       binding.fabCamera.setVisibility(View.INVISIBLE);

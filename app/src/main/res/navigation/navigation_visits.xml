@@ -18,14 +18,28 @@
   <fragment
     android:id="@+id/view_visit"
     android:name="com.photour.ui.visit.VisitFragment"
-    android:label="@string/visits"
+    android:label=" "
     tools:layout="@layout/fragment_visit">
 
     <argument
       android:name="visit"
       app:argType="com.photour.model.Visit" />
+
+    <action
+      android:id="@+id/action_zoom_photo"
+      app:destination="@id/photo_zoom" />
   </fragment>
 
+  <fragment
+    android:id="@+id/photo_zoom"
+    android:name="com.photour.ui.photo.PhotoZoomFragment"
+    android:label=" "
+    tools:layout="@layout/fragment_photo_zoom">
+
+    <argument
+      android:name="photo"
+      app:argType="com.photour.model.Photo" />
+  </fragment>
 
   <include app:graph="@navigation/navigation_settings" />
 

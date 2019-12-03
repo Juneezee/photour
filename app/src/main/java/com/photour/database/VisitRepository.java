@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData;
 import com.google.android.libraries.maps.model.LatLng;
 import com.photour.model.Visit;
 import com.photour.ui.photo.PhotoFragment;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;

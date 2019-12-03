@@ -19,8 +19,23 @@
   <fragment
     android:id="@+id/photo"
     android:name="com.photour.ui.photo.PhotoFragment"
-    android:label=""
+    android:label=" "
     tools:layout="@layout/fragment_photo">
+
+    <argument
+      android:name="photo"
+      app:argType="com.photour.model.Photo" />
+
+    <action
+      android:id="@+id/action_zoom_photo"
+      app:destination="@id/photo_zoom" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/photo_zoom"
+    android:name="com.photour.ui.photo.PhotoZoomFragment"
+    android:label=" "
+    tools:layout="@layout/fragment_photo_zoom">
 
     <argument
       android:name="photo"

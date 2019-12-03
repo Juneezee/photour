@@ -65,7 +65,7 @@ public class CacheHelper {
    * @param key Key to identify bitmap
    * @param bitmap bitmap object itself
    */
-  public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+  public void addBitmapToCache(String key, Bitmap bitmap) {
     if (getBitmapFromMemCache(key) == null) {
       memoryCache.put(key, bitmap);
     }
@@ -81,7 +81,7 @@ public class CacheHelper {
    * Function to get bitmap from memory cache
    *
    * @param key Key to identify bitmap
-   * @return bitmap object. Returns null if invalid
+   * @return {@link Bitmap} Returns null if no bitmap is found in cache
    */
   public Bitmap getBitmapFromMemCache(String key) {
     return memoryCache.get(key);
@@ -91,7 +91,7 @@ public class CacheHelper {
    * Function to get bitmap from disk cache. Runs in async due to slow speed of disk cache.
    *
    * @param key Key to identify bitmap
-   * @return bitmap object. Returns null if invalid
+   * @return {@link Bitmap} Returns null if no bitmap is found in cache
    */
   public Bitmap getBitmapFromDiskCache(String key) {
     synchronized (diskCacheLock) {

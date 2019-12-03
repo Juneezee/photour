@@ -25,11 +25,11 @@
       android:contentDescription="@string/photo"
       android:onClick="@{(view) -> photo.onImageClick(view)}"
       android:scaleType="centerCrop"
-      app:elementId="@{photo.id()}"
-      app:imageBitmap="@{photo.filePath()}"
       app:layout_constraintDimensionRatio="1:1"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
+      app:layout_constraintTop_toTopOf="parent"
+      app:photoId="@{photo.id()}"
+      app:thumbnailPhoto="@{photo.filePath()}" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

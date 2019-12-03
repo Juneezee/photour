@@ -35,15 +35,6 @@ public class BitmapTask extends AsyncTask<String, Void, Bitmap> {
   }
 
   /**
-   * Constructor for {@link BitmapTask}
-   *
-   * @param imageView imageView that the bitmap will be set on
-   */
-  BitmapTask(ImageView imageView) {
-    this.imageViewWeakReference = new WeakReference<>(imageView);
-  }
-
-  /**
    * Perform computation on background thread
    *
    * @param filepaths The file path of photos

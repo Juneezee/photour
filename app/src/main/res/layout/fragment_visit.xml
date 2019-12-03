@@ -7,6 +7,10 @@
     <import type="android.view.View" />
 
     <variable
+      name="fragment"
+      type="com.photour.ui.visit.VisitFragment" />
+
+    <variable
       name="visitItem"
       type="com.photour.ui.visit.VisitViewModel" />
   </data>
@@ -34,16 +38,16 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:paddingStart="@dimen/fragment_horizontal_margin"
-        android:paddingEnd="@dimen/activity_vertical_margin"
         android:paddingTop="@dimen/fragment_horizontal_margin"
+        android:paddingEnd="@dimen/activity_vertical_margin"
         android:text="@{visitItem.placeholderText}"
         android:textAlignment="center"
         android:textColor="?android:textColorPrimary"
         android:textSize="20sp"
         android:visibility='@{visitItem.placeholderText.equals("") ? View.GONE : View.VISIBLE}'
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
       <TextView
         android:id="@+id/visit_label"

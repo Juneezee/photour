@@ -94,8 +94,6 @@ public class NewVisitFragment extends Fragment {
    */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-
     // Set the date / time of TextClock
     binding.textclock.setFormat24Hour("EEEE, dd MMMM yyyy\n\nHH:mm:ss");
     binding.textclock.setFormat12Hour("EEEE, dd MMMM yyyy\n\nh:mm:ss a");

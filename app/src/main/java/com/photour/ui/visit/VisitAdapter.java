@@ -1,8 +1,10 @@
 package com.photour.ui.visit;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import com.photour.databinding.ItemPagerBinding;
 import com.photour.model.Photo;
@@ -42,7 +44,14 @@ public class VisitAdapter extends RecyclerView.Adapter<VisitAdapter.ScrollImage>
   @Override
   public ScrollImage onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     ItemPagerBinding itemPagerBinding = ItemPagerBinding
-            .inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        .inflate(LayoutInflater.from(parent.getContext()), parent, false);
+
+    // Zoom photo when clicked
+    View view = itemPagerBinding.getRoot();
+    view.setOnClickListener(v ->
+        Navigation.findNavController(view)
+            .navigate(VisitFragmentDirections.actionZoomPhoto(itemPagerBinding.getPhotoPager()))
+    );
 
     return new VisitAdapter.ScrollImage(itemPagerBinding);
   }
