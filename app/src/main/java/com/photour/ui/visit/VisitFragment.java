@@ -58,6 +58,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   private VisitViewModel visitViewModel;
   private ViewPager2 mViewPager;
   private VisitAdapter visitAdapter;
+  private int currentPos = -1;
   private List<Marker> markerList = new ArrayList<>();
 
   /**
@@ -70,10 +71,17 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
     setHasOptionsMenu(true);
     activity = getActivity();
     permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
     permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
+
+    if (savedInstanceState != null) {
+      currentPos = savedInstanceState.getInt("pageItem", 0);
+    }
+    visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
+
   }
 
   /**
@@ -96,7 +104,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState
   ) {
-    visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
+    super.onCreateView(inflater, container, savedInstanceState);
 
     binding = FragmentVisitBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
@@ -142,6 +150,18 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     }
   }
 
+  @Override
+  public void onPause() {
+    super.onPause();
+    currentPos = mViewPager.getCurrentItem();
+  }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    outState.putInt("pageItem", mViewPager.getCurrentItem());
+    super.onSaveInstanceState(outState);
+  }
+
   /**
    * Helper function to initialise ViewPager and observe image in ViewModel
    */
@@ -171,6 +191,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
       visitAdapter.notifyDataSetChanged();
       visitViewModel.setPlaceholderText(true);
       mViewPager.registerOnPageChangeCallback(callback);
+      mViewPager.setCurrentItem(currentPos,false);
     }
   }
 
@@ -254,8 +275,6 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
       marker.setTag(photo.id());
       markerList.add(marker);
     }
-
-    setMarker(1);
   }
 
   /**
