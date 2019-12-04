@@ -1,8 +1,5 @@
 package com.photour.ui.visits;
 
-import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
-
-import android.Manifest.permission;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -31,15 +28,12 @@ import java.util.List;
  */
 public class VisitsFragment extends Fragment {
 
-  private static final String TAG = "VisitsFragment";
-
-  private static final String[] PERMISSIONS_REQUIRED = {permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
-  private VisitsViewModel visitsViewModel;
-  private Activity activity;
-  private FragmentVisitsBinding binding;
   private VisitsAdapter visitsAdapter;
+  private VisitsViewModel visitsViewModel;
+  private FragmentVisitsBinding binding;
+  private Activity activity;
 
   /**
    * Called to do initial creation of a fragment.  This is called after {@link #onAttach(Activity)}
@@ -54,8 +48,7 @@ public class VisitsFragment extends Fragment {
     setHasOptionsMenu(true);
 
     activity = getActivity();
-    permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
-    permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
+    permissionHelper = PermissionHelper.getStoragePermissionHelper(activity, this);
   }
 
   /**
@@ -124,7 +117,7 @@ public class VisitsFragment extends Fragment {
   }
 
   /**
-   * Helper function to reset recyclerView when dataset changes
+   * Helper function to reset recyclerView when data set changes
    *
    * @param visits List of Visit
    */

@@ -16,11 +16,6 @@ public class FileHelper {
    * @return true if the filepath is valid, else return false
    */
   public static Boolean fileExist(String filePath) {
-    if (filePath != null) {
-      File temp = new File(filePath);
-      return temp.exists();
-    } else {
-      return false;
-    }
+    return filePath != null && new File(filePath).exists();
   }
 }

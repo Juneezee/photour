@@ -1,8 +1,5 @@
 package com.photour.ui.photo;
 
-import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
-
-import android.Manifest;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -33,7 +30,6 @@ import com.photour.model.Photo;
  */
 public class PhotoFragment extends Fragment implements OnMapReadyCallback {
 
-  private static final String[] PERMISSIONS_REQUIRED = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
   private FragmentPhotoBinding binding;
@@ -54,8 +50,7 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
     setHasOptionsMenu(true);
 
     activity = getActivity();
-    permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
-    permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
+    permissionHelper = PermissionHelper.getStoragePermissionHelper(activity, this);
   }
 
   /**

@@ -69,6 +69,25 @@ public class PermissionHelper {
   }
 
   /**
+   * Simplify the {@link PermissionHelper} object creation for {@link
+   * com.photour.ui.photo.PhotoFragment} and {@link com.photour.ui.visits.VisitsFragment}
+   *
+   * @param activity The {@link com.photour.MainActivity}
+   * @param fragment The fragment that is requesting the permission
+   * @return A {@link PermissionHelper} object
+   */
+  public static PermissionHelper getStoragePermissionHelper(Activity activity, Fragment fragment) {
+    PermissionHelper permissionHelper = new PermissionHelper(
+        activity,
+        fragment,
+        new String[]{permission.WRITE_EXTERNAL_STORAGE}
+    );
+    permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
+
+    return permissionHelper;
+  }
+
+  /**
    * Set the permission request code
    *
    * @param requestCode The permission request code
@@ -284,34 +303,12 @@ public class PermissionHelper {
   }
 
   /**
-   * Static method to check if the application has access to camera
-   *
-   * @param context The context of the application
-   * @return {@code true} if the application has camera permission
-   */
-  public static boolean hasCameraPermission(Context context) {
-    return context.checkSelfPermission(permission.CAMERA)
-        == PackageManager.PERMISSION_GRANTED;
-  }
-
-  /**
    * Check if the application has access to camera
    *
    * @return boolean {@code true} if the application has camera permission
    */
   public boolean hasCameraPermission() {
     return !shouldAskPermission(permission.CAMERA);
-  }
-
-  /**
-   * Static method to check if the application has access to storage
-   *
-   * @param context The context of the application
-   * @return {@code true} if the application has storage permission
-   */
-  public static boolean hasStoragePermission(Context context) {
-    return context.checkSelfPermission(permission.WRITE_EXTERNAL_STORAGE)
-        == PackageManager.PERMISSION_GRANTED;
   }
 
   /**
