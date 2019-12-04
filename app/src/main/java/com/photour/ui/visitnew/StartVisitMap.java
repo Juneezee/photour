@@ -1,7 +1,6 @@
 package com.photour.ui.visitnew;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.view.View;
@@ -214,30 +213,22 @@ public class StartVisitMap implements OnMapReadyCallback, OnMarkerClickListener 
 
     @Override
     public View getInfoContents(Marker marker) {
-      Activity activity = startVisitFragment.getActivity();
-      View view = View.inflate(activity, R.layout.custom_info_window, null);
-
-      if (activity == null) {
-        return null;
-      }
-
-      ImageView imageView = view.findViewById(R.id.info_image);
-
-      Bitmap bitmap;
+      final Activity activity = startVisitFragment.getActivity();
+      final View view = View.inflate(activity, R.layout.custom_info_window, null);
+      final ImageView imageView = view.findViewById(R.id.info_image);
 
       // Async task won't work because the view is returned before the task is completed
       try {
         ExifInterface exifInterface = new ExifInterface(clickedMarkerImagePath);
-        bitmap = exifInterface.hasThumbnail()
-            ? exifInterface.getThumbnailBitmap()
-            : BitmapHelper.decodeSampledBitmapFromResource(clickedMarkerImagePath, 100, 100);
-
+        imageView.setImageBitmap(
+            exifInterface.hasThumbnail()
+                ? exifInterface.getThumbnailBitmap()
+                : BitmapHelper.decodeSampledBitmapFromResource(clickedMarkerImagePath, 100, 100)
+        );
       } catch (Exception e) {
         imageView.setImageResource(R.drawable.placeholder);
-        return view;
       }
 
-      imageView.setImageBitmap(bitmap);
       return view;
     }
   }
