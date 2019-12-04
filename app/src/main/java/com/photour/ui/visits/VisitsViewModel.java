@@ -1,9 +1,6 @@
 package com.photour.ui.visits;
 
 import android.app.Application;
-import android.database.ContentObserver;
-import android.os.Handler;
-import android.provider.MediaStore;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -24,8 +21,6 @@ public class VisitsViewModel extends AndroidViewModel {
 
   private VisitRepository visitRepository;
   public LiveData<List<Visit>> visits;
-
-  private ContentObserver contentObserver = null;
 
   /**
    * Constructor for VisitsViewModel
@@ -71,16 +66,5 @@ public class VisitsViewModel extends AndroidViewModel {
    */
   private void loadVisit() {
     visits = visitRepository.getAllVisits();
-    if (contentObserver == null) {
-      contentObserver = new ContentObserver(new Handler()) {
-        @Override
-        public void onChange(boolean selfChange) {
-          super.onChange(selfChange);
-          loadVisit();
-        }
-      };
-      this.getApplication().getContentResolver().registerContentObserver(
-          MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, contentObserver);
-    }
   }
 }

@@ -2,9 +2,6 @@ package com.photour.ui.photos;
 
 import android.app.Application;
 import android.content.Context;
-import android.database.ContentObserver;
-import android.os.Handler;
-import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -30,8 +27,6 @@ public class PhotosViewModel extends AndroidViewModel {
   private VisitRepository visitRepository;
 
   public LiveData<List<Photo>> photos;
-
-  private ContentObserver contentObserver = null;
 
   /**
    * Constructor for PhotosViewModel
@@ -106,22 +101,11 @@ public class PhotosViewModel extends AndroidViewModel {
   }
 
   /**
-   * Calls {@link PhotoRepository#getAllLivePhotosDesc()} to get all photos from database. Sets up an
-   * Observer to observe the viewmodel and calls this method if there is any change.
+   * Calls {@link PhotoRepository#getAllLivePhotosDesc()} to get all photos from database. Sets up
+   * an Observer to observe the viewmodel and calls this method if there is any change.
    */
   void loadPhotos() {
     photos = photoRepository.getAllLivePhotosDesc();
-    if (contentObserver == null) {
-      contentObserver = new ContentObserver(new Handler()) {
-        @Override
-        public void onChange(boolean selfChange) {
-          super.onChange(selfChange);
-          loadPhotos();
-        }
-      };
-      this.getApplication().getContentResolver().registerContentObserver(
-          MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, contentObserver);
-    }
   }
 
   /**
