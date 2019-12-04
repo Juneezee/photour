@@ -47,16 +47,9 @@ public class VisitAdapter extends RecyclerView.Adapter<VisitAdapter.ScrollImage>
     ItemPagerBinding itemPagerBinding = ItemPagerBinding
         .inflate(LayoutInflater.from(parent.getContext()), parent, false);
 
-    // Zoom photo when clicked
-    View view = itemPagerBinding.getRoot();
-    view.setOnClickListener(v -> {
-      Photo photo = itemPagerBinding.getPhotoPager();
-
-      if (FileHelper.fileExist(photo.filePath())) {
-        Navigation.findNavController(view)
-                .navigate(VisitFragmentDirections.actionZoomPhoto(photo));
-      }
-    });
+    final View view = itemPagerBinding.getRoot();
+    final Photo photo = itemPagerBinding.getPhotoPager();
+    setPhotoPagerClickListener(view, photo);
 
     return new VisitAdapter.ScrollImage(itemPagerBinding);
   }
@@ -74,6 +67,19 @@ public class VisitAdapter extends RecyclerView.Adapter<VisitAdapter.ScrollImage>
     Photo photo = items.get(position);
     holder.itemPagerBinding.setPhotoPager(photo);
     holder.itemPagerBinding.executePendingBindings();
+  }
+
+  /**
+   * Set the click listener for the photo to zoom when clicked
+   *
+   * @param photo The {@link Photo} object
+   */
+  private void setPhotoPagerClickListener(View view, Photo photo) {
+    if (FileHelper.fileExist(photo.filePath())) {
+      view.setOnClickListener(v -> Navigation.findNavController(view)
+          .navigate(VisitFragmentDirections.actionZoomPhoto(photo))
+      );
+    }
   }
 
   /**
