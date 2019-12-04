@@ -19,6 +19,7 @@ import com.google.android.libraries.maps.model.MarkerOptions;
 import com.photour.R;
 import com.photour.database.VisitRepository;
 import com.photour.databinding.FragmentPhotoBinding;
+import com.photour.helper.FileHelper;
 import com.photour.helper.PermissionHelper;
 import com.photour.helper.PreferenceHelper;
 import com.photour.model.Photo;
@@ -123,6 +124,7 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
   public void onResume() {
     super.onResume();
 
+    // User might have revoked the permission
     if (!permissionHelper.hasStoragePermission()) {
       Navigation.findNavController(binding.getRoot()).navigateUp();
     }
@@ -158,7 +160,10 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
    * Navigate to {@link PhotoZoomFragment} to show the image in full screen and allow zoom
    */
   public void zoomImage() {
-    Navigation.findNavController(binding.getRoot())
-        .navigate(PhotoFragmentDirections.actionZoomPhoto(photo));
+    if (FileHelper.fileExist(photo.filePath())) {
+      Navigation.findNavController(binding.getRoot()).navigate(
+          PhotoFragmentDirections.actionZoomPhoto(photo)
+      );
+    }
   }
 }
