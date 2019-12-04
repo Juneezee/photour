@@ -109,7 +109,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     binding = FragmentVisitBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
     binding.setFragment(this);
-    binding.setVisitItem(visitViewModel);
+    binding.setViewModel(visitViewModel);
 
     if (getArguments() != null) {
       visit = VisitFragmentArgs.fromBundle(getArguments()).getVisit();

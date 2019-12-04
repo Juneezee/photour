@@ -25,6 +25,7 @@ import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.converter.LatLngConverter;
 import com.photour.helper.DateHelper;
+import com.photour.helper.StringHelper;
 import com.photour.task.AsyncDrawable;
 import com.photour.task.BitmapRawTask;
 import com.photour.task.BitmapThumbnailTask;
@@ -186,9 +187,10 @@ public abstract class Photo implements Parcelable, ClusterItem {
     final Context context = imageView.getContext();
 
     // No photo, show placeholder and return
-    if (filepath.equals("")) {
+    if (StringHelper.isInvalidString(filepath)) {
       imageView.setImageBitmap(
-          BitmapFactory.decodeResource(context.getResources(), R.drawable.placeholder));
+          BitmapFactory.decodeResource(context.getResources(), R.drawable.placeholder)
+      );
       return;
     }
 

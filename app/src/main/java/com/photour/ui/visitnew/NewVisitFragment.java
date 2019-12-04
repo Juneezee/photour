@@ -24,6 +24,7 @@ import com.photour.databinding.FragmentVisitNewBinding;
 import com.photour.helper.AlertDialogHelper;
 import com.photour.helper.LocationHelper;
 import com.photour.helper.PermissionHelper;
+import com.photour.helper.StringHelper;
 import com.photour.helper.ToastHelper;
 import com.photour.ui.visitnew.NewVisitFragmentDirections.ActionStartVisit;
 
@@ -243,7 +244,7 @@ public class NewVisitFragment extends Fragment {
     ActionStartVisit actionStartVisit = NewVisitFragmentDirections.actionStartVisit();
     Editable newVisitTitle = binding.newVisitTitleInput.getText();
 
-    if (newVisitTitle != null && !newVisitTitle.toString().trim().isEmpty()) {
+    if (StringHelper.isValidEditable(newVisitTitle)) {
       actionStartVisit.setNewVisitTitle(newVisitTitle.toString().trim());
     }
 
