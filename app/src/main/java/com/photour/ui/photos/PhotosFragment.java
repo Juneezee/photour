@@ -96,6 +96,14 @@ public class PhotosFragment extends Fragment {
     return binding.getRoot();
   }
 
+  /**
+   * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} has returned,
+   * but before any saved state has been restored in to the view.
+   *
+   * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+   * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
+   * saved state as given here.
+   */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     permissionHelper.checkStoragePermission(this::initRecyclerView);
@@ -126,7 +134,6 @@ public class PhotosFragment extends Fragment {
    * Initialize recycler view for photos
    */
   private void initRecyclerView() {
-    System.out.println("INIT");
     photosViewModel.loadPhotos();
     photosViewModel.setPlaceholderText(true);
 
@@ -155,8 +162,7 @@ public class PhotosFragment extends Fragment {
    * @param photos List of Photos
    */
   private void resetGrid(List<Photo> photos) {
-      System.out.println("RESET");
-    //Intialises lists to store grid objects
+    // Initialise lists to store grid objects
     List<SectionedGridRecyclerViewAdapter.Section> sections = new ArrayList<>();
     List<Photo> photoList = new ArrayList<>();
     SectionedGridRecyclerViewAdapter.Section[] dummy =

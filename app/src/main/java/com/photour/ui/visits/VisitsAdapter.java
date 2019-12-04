@@ -8,8 +8,6 @@ import com.photour.databinding.ItemVisitBinding;
 import com.photour.helper.FileHelper;
 import com.photour.model.Visit;
 import com.photour.ui.visits.VisitsAdapter.VisitCard;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -216,7 +216,11 @@ public class PermissionHelper {
     message += allPermissionsGranted ? "granted" : "denied";
 
     if (allPermissionsGranted) {
-      listener.onPermissionsGranted();
+      try {
+        listener.onPermissionsGranted();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
 
     ToastHelper.tShort(activity, message);
