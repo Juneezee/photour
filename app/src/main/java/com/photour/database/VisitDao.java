@@ -33,8 +33,4 @@ public interface VisitDao {
 
   @Query("SELECT visitTitle FROM visits WHERE id =:id")
   String getVisitTitle(final long id);
-
-
-  @Query("SELECT * FROM visits INNER JOIN photos ON visits.id = photos.visitId")
-  Visit findByImage();
 }
