@@ -3,6 +3,9 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
+    <variable
+      name="adapter"
+      type="com.photour.ui.visit.VisitAdapter" />
 
     <variable
       name="photoPager"
@@ -21,6 +24,7 @@
       android:adjustViewBounds="true"
       android:background="@color/colorLightGray"
       android:contentDescription="@string/photo"
+      android:onClick="@{() -> adapter.zoomPhoto(photoPager)}"
       android:scaleType="fitCenter"
       app:layout_constraintDimensionRatio="1.5:1"
       app:layout_constraintStart_toStartOf="parent"

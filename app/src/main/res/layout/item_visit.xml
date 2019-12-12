@@ -4,8 +4,8 @@
 
   <data>
     <variable
-        name="validPath"
-        type="Boolean" />
+      name="validPath"
+      type="Boolean" />
 
     <variable
       name="visit"

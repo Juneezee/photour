@@ -8,10 +8,6 @@
     <import type="android.view.View" />
 
     <variable
-      name="fragment"
-      type="com.photour.ui.visit.VisitFragment" />
-
-    <variable
       name="viewModel"
       type="com.photour.ui.visit.VisitViewModel" />
   </data>

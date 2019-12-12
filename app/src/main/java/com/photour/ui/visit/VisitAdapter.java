@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.photour.databinding.ItemPagerBinding;
 import com.photour.helper.FileHelper;
 import com.photour.model.Photo;
+import com.photour.ui.photo.PhotoZoomFragment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,7 @@ import java.util.List;
 public class VisitAdapter extends RecyclerView.Adapter<VisitAdapter.ScrollImage> {
 
   private List<Photo> items = new ArrayList<>();
+  private ItemPagerBinding itemPagerBinding;
 
   /**
    * Setter for items
@@ -44,12 +46,8 @@ public class VisitAdapter extends RecyclerView.Adapter<VisitAdapter.ScrollImage>
   @NonNull
   @Override
   public ScrollImage onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    ItemPagerBinding itemPagerBinding = ItemPagerBinding
+    itemPagerBinding = ItemPagerBinding
         .inflate(LayoutInflater.from(parent.getContext()), parent, false);
-
-    final View view = itemPagerBinding.getRoot();
-    final Photo photo = itemPagerBinding.getPhotoPager();
-    setPhotoPagerClickListener(view, photo);
 
     return new VisitAdapter.ScrollImage(itemPagerBinding);
   }
@@ -65,20 +63,20 @@ public class VisitAdapter extends RecyclerView.Adapter<VisitAdapter.ScrollImage>
   @Override
   public void onBindViewHolder(@NonNull ScrollImage holder, int position) {
     Photo photo = items.get(position);
+    holder.itemPagerBinding.setAdapter(this);
     holder.itemPagerBinding.setPhotoPager(photo);
     holder.itemPagerBinding.executePendingBindings();
   }
 
   /**
-   * Set the click listener for the photo to zoom when clicked
+   * Navigate to {@link PhotoZoomFragment} to show the image in full screen and allow zoom
    *
    * @param photo The {@link Photo} object
    */
-  private void setPhotoPagerClickListener(View view, Photo photo) {
+  public void zoomPhoto(Photo photo) {
     if (FileHelper.fileExist(photo.filePath())) {
-      view.setOnClickListener(v -> Navigation.findNavController(view)
-          .navigate(VisitFragmentDirections.actionZoomPhoto(photo))
-      );
+      Navigation.findNavController(itemPagerBinding.getRoot())
+          .navigate(VisitFragmentDirections.actionZoomPhoto(photo));
     }
   }
 
