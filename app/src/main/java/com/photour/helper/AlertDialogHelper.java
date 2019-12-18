@@ -34,18 +34,46 @@ public class AlertDialogHelper {
   }
 
   /**
+   * Create a delete visit confirmation dialog
+   *
+   * @param activity The {@link com.photour.MainActivity}
+   * @param message The message of the alert dialog
+   * @param listener An {@link AlertDialogListener} instance for callback
+   */
+  private static void createConfirmationDialog(
+      Activity activity, String message, AlertDialogListener listener
+  ) {
+    new AlertDialog.Builder(activity)
+        .setMessage(message)
+        .setPositiveButton("Yes", (dialog, which) -> listener.onPositive())
+        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+        .setCancelable(false)
+        .show();
+  }
+
+  /**
    * Create an exit confirmation dialog
    *
    * @param activity The {@link com.photour.MainActivity}
    * @param listener An {@link AlertDialogListener} instance for callback
    */
   public static void createExitConfirmationDialog(Activity activity, AlertDialogListener listener) {
-    new AlertDialog.Builder(activity)
-        .setMessage("Are you sure you want to exit?")
-        .setPositiveButton("Yes", (dialog, which) -> listener.onPositive())
-        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-        .setCancelable(false)
-        .show();
+    createConfirmationDialog(activity, "Are you sure you want to exit?", listener);
+  }
+
+  /**
+   * Create a delete visit confirmation dialog
+   *
+   * @param activity The {@link com.photour.MainActivity}
+   * @param listener An {@link AlertDialogListener} instance for callback
+   */
+  public static void createDeleteConfirmationDialog(
+      Activity activity, AlertDialogListener listener
+  ) {
+    createConfirmationDialog(
+        activity,
+        "Deleting a visit is permanent. Photos will remain in your device memory.",
+        listener);
   }
 
   /**

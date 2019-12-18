@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
+  <string name="MAP_COPYRIGHTS_FULL">© %1$d Google – Pictures © %2$d %3$s, Map Data © %4$d %5$s</string>
+  <string name="MAP_COPYRIGHTS_GOOGLE_ONLY">© %1$d Google</string>
+  <string name="MAP_COPYRIGHTS_IMAGERY_ONLY">© %1$d Google – Pictures © %2$d %3$s</string>
+  <string name="MAP_COPYRIGHTS_MAP_DATA_ONLY">© %1$d Google – Map Data © %2$d %3$s</string>
   <string name="about_us">About Us</string>
   <string name="add_a_title">Add a title</string>
   <string name="app_name">Photour</string>
   <string name="celsius">\u00B0C</string>
   <string name="date">Date</string>
+  <string name="delete_visit">Delete visit</string>
   <string name="developed_by">Developed By</string>
   <string name="dialog_image">Dialog image</string>
+  <string name="edit_visit">Edit visit</string>
   <string name="fahrenheit">\u00B0F</string>
   <string name="file_path">File Path</string>
   <string name="image">Image</string>
@@ -29,9 +35,5 @@
   <string name="time_elapsed">Time Elapsed</string>
   <string name="visit_title">Visit Title</string>
   <string name="visits">Visits</string>
-  <string name="zer_jun">Zer Jun Ng (acb16zje)</string>
-  <string name="MAP_COPYRIGHTS_GOOGLE_ONLY">© %1$d Google</string>
-  <string name="MAP_COPYRIGHTS_FULL">© %1$d Google – Pictures © %2$d %3$s, Map Data © %4$d %5$s</string>
-  <string name="MAP_COPYRIGHTS_IMAGERY_ONLY">© %1$d Google – Pictures © %2$d %3$s</string>
-  <string name="MAP_COPYRIGHTS_MAP_DATA_ONLY">© %1$d Google – Map Data © %2$d %3$s</string>
+  <string name="zer_jun">Zer Jun Eng (acb16zje)</string>
 </resources>

@@ -1,8 +1,5 @@
 package com.photour.ui.visit;
 
-import static com.photour.helper.PermissionHelper.STORAGE_PERMISSION_CODE;
-
-import android.Manifest;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +7,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -34,7 +33,9 @@ import com.google.android.libraries.maps.model.PolylineOptions;
 import com.photour.MainActivity;
 import com.photour.R;
 import com.photour.databinding.FragmentVisitBinding;
+import com.photour.helper.AlertDialogHelper;
 import com.photour.helper.PermissionHelper;
+import com.photour.helper.ToastHelper;
 import com.photour.model.Photo;
 import com.photour.model.Visit;
 import java.util.ArrayList;
@@ -47,7 +48,6 @@ import java.util.List;
  */
 public class VisitFragment extends Fragment implements OnMapReadyCallback {
 
-  private static final String[] PERMISSIONS_REQUIRED = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
   private PermissionHelper permissionHelper;
 
   private FragmentVisitBinding binding;
@@ -71,17 +71,16 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     setHasOptionsMenu(true);
+
     activity = getActivity();
-    permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
-    permissionHelper.setRequestCode(STORAGE_PERMISSION_CODE);
+    permissionHelper = PermissionHelper.getStoragePermissionHelper(activity, this);
 
     if (savedInstanceState != null) {
       currentPos = savedInstanceState.getInt("pageItem", 0);
     }
-    visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
 
+    visitViewModel = new ViewModelProvider(this).get(VisitViewModel.class);
   }
 
   /**
@@ -144,17 +143,31 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   public void onResume() {
     super.onResume();
 
+    // User might have revoked the permission
     if (!permissionHelper.hasStoragePermission()) {
       Navigation.findNavController(binding.getRoot()).navigateUp();
     }
   }
 
+  /**
+   * Called when the Fragment is no longer resumed.  This is generally tied to Activity.onPause of
+   * the containing Activity's lifecycle.
+   */
   @Override
   public void onPause() {
     super.onPause();
     currentPos = mViewPager.getCurrentItem();
   }
 
+  /**
+   * Called to ask the fragment to save its current dynamic state, so it can later be reconstructed
+   * in a new instance of its process is restarted.  If a new instance of the fragment later needs
+   * to be created, the data placed in the Bundle here will be available in the Bundle given to
+   * {@link #onCreate(Bundle)}, {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}, and {@link
+   * #onActivityCreated(Bundle)}.
+   *
+   * @param outState Bundle in which to place your saved state.
+   */
   @Override
   public void onSaveInstanceState(Bundle outState) {
     outState.putInt("pageItem", mViewPager.getCurrentItem());
@@ -190,7 +203,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
       visitAdapter.notifyDataSetChanged();
       visitViewModel.setPlaceholderText(true);
       mViewPager.registerOnPageChangeCallback(callback);
-      mViewPager.setCurrentItem(currentPos,false);
+      mViewPager.setCurrentItem(currentPos, false);
     }
   }
 
@@ -301,16 +314,55 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   }
 
   /**
-   * Prepare the Fragment host's standard options menu to be displayed.
+   * Initialize the contents of the Fragment host's standard options menu.
    *
-   * @param menu The options menu as last shown or first initialized by onCreateOptionsMenu().
+   * @param menu The options menu in which you place your items.
    * @see #setHasOptionsMenu
+   * @see #onPrepareOptionsMenu
+   * @see #onOptionsItemSelected
+   */
+  @Override
+  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    menu.clear();
+    activity.getMenuInflater().inflate(R.menu.menu_visit, menu);
+  }
+
+  /**
+   * This hook is called whenever an item in options menu is selected.
+   *
+   * @param item The menu item that was selected.
+   * @return boolean Return false to allow normal menu processing to proceed, true to consume it
+   * here.
    * @see #onCreateOptionsMenu
    */
   @Override
-  public void onPrepareOptionsMenu(@NonNull Menu menu) {
-    // Do not show any menu items
-    menu.clear();
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    int itemId = item.getItemId();
+
+    switch (itemId) {
+      case R.id.edit_visit:
+        break;
+      case R.id.delete_visit:
+        deleteVisit();
+        break;
+    }
+
+    return super.onOptionsItemSelected(item);
+  }
+
+  /**
+   * Delete the current visit. If the deletion is successful, navigate back to {@link
+   * com.photour.ui.visits.VisitsFragment}
+   */
+  private void deleteVisit() {
+    AlertDialogHelper.createDeleteConfirmationDialog(activity, () -> {
+      if (visitViewModel.deleteVisit()) {
+        Navigation.findNavController(binding.getRoot()).navigateUp();
+        ToastHelper.tShort(activity, "Visit deleted");
+      } else {
+        ToastHelper.tShort(activity, "Failed to delete");
+      }
+    });
   }
 
   /**

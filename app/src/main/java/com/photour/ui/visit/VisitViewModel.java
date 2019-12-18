@@ -9,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.photour.database.PhotoRepository;
+import com.photour.database.VisitRepository;
 import com.photour.helper.DateHelper;
 import com.photour.helper.PreferenceHelper;
 import com.photour.model.Photo;
@@ -24,9 +25,10 @@ public class VisitViewModel extends AndroidViewModel {
 
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
   private MutableLiveData<String[]> detailsArray = new MutableLiveData<>();
-  private PhotoRepository photoRepository;
   public Visit visit;
   public LiveData<List<Photo>> photos;
+  private PhotoRepository photoRepository;
+  private VisitRepository visitRepository;
 
   private ContentObserver contentObserver = null;
 
@@ -38,6 +40,7 @@ public class VisitViewModel extends AndroidViewModel {
   public VisitViewModel(@NonNull Application application) {
     super(application);
     photoRepository = new PhotoRepository(application);
+    visitRepository = new VisitRepository(application);
   }
 
   /**
@@ -55,7 +58,7 @@ public class VisitViewModel extends AndroidViewModel {
    * @param currentImagePos position of Photo in photos list
    * @return LatLng of Photo
    */
-  public int setDetails(int currentImagePos) {
+  int setDetails(int currentImagePos) {
     if (currentImagePos < 0) {
       String[] tempArray = {
           visit.visitTitle(),
@@ -78,6 +81,16 @@ public class VisitViewModel extends AndroidViewModel {
     detailsArray.setValue(tempArray);
 
     return photo.id();
+  }
+
+  /**
+   * Delete a visit
+   *
+   * @return boolean {@code true} if the visit has been deleted successfully, otherwise {@code
+   * false}
+   */
+  boolean deleteVisit() {
+    return visitRepository.delete(visit);
   }
 
   /**

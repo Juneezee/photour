@@ -2,6 +2,7 @@ package com.photour.database;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.TypeConverters;
@@ -33,4 +34,7 @@ public interface VisitDao {
 
   @Query("SELECT visitTitle FROM visits WHERE id =:id")
   String getVisitTitle(final long id);
+
+  @Delete
+  int delete(Visit visit);
 }

@@ -38,17 +38,16 @@ public class VisitRepository {
    */
   public long insert(Visit visit) {
     Callable<Long> insertCallable = () -> visitDao.insert(visit);
-    long rowId = 0;
 
     Future<Long> future = AppDatabase.databaseExecutor.submit(insertCallable);
 
     try {
-      rowId = future.get();
+      return future.get();
+
     } catch (ExecutionException | InterruptedException e) {
       e.printStackTrace();
+      return 0;
     }
-
-    return rowId;
   }
 
   /**
@@ -61,10 +60,31 @@ public class VisitRepository {
     AppDatabase.databaseExecutor.execute(() -> visitDao.update(id, elapsedTime, latLngList));
   }
 
+
+  /**
+   * Delete a visit from the Visits table
+   *
+   * @param visit The {@link Visit} to be deleted
+   * @return int The row ID of the deleted visit
+   */
+  public boolean delete(Visit visit) {
+    Callable<Integer> deleteCallable = () -> visitDao.delete(visit);
+
+    Future<Integer> future = AppDatabase.databaseExecutor.submit(deleteCallable);
+
+    try {
+      return future.get() == 1;
+
+    } catch (ExecutionException | InterruptedException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
   /**
    * Gets all visits in database
    *
-   * @return LiveData<List<Visit>> List of visits
+   * @return LiveData<List < Visit>> List of visits
    */
   public LiveData<List<Visit>> getAllVisits() {
     return visitDao.getAllVisits();
