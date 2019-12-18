@@ -38,6 +38,7 @@ public class NewVisitFragment extends Fragment {
   public static final int REQUEST_CHECK_SETTINGS = 214;
   private static final String[] PERMISSIONS_REQUIRED = {
       permission.ACCESS_FINE_LOCATION,
+      permission.ACCESS_BACKGROUND_LOCATION,
       permission.CAMERA,
       permission.WRITE_EXTERNAL_STORAGE
   };

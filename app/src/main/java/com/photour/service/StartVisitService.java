@@ -42,7 +42,7 @@ public class StartVisitService extends Service {
   // Constants for Google Map location request
   private static final int UPDATE_INTERVAL = 20000;
   private static final int FASTEST_INTERVAL = 1000;
-  private static final float MIN_DISPLACEMENT = 5;
+  private static final float MIN_DISPLACEMENT = 10;
 
   public static boolean isRunning = false;
 

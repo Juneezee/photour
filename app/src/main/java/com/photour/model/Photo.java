@@ -115,7 +115,7 @@ public abstract class Photo implements Parcelable, ClusterItem {
       return 0;
     }
 
-    float value = Objects.requireNonNull(sensors())[0] * 1.8f + 32f;
+    float value = (Objects.requireNonNull(sensors())[0] * 1.8f + 32) * 10;
 
     // Round to 1 decimal
     return ((float) ((int) ((value - (int) value) >= 0.5f ? value + 1 : value))) / 10;
