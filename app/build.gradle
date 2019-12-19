@@ -48,14 +48,14 @@ android {
 dependencies {
     // Default Android libraries
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0-alpha01'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta4'
-    implementation 'androidx.exifinterface:exifinterface:1.1.0'
-    implementation 'androidx.fragment:fragment:1.2.0-rc03'
-    implementation 'androidx.navigation:navigation-fragment:2.2.0-rc03'
-    implementation 'androidx.navigation:navigation-ui:2.2.0-rc03'
+    implementation 'androidx.exifinterface:exifinterface:1.2.0-beta01'
+    implementation 'androidx.fragment:fragment:1.2.0-rc04'
+    implementation 'androidx.navigation:navigation-fragment:2.2.0-rc04'
+    implementation 'androidx.navigation:navigation-ui:2.2.0-rc04'
     implementation 'androidx.preference:preference:1.1.0'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.2.0-alpha01'
     implementation 'com.google.guava:guava:28.1-android'
     implementation 'com.google.android.material:material:1.2.0-alpha02'
 
@@ -76,8 +76,8 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils-sdk-v3-compat:0.1'
 
     // Room
-    implementation 'androidx.room:room-runtime:2.2.2'
-    annotationProcessor "androidx.room:room-compiler:2.2.2"
+    implementation 'androidx.room:room-runtime:2.2.3'
+    annotationProcessor "androidx.room:room-compiler:2.2.3"
 
     // android-image-picker (https://github.com/esafirm/android-image-picker) (Approved by Fabio)
     // N.B. Glide is not used in this application, it is a dependency of android-image-picker
