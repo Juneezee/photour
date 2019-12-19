@@ -23,10 +23,14 @@
 
     <style name="ModalBottomSheet" parent="Widget.MaterialComponents.BottomSheet.Modal">
         <item name="backgroundTint">@color/colorPrimaryDark</item>
-        <item name="background">@color/colorPrimary</item>
+        <item name="android:background">@drawable/sheet</item>
+        <item name="shapeAppearance">@style/SheetShape</item>
     </style>
 
-
+    <style name="SheetShape" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">15dp</item>
+    </style>
 
     <!--Style for Splash Screen-->
     <style name="SplashScreenTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">

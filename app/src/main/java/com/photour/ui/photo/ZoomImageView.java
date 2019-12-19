@@ -140,6 +140,11 @@ public class ZoomImageView extends AppCompatImageView {
     userTouchListener = l;
   }
 
+  /**
+   * Setter for Bottom Sheet
+   *
+   * @param b BottomSheetBehaviour
+   */
   public void setBottomSheet(BottomSheetBehavior b) { bottomSheetBehaviour = b; }
 
   /**
@@ -764,6 +769,8 @@ public class ZoomImageView extends AppCompatImageView {
         fling.cancelFling();
       }
 
+      //Handles fling if bottom sheet exist.
+      //Allow user to show or hide bottom sheet with fling when image is zoomed out
       if ( bottomSheetBehaviour != null ) {
         if (!isZoomed() && velocityY < -500 ) {
           bottomSheetBehaviour.setState(

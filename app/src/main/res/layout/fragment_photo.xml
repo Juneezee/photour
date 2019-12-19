@@ -60,7 +60,7 @@
         android:paddingStart="@dimen/fragment_horizontal_margin"
         android:paddingEnd="@dimen/activity_horizontal_margin"
         android:text="@string/details"
-        android:textColor="?android:textColorPrimary"
+        android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
