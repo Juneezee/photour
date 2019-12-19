@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.google.android.libraries.maps.CameraUpdateFactory;
@@ -16,10 +18,10 @@ import com.google.android.libraries.maps.GoogleMap;
 import com.google.android.libraries.maps.OnMapReadyCallback;
 import com.google.android.libraries.maps.SupportMapFragment;
 import com.google.android.libraries.maps.model.MarkerOptions;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.photour.R;
 import com.photour.database.VisitRepository;
 import com.photour.databinding.FragmentPhotoBinding;
-import com.photour.helper.FileHelper;
 import com.photour.helper.PermissionHelper;
 import com.photour.helper.PreferenceHelper;
 import com.photour.model.Photo;
@@ -83,7 +85,20 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
       binding.setVisitTitle(visitRepository.getVisitTitle(photo.visitId()));
     }
 
-    return binding.getRoot();
+    ConstraintLayout bottomSheet = binding.standardBottomSheet;
+    BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+
+    ZoomImageView imageContainer = binding.imageRaw;
+
+    imageContainer.setBottomSheet(bottomSheetBehavior);
+//    imageContainer.setOnTouchListener((v, event) -> {
+//      imageContainer.performClick();
+//      System.out.println("ACTION:"+event.getAction());
+//      System.out.println("STATE:"+bottomSheetBehavior.getState());
+//
+//    });
+
+   return binding.getRoot();
   }
 
   /**
@@ -156,14 +171,15 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
     menu.clear();
   }
 
-  /**
-   * Navigate to {@link PhotoZoomFragment} to show the image in full screen and allow zoom
-   */
-  public void zoomImage() {
-    if (FileHelper.fileExist(photo.filePath())) {
-      Navigation.findNavController(binding.getRoot()).navigate(
-          PhotoFragmentDirections.actionZoomPhoto(photo)
-      );
-    }
-  }
+//  /**
+//   * Navigate to {@link PhotoZoomFragment} to show the image in full screen and allow zoom
+//   */
+//  public void zoomImage() {
+//    if (FileHelper.fileExist(photo.filePath())) {
+//      Navigation.findNavController(binding.getRoot()).navigate(
+//          PhotoFragmentDirections.actionZoomPhoto(photo)
+//      );
+//    }
+//  }
+
 }

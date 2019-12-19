@@ -22,187 +22,211 @@
       type="com.photour.model.Photo" />
   </data>
 
-  <ScrollView
+  <androidx.coordinatorlayout.widget.CoordinatorLayout
+      android:id="@+id/image_container"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+    <com.photour.ui.photo.ZoomImageView
+    android:id="@+id/image_raw"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:adjustViewBounds="true"
+    android:contentDescription="@string/photo"
+    android:scaleType="fitCenter"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:rawPhoto="@{photo.filePath()}" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:paddingBottom="@dimen/activity_vertical_margin">
-
-      <ImageView
-        android:id="@+id/image_raw"
+        android:id="@+id/standardBottomSheet"
         android:layout_width="match_parent"
-        android:layout_height="275dp"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/photo"
-        android:onClick="@{() -> fragment.zoomImage()}"
-        android:scaleType="fitCenter"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:rawPhoto="@{photo.filePath()}" />
+        android:layout_height="match_parent"
+        style="@style/ModalBottomSheet"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="50dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
       <TextView
-        android:id="@+id/visit_label"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:text="@string/visit_title"
-        android:textColor="?detailTitle"
-        android:textSize="@dimen/min_text_size"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/image_raw" />
+          android:id="@+id/detailTag"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:drawableStart="@drawable/ic_info"
+          android:drawablePadding="-20dp"
+          android:paddingStart="@dimen/fragment_horizontal_margin"
+          android:paddingEnd="@dimen/activity_horizontal_margin"
+          android:text="@string/details"
+          android:textSize="@dimen/min_text_size"
+          android:gravity="center"
+          android:textStyle="bold"
+          android:textColor="?android:textColorPrimary"
+          android:layout_marginTop="@dimen/activity_vertical_margin"
+          android:layout_marginBottom="@dimen/activity_vertical_margin"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="@+id/standardBottomSheet" />
 
       <TextView
-        android:id="@+id/text_visit"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{visitTitle}"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/visit_label" />
+          android:id="@+id/visit_label"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_marginStart="@dimen/activity_horizontal_margin"
+          android:layout_marginTop="@dimen/activity_horizontal_margin"
+          android:text="@string/visit_title"
+          android:textColor="?detailTitle"
+          android:textSize="@dimen/min_text_size"
+          android:textStyle="bold"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/detailTag"
+          />
 
       <TextView
-        android:id="@+id/date_label"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:text="@string/date"
-        android:textColor="?detailTitle"
-        android:textSize="@dimen/min_text_size"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_visit" />
+          android:id="@+id/text_visit"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_marginStart="@dimen/activity_horizontal_margin"
+          android:layout_marginEnd="@dimen/activity_horizontal_margin"
+          android:layout_marginBottom="@dimen/activity_vertical_margin"
+          android:text="@{visitTitle}"
+          android:textSize="16sp"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/visit_label" />
 
       <TextView
-        android:id="@+id/text_date"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{photo.dateInString}"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/date_label" />
+          android:id="@+id/date_label"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_marginStart="@dimen/activity_horizontal_margin"
+          android:layout_marginTop="@dimen/activity_vertical_margin"
+          android:layout_marginEnd="@dimen/activity_horizontal_margin"
+          android:text="@string/date"
+          android:textColor="?detailTitle"
+          android:textSize="@dimen/min_text_size"
+          android:textStyle="bold"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/text_visit" />
 
       <TextView
-        android:id="@+id/location_label"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:text="@string/location"
-        android:textColor="?detailTitle"
-        android:textSize="@dimen/min_text_size"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_date" />
+          android:id="@+id/text_date"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_marginStart="@dimen/activity_horizontal_margin"
+          android:layout_marginEnd="@dimen/activity_horizontal_margin"
+          android:layout_marginBottom="@dimen/activity_vertical_margin"
+          android:text="@{photo.dateInString}"
+          android:textSize="16sp"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/date_label" />
+
+      <TextView
+          android:id="@+id/location_label"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_marginStart="@dimen/activity_horizontal_margin"
+          android:layout_marginTop="@dimen/activity_vertical_margin"
+          android:layout_marginEnd="@dimen/activity_horizontal_margin"
+          android:text="@string/location"
+          android:textColor="?detailTitle"
+          android:textSize="@dimen/min_text_size"
+          android:textStyle="bold"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/text_date" />
 
       <ViewStub
-        android:id="@+id/viewstub_map"
-        android:layout_width="match_parent"
-        android:layout_height="256dp"
-        android:layout_marginTop="@dimen/fragment_vertical_margin"
-        android:layout="@layout/viewstub_map_lite"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/location_label" />
+          android:id="@+id/viewstub_map"
+          android:layout_width="match_parent"
+          android:layout_height="256dp"
+          android:layout_marginTop="@dimen/fragment_vertical_margin"
+          android:layout="@layout/viewstub_map_lite"
+          android:visibility="gone"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/location_label" />
 
       <TextView
-        android:id="@+id/temperature_label"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:text="@string/temperature"
-        android:textColor="?detailTitle"
-        android:textSize="@dimen/min_text_size"
-        android:textStyle="bold"
-        android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/map_lite_fragment"
-        tools:ignore="NotSibling" />
+          android:id="@+id/temperature_label"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_marginStart="@dimen/activity_horizontal_margin"
+          android:layout_marginTop="@dimen/activity_vertical_margin"
+          android:layout_marginEnd="@dimen/activity_horizontal_margin"
+          android:text="@string/temperature"
+          android:textColor="?detailTitle"
+          android:textSize="@dimen/min_text_size"
+          android:textStyle="bold"
+          android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/map_lite_fragment"
+          tools:ignore="NotSibling" />
 
       <TextView
-        android:id="@+id/text_temperature"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text='@{String.valueOf(unit.equals(@string/celsius) ? photo.temperatureCelsius() : (photo.temperatureFahrenheit())).concat(unit)}'
-        android:textSize="16sp"
-        android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/temperature_label" />
+          android:id="@+id/text_temperature"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_marginStart="@dimen/activity_horizontal_margin"
+          android:layout_marginEnd="@dimen/activity_horizontal_margin"
+          android:layout_marginBottom="@dimen/activity_vertical_margin"
+          android:text='@{String.valueOf(unit.equals(@string/celsius) ? photo.temperatureCelsius() : (photo.temperatureFahrenheit())).concat(unit)}'
+          android:textSize="16sp"
+          android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/temperature_label" />
 
       <TextView
-        android:id="@+id/pressure_label"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:text="@string/pressure"
-        android:textColor="?detailTitle"
-        android:textSize="@dimen/min_text_size"
-        android:textStyle="bold"
-        android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_temperature" />
+          android:id="@+id/pressure_label"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_marginStart="@dimen/activity_horizontal_margin"
+          android:layout_marginTop="@dimen/activity_vertical_margin"
+          android:layout_marginEnd="@dimen/activity_horizontal_margin"
+          android:text="@string/pressure"
+          android:textColor="?detailTitle"
+          android:textSize="@dimen/min_text_size"
+          android:textStyle="bold"
+          android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/text_temperature" />
 
       <TextView
-        android:id="@+id/text_pressure"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{photo.pressure() + ` hPa`}"
-        android:textSize="16sp"
-        android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pressure_label" />
+          android:id="@+id/text_pressure"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_marginStart="@dimen/activity_horizontal_margin"
+          android:layout_marginEnd="@dimen/activity_horizontal_margin"
+          android:layout_marginBottom="@dimen/activity_vertical_margin"
+          android:text="@{photo.pressure() + ` hPa`}"
+          android:textSize="16sp"
+          android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/pressure_label" />
 
       <TextView
-        android:id="@+id/uri_label"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:text="@string/file_path"
-        android:textColor="?detailTitle"
-        android:textSize="@dimen/min_text_size"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_pressure" />
+          android:id="@+id/uri_label"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_marginStart="@dimen/activity_horizontal_margin"
+          android:layout_marginTop="@dimen/activity_vertical_margin"
+          android:layout_marginEnd="@dimen/activity_horizontal_margin"
+          android:text="@string/file_path"
+          android:textColor="?detailTitle"
+          android:textSize="@dimen/min_text_size"
+          android:textStyle="bold"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/text_pressure" />
 
       <TextView
-        android:id="@+id/text_uri"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{photo.filePath()}"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/uri_label" />
+          android:id="@+id/text_uri"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_marginStart="@dimen/activity_horizontal_margin"
+          android:layout_marginEnd="@dimen/activity_horizontal_margin"
+          android:layout_marginBottom="@dimen/activity_vertical_margin"
+          android:text="@{photo.filePath()}"
+          android:textSize="16sp"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/uri_label" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-  </ScrollView>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 </layout>

@@ -20,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.OverScroller;
 import androidx.appcompat.widget.AppCompatImageView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+
 /**
  * Customised {@link AppCompatImageView} to support pinch zoom, tap zoom, and panning
  *
@@ -75,6 +77,7 @@ public class ZoomImageView extends AppCompatImageView {
   private GestureDetector.OnDoubleTapListener doubleTapListener = null;
   private OnTouchListener userTouchListener = null;
   private OnZoomImageViewListener zoomImageViewListener = null;
+  private BottomSheetBehavior bottomSheetBehaviour = null;
 
   /**
    * Constructor of {@link ZoomImageView}
@@ -137,6 +140,8 @@ public class ZoomImageView extends AppCompatImageView {
   public void setOnTouchListener(OnTouchListener l) {
     userTouchListener = l;
   }
+
+  public void setBottomSheet(BottomSheetBehavior b) { bottomSheetBehaviour = b; }
 
   /**
    * Sets a drawable as the content of this ImageView.
@@ -315,6 +320,10 @@ public class ZoomImageView extends AppCompatImageView {
       );
       delayedZoomVariables = null;
     }
+
+  if (bottomSheetBehaviour!= null && isZoomed()) {
+    bottomSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
+  }
     super.onDraw(canvas);
   }
 
@@ -754,6 +763,17 @@ public class ZoomImageView extends AppCompatImageView {
         // If a previous fling is still active, it should be cancelled so that two flings
         // are not run simultaneously.
         fling.cancelFling();
+      }
+
+      if ( bottomSheetBehaviour != null ) {
+        if (!isZoomed() && velocityY < -500 ) {
+          bottomSheetBehaviour.setState(
+                  bottomSheetBehaviour.getState() == BottomSheetBehavior.STATE_HIDDEN ?
+         BottomSheetBehavior.STATE_COLLAPSED : BottomSheetBehavior.STATE_EXPANDED);
+        } else if (!isZoomed() && velocityY > 500 &&
+                  bottomSheetBehaviour.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
+            bottomSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
       }
       fling = new Fling((int) velocityX, (int) velocityY);
       postOnAnimation(fling);

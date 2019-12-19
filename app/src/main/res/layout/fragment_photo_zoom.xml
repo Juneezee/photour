@@ -21,5 +21,6 @@
       app:rawPhoto="@{photo.filePath()}" />
   </FrameLayout>
 
+
 </layout>
 

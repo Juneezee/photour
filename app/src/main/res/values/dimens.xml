@@ -10,4 +10,5 @@
   <dimen name="fragment_vertical_margin">8dp</dimen>
   <dimen name="logo_height">100dp</dimen>
   <dimen name="min_text_size">15sp</dimen>
+  <dimen name="bottom_sheet_corner_radius">100dp</dimen>
 </resources>
