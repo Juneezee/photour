@@ -10,6 +10,8 @@ import static com.photour.helper.PlayServicesHelper.checkPlayServices;
 import android.Manifest.permission;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.text.Editable;
 import android.util.Log;
@@ -20,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import com.google.common.collect.ObjectArrays;
 import com.photour.databinding.FragmentVisitNewBinding;
 import com.photour.helper.AlertDialogHelper;
 import com.photour.helper.LocationHelper;
@@ -36,9 +39,8 @@ import com.photour.ui.visitnew.NewVisitFragmentDirections.ActionStartVisit;
 public class NewVisitFragment extends Fragment {
 
   public static final int REQUEST_CHECK_SETTINGS = 214;
-  private static final String[] PERMISSIONS_REQUIRED = {
+  private String[] PERMISSIONS_REQUIRED = {
       permission.ACCESS_FINE_LOCATION,
-      permission.ACCESS_BACKGROUND_LOCATION,
       permission.CAMERA,
       permission.WRITE_EXTERNAL_STORAGE
   };
@@ -60,6 +62,13 @@ public class NewVisitFragment extends Fragment {
     super.onCreate(savedInstanceState);
 
     activity = getActivity();
+
+    // Background location permission for Android 10
+    if (Build.VERSION.SDK_INT >= VERSION_CODES.Q) {
+      PERMISSIONS_REQUIRED =
+          ObjectArrays.concat(PERMISSIONS_REQUIRED, permission.ACCESS_BACKGROUND_LOCATION);
+    }
+
     permissionHelper = new PermissionHelper(activity, this, PERMISSIONS_REQUIRED);
   }
 
