@@ -19,7 +19,6 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.OverScroller;
 import androidx.appcompat.widget.AppCompatImageView;
-
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 /**

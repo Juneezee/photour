@@ -3,7 +3,7 @@
 
   <data>
     <variable
-      name="listener"
+      name="fragment"
       type="com.photour.ui.visitnew.NewVisitFragment" />
   </data>
 
@@ -77,7 +77,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/rounded_button"
-        android:onClick="@{() -> listener.onStartClick()}"
+        android:onClick="@{() -> fragment.onStartClick()}"
         android:paddingStart="@dimen/activity_horizontal_margin"
         android:paddingEnd="@dimen/activity_horizontal_margin"
         android:text="@string/start"

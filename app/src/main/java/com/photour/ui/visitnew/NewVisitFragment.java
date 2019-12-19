@@ -81,7 +81,7 @@ public class NewVisitFragment extends Fragment {
       Bundle savedInstanceState) {
 
     binding = FragmentVisitNewBinding.inflate(inflater, container, false);
-    binding.setListener(this);
+    binding.setFragment(this);
 
     return binding.getRoot();
   }

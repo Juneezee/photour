@@ -18,10 +18,9 @@ import androidx.lifecycle.MutableLiveData;
  */
 public class EnvironmentSensor {
 
-  private String tag;
   private static final long READING_FREQUENCY = 20000; // Reads every 20 seconds
   private static final long STOPPING_THRESHOLD = 30000; // Stop after inactive for 30 seconds
-
+  private String tag;
   private SensorEventListener listener = null;
   private SensorManager sensorManager;
   private Sensor sensor;

@@ -3,13 +3,11 @@ package com.photour.database;
 import android.app.Application;
 import androidx.lifecycle.LiveData;
 import com.google.android.libraries.maps.model.LatLng;
+import com.photour.helper.FutureHelper;
 import com.photour.model.Visit;
 import com.photour.ui.photo.PhotoFragment;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Repository for Visits database
@@ -37,29 +35,31 @@ public class VisitRepository {
    * @return long The row ID of the new inserted visit
    */
   public long insert(Visit visit) {
-    Callable<Long> insertCallable = () -> visitDao.insert(visit);
+    Object result = FutureHelper.genericFuture(() -> visitDao.insert(visit));
 
-    Future<Long> future = AppDatabase.databaseExecutor.submit(insertCallable);
-
-    try {
-      return future.get();
-
-    } catch (ExecutionException | InterruptedException e) {
-      e.printStackTrace();
-      return 0;
-    }
+    return result == null ? 0 : (long) result;
   }
 
   /**
-   * Update the latLngList of a visit
+   * Update the elapsedTime and latLngList of a visit
    *
    * @param id The row ID of the visit
+   * @param elapsedTime Elapsed time of the visit
    * @param latLngList The new list of LatLng
    */
   public void update(final long id, final long elapsedTime, final ArrayList<LatLng> latLngList) {
     AppDatabase.databaseExecutor.execute(() -> visitDao.update(id, elapsedTime, latLngList));
   }
 
+  /**
+   * Update the title of a visit
+   *
+   * @param id The row ID of the visit
+   * @param visitTitle The new visit title of the visit
+   */
+  public boolean update(long id, String visitTitle) {
+    return FutureHelper.rowOperationFuture(() -> visitDao.update(id, visitTitle));
+  }
 
   /**
    * Delete a visit from the Visits table
@@ -68,17 +68,7 @@ public class VisitRepository {
    * @return int The row ID of the deleted visit
    */
   public boolean delete(Visit visit) {
-    Callable<Integer> deleteCallable = () -> visitDao.delete(visit);
-
-    Future<Integer> future = AppDatabase.databaseExecutor.submit(deleteCallable);
-
-    try {
-      return future.get() == 1;
-
-    } catch (ExecutionException | InterruptedException e) {
-      e.printStackTrace();
-      return false;
-    }
+    return FutureHelper.rowOperationFuture(() -> visitDao.delete(visit));
   }
 
   /**
@@ -97,16 +87,16 @@ public class VisitRepository {
    * @return String title of Visit
    */
   public String getVisitTitle(final long id) {
-    Callable<String> titleCallable = () -> visitDao.getVisitTitle(id);
+    return FutureHelper.stringFuture(() -> visitDao.getVisitTitle(id));
+  }
 
-    Future<String> future = AppDatabase.databaseExecutor.submit(titleCallable);
-
-    try {
-      return future.get();
-    } catch (ExecutionException | InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    return "";
+  /**
+   * Get LiveData type of {@link Visit} from the Visits table
+   *
+   * @param id the ID of the visit
+   * @return LiveData<Visit> the visit of LiveData type
+   */
+  public LiveData<Visit> getLiveVisit(final long id) {
+    return FutureHelper.genericFuture(() -> visitDao.getLiveVisit(id));
   }
 }

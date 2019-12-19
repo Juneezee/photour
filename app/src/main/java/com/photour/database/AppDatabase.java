@@ -23,7 +23,8 @@ public abstract class AppDatabase extends RoomDatabase {
 
   private static volatile AppDatabase INSTANCE;
   private static final int NUMBER_OF_THREADS = 4;
-  static final ExecutorService databaseExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+  public static final ExecutorService databaseExecutor = Executors
+      .newFixedThreadPool(NUMBER_OF_THREADS);
 
 
   /**

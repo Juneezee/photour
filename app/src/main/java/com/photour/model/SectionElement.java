@@ -14,6 +14,7 @@ public class SectionElement {
 
   /**
    * Constructor for Section Element
+   *
    * @param title title of section
    */
   public SectionElement(String title) {

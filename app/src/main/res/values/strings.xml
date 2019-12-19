@@ -10,9 +10,11 @@
   <string name="celsius">\u00B0C</string>
   <string name="date">Date</string>
   <string name="delete_visit">Delete visit</string>
+  <string name="details">Details</string>
   <string name="developed_by">Developed By</string>
   <string name="dialog_image">Dialog image</string>
   <string name="edit_visit">Edit visit</string>
+  <string name="edit_visit_title">Edit visit title</string>
   <string name="fahrenheit">\u00B0F</string>
   <string name="file_path">File Path</string>
   <string name="image">Image</string>
@@ -23,6 +25,7 @@
   <string name="photos">Photos</string>
   <string name="photour_vertical_logo">Photour vertical logo</string>
   <string name="pressure">Pressure</string>
+  <string name="save">Save</string>
   <string name="settings">Settings</string>
   <string name="sort">Sort</string>
   <string name="sort_by_newest_first">Sort by: Newest first</string>
@@ -36,5 +39,4 @@
   <string name="visit_title">Visit Title</string>
   <string name="visits">Visits</string>
   <string name="zer_jun">Zer Jun Eng (acb16zje)</string>
-    <string name="details">Details</string>
 </resources>

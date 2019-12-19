@@ -2,11 +2,9 @@ package com.photour.database;
 
 import android.app.Application;
 import androidx.lifecycle.LiveData;
+import com.photour.helper.FutureHelper;
 import com.photour.model.Photo;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Repository for Photos database
@@ -39,20 +37,10 @@ public class PhotoRepository {
   /**
    * Get all Photos from database in LiveData form
    *
-   * @return LiveData<List<Photo>> List of Photos
+   * @return LiveData<List < Photo>> List of Photos
    */
   public LiveData<List<Photo>> getAllLivePhotosDesc() {
-    Callable<LiveData<List<Photo>>> getCallable = () -> photoDao.getAllDesc();
-
-    Future<LiveData<List<Photo>>> future = AppDatabase.databaseExecutor.submit(getCallable);
-
-    try {
-      return future.get();
-    } catch (InterruptedException | ExecutionException e) {
-      e.printStackTrace();
-    }
-
-    return null;
+    return FutureHelper.genericFuture(() -> photoDao.getAllDesc());
   }
 
   /**
@@ -61,17 +49,7 @@ public class PhotoRepository {
    * @return List<Photo>
    */
   public List<Photo> getAllPhotos() {
-    Callable<List<Photo>> getCallable = () -> photoDao.getAllPhotos();
-
-    Future<List<Photo>> future = AppDatabase.databaseExecutor.submit(getCallable);
-
-    try {
-      return future.get();
-    } catch (InterruptedException | ExecutionException e) {
-      e.printStackTrace();
-    }
-
-    return null;
+    return FutureHelper.genericFuture(() -> photoDao.getAllPhotos());
   }
 
   /**

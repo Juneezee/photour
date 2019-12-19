@@ -40,6 +40,6 @@ public class PreferenceHelper {
   public static String tempUnit(Context context) {
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-    return sharedPreferences.getString("temperature","\u00B0C");
+    return sharedPreferences.getString("temperature", "\u00B0C");
   }
 }
