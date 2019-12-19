@@ -65,6 +65,8 @@ public class ZoomImageView extends AppCompatImageView {
 
   private ZoomVariables delayedZoomVariables;
 
+  final BottomSheet bottomSheet = new BottomSheet();
+
   // Size of view and previous view size (ie before rotation)
   private int viewWidth, viewHeight, prevViewWidth, prevViewHeight;
 
@@ -76,7 +78,6 @@ public class ZoomImageView extends AppCompatImageView {
   private GestureDetector.OnDoubleTapListener doubleTapListener = null;
   private OnTouchListener userTouchListener = null;
   private OnZoomImageViewListener zoomImageViewListener = null;
-  private BottomSheetBehavior bottomSheetBehaviour = null;
 
   /**
    * Constructor of {@link ZoomImageView}
@@ -141,13 +142,6 @@ public class ZoomImageView extends AppCompatImageView {
   }
 
   /**
-   * Setter for Bottom Sheet
-   *
-   * @param b BottomSheetBehaviour
-   */
-  public void setBottomSheet(BottomSheetBehavior b) { bottomSheetBehaviour = b; }
-
-  /**
    * Sets a drawable as the content of this ImageView.
    *
    * <p>Allows the use of vector drawables when running on older versions of the platform.</p>
@@ -161,7 +155,6 @@ public class ZoomImageView extends AppCompatImageView {
     savePreviousImageValues();
     fitImageToView();
   }
-
 
   /**
    * Sets a Bitmap as the content of this ImageView.
@@ -325,9 +318,10 @@ public class ZoomImageView extends AppCompatImageView {
       delayedZoomVariables = null;
     }
 
-  if (bottomSheetBehaviour!= null && isZoomed()) {
-    bottomSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
-  }
+    if (bottomSheet.behaviorIsNotNull() && isZoomed()) {
+      bottomSheet.setBehaviorState(BottomSheetBehavior.STATE_HIDDEN);
+    }
+
     super.onDraw(canvas);
   }
 
@@ -769,20 +763,21 @@ public class ZoomImageView extends AppCompatImageView {
         fling.cancelFling();
       }
 
-      //Handles fling if bottom sheet exist.
-      //Allow user to show or hide bottom sheet with fling when image is zoomed out
-      if ( bottomSheetBehaviour != null ) {
-        if (!isZoomed() && velocityY < -500 ) {
-          bottomSheetBehaviour.setState(
-                  bottomSheetBehaviour.getState() == BottomSheetBehavior.STATE_HIDDEN ?
-         BottomSheetBehavior.STATE_COLLAPSED : BottomSheetBehavior.STATE_EXPANDED);
-        } else if (!isZoomed() && velocityY > 500 &&
-                  bottomSheetBehaviour.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
-            bottomSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
-        }
-      }
       fling = new Fling((int) velocityX, (int) velocityY);
       postOnAnimation(fling);
+
+      // Handles fling if bottom sheet exist.
+      // Allow user to show or hide bottom sheet with fling when image is zoomed out
+      if (bottomSheet.behaviorIsNotNull() && !isZoomed()) {
+        if (velocityY < -500) {
+          bottomSheet.setBehaviorState(bottomSheet.isHidden()
+              ? BottomSheetBehavior.STATE_COLLAPSED
+              : BottomSheetBehavior.STATE_EXPANDED
+          );
+        } else if (velocityY > 500 && bottomSheet.isCollapsed()) {
+          bottomSheet.setBehaviorState(BottomSheetBehavior.STATE_HIDDEN);
+        }
+      }
 
       return super.onFling(e1, e2, velocityX, velocityY);
     }
@@ -799,6 +794,12 @@ public class ZoomImageView extends AppCompatImageView {
       if (doubleTapListener != null) {
         consumed = doubleTapListener.onDoubleTap(e);
       }
+
+      // Do not zoom photo if bottom sheet is expanded
+      if (bottomSheet.isExpanded()) {
+        return true;
+      }
+
       if (state == State.NONE) {
         float targetZoom = (normalisedScale == MIN_SCALE) ? MAX_SCALE : MIN_SCALE;
         DoubleTapZoom doubleTap = new DoubleTapZoom(targetZoom, e.getX(), e.getY(), false);
@@ -942,6 +943,7 @@ public class ZoomImageView extends AppCompatImageView {
       if (zoomImageViewListener != null) {
         zoomImageViewListener.onMove();
       }
+
       return true;
     }
 
@@ -1283,4 +1285,5 @@ public class ZoomImageView extends AppCompatImageView {
       this.scaleType = scaleType;
     }
   }
+
 }

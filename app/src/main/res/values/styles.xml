@@ -21,7 +21,7 @@
   <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
   <style name="ModalBottomSheet" parent="Widget.MaterialComponents.BottomSheet.Modal">
-    <item name="backgroundTint">@color/colorGhostWhite</item>
+    <item name="backgroundTint">@android:color/white</item>
     <item name="background">@color/colorPrimary</item>
     <item name="shapeAppearance">@style/SheetShape</item>
   </style>

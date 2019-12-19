@@ -52,177 +52,189 @@
         android:id="@+id/detailTag"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:drawableStart="@drawable/ic_info"
-        android:drawablePadding="-20dp"
+        android:drawableTop="@drawable/ic_keyboard_arrow_up"
         android:gravity="center"
-        android:paddingStart="@dimen/fragment_horizontal_margin"
-        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:onClick="@{() -> fragment.toggleBottomSheet()}"
+        android:paddingBottom="@dimen/fragment_vertical_margin"
         android:text="@string/details"
         android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/standardBottomSheet" />
 
-      <TextView
-        android:id="@+id/visit_label"
+      <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_horizontal_margin"
-        android:text="@string/visit_title"
-        android:textColor="?detailTitle"
-        android:textSize="@dimen/min_text_size"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/detailTag" />
+        app:layout_constraintTop_toBottomOf="@id/detailTag">
 
-      <TextView
-        android:id="@+id/text_visit"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{visitTitle}"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/visit_label" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/detailTag">
 
-      <TextView
-        android:id="@+id/date_label"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:text="@string/date"
-        android:textColor="?detailTitle"
-        android:textSize="@dimen/min_text_size"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_visit" />
+          <TextView
+            android:id="@+id/visit_label"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:text="@string/visit_title"
+            android:textColor="?detailTitle"
+            android:textSize="@dimen/min_text_size"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-      <TextView
-        android:id="@+id/text_date"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{photo.dateInString}"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/date_label" />
+          <TextView
+            android:id="@+id/text_visit"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:text="@{visitTitle}"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/visit_label" />
 
-      <TextView
-        android:id="@+id/location_label"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:text="@string/location"
-        android:textColor="?detailTitle"
-        android:textSize="@dimen/min_text_size"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_date" />
+          <TextView
+            android:id="@+id/date_label"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/date"
+            android:textColor="?detailTitle"
+            android:textSize="@dimen/min_text_size"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_visit" />
 
-      <ViewStub
-        android:id="@+id/viewstub_map"
-        android:layout_width="match_parent"
-        android:layout_height="256dp"
-        android:layout_marginTop="@dimen/fragment_vertical_margin"
-        android:layout="@layout/viewstub_map_lite"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/location_label" />
+          <TextView
+            android:id="@+id/text_date"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:text="@{photo.dateInString}"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/date_label" />
 
-      <TextView
-        android:id="@+id/temperature_label"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:text="@string/temperature"
-        android:textColor="?detailTitle"
-        android:textSize="@dimen/min_text_size"
-        android:textStyle="bold"
-        android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/map_lite_fragment"
-        tools:ignore="NotSibling" />
+          <TextView
+            android:id="@+id/location_label"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/location"
+            android:textColor="?detailTitle"
+            android:textSize="@dimen/min_text_size"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_date" />
 
-      <TextView
-        android:id="@+id/text_temperature"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text='@{String.valueOf(unit.equals(@string/celsius) ? photo.temperatureCelsius() : (photo.temperatureFahrenheit())).concat(unit)}'
-        android:textSize="16sp"
-        android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/temperature_label" />
+          <ViewStub
+            android:id="@+id/viewstub_map"
+            android:layout_width="match_parent"
+            android:layout_height="256dp"
+            android:layout_marginTop="@dimen/fragment_vertical_margin"
+            android:layout="@layout/viewstub_map_lite"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/location_label" />
 
-      <TextView
-        android:id="@+id/pressure_label"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:text="@string/pressure"
-        android:textColor="?detailTitle"
-        android:textSize="@dimen/min_text_size"
-        android:textStyle="bold"
-        android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_temperature" />
+          <TextView
+            android:id="@+id/temperature_label"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/temperature"
+            android:textColor="?detailTitle"
+            android:textSize="@dimen/min_text_size"
+            android:textStyle="bold"
+            android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/map_lite_fragment"
+            tools:ignore="NotSibling" />
 
-      <TextView
-        android:id="@+id/text_pressure"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{photo.pressure() + ` hPa`}"
-        android:textSize="16sp"
-        android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pressure_label" />
+          <TextView
+            android:id="@+id/text_temperature"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:text='@{String.valueOf(unit.equals(@string/celsius) ? photo.temperatureCelsius() : (photo.temperatureFahrenheit())).concat(unit)}'
+            android:textSize="16sp"
+            android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/temperature_label" />
 
-      <TextView
-        android:id="@+id/uri_label"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:text="@string/file_path"
-        android:textColor="?detailTitle"
-        android:textSize="@dimen/min_text_size"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_pressure" />
+          <TextView
+            android:id="@+id/pressure_label"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/pressure"
+            android:textColor="?detailTitle"
+            android:textSize="@dimen/min_text_size"
+            android:textStyle="bold"
+            android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_temperature" />
 
-      <TextView
-        android:id="@+id/text_uri"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{photo.filePath()}"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/uri_label" />
+          <TextView
+            android:id="@+id/text_pressure"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:text="@{photo.pressure() + ` hPa`}"
+            android:textSize="16sp"
+            android:visibility="@{photo.hasSensorsReading() ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/pressure_label" />
+
+          <TextView
+            android:id="@+id/uri_label"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/file_path"
+            android:textColor="?detailTitle"
+            android:textSize="@dimen/min_text_size"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_pressure" />
+
+          <TextView
+            android:id="@+id/text_uri"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:text="@{photo.filePath()}"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/uri_label" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+      </androidx.core.widget.NestedScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

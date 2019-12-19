@@ -4,12 +4,13 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.google.android.libraries.maps.CameraUpdateFactory;
@@ -84,20 +85,11 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
       binding.setVisitTitle(visitRepository.getVisitTitle(photo.visitId()));
     }
 
-    ConstraintLayout bottomSheet = binding.standardBottomSheet;
-    BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+    BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(binding.standardBottomSheet);
 
-    ZoomImageView imageContainer = binding.imageRaw;
+    binding.imageRaw.bottomSheet.setBottomSheet(binding.detailTag, bottomSheetBehavior);
 
-    imageContainer.setBottomSheet(bottomSheetBehavior);
-//    imageContainer.setOnTouchListener((v, event) -> {
-//      imageContainer.performClick();
-//      System.out.println("ACTION:"+event.getAction());
-//      System.out.println("STATE:"+bottomSheetBehavior.getState());
-//
-//    });
-
-   return binding.getRoot();
+    return binding.getRoot();
   }
 
   /**
@@ -158,27 +150,40 @@ public class PhotoFragment extends Fragment implements OnMapReadyCallback {
   }
 
   /**
-   * Prepare the Fragment host's standard options menu to be displayed.
+   * Initialize the contents of the Fragment host's standard options menu.
    *
-   * @param menu The options menu as last shown or first initialized by onCreateOptionsMenu().
+   * @param menu The options menu in which you place your items.
    * @see #setHasOptionsMenu
+   * @see #onPrepareOptionsMenu
+   * @see #onOptionsItemSelected
+   */
+  @Override
+  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    menu.clear();
+    activity.getMenuInflater().inflate(R.menu.menu_photo, menu);
+  }
+
+  /**
+   * This hook is called whenever an item in options menu is selected.
+   *
+   * @param item The menu item that was selected.
+   * @return boolean Return false to allow normal menu processing to proceed, true to consume it
+   * here.
    * @see #onCreateOptionsMenu
    */
   @Override
-  public void onPrepareOptionsMenu(@NonNull Menu menu) {
-    // Do not show any menu items
-    menu.clear();
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    if (item.getItemId() == R.id.photo_details) {
+      toggleBottomSheet();
+    }
+
+    return super.onOptionsItemSelected(item);
   }
 
-//  /**
-//   * Navigate to {@link PhotoZoomFragment} to show the image in full screen and allow zoom
-//   */
-//  public void zoomImage() {
-//    if (FileHelper.fileExist(photo.filePath())) {
-//      Navigation.findNavController(binding.getRoot()).navigate(
-//          PhotoFragmentDirections.actionZoomPhoto(photo)
-//      );
-//    }
-//  }
-
+  /**
+   * Toggle the bottom sheet between expanded and collapse state
+   */
+  public void toggleBottomSheet() {
+    binding.imageRaw.bottomSheet.toggleBehaviorState();
+  }
 }
