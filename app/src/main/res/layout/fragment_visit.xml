@@ -4,7 +4,10 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
+    <import type="com.photour.helper.DateHelper" />
+
     <import type="com.photour.helper.StringHelper" />
+
     <import type="android.view.View" />
 
     <variable
@@ -67,7 +70,7 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{viewModel.detailsArray[0]}"
+        android:text="@{viewModel.visit.visitTitle()}"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/visit_label" />
@@ -83,6 +86,7 @@
         android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
+        android:visibility="@{viewModel.visit.elapsedTime() == 0 ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_visit" />
 
@@ -93,8 +97,9 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{viewModel.detailsArray[1]}"
+        android:text="@{DateHelper.elapsedTimeFormat(viewModel.visit.elapsedTime())}"
         android:textSize="16sp"
+        android:visibility="@{viewModel.visit.elapsedTime() == 0 ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/time_label" />
 
@@ -109,7 +114,7 @@
         android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
-        android:visibility="@{viewModel.detailsArray.length == 2 ? View.GONE : View.VISIBLE}"
+        android:visibility="@{viewModel.detailsArray == null ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_time" />
 
@@ -120,9 +125,9 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{viewModel.detailsArray[2]}"
+        android:text="@{viewModel.detailsArray[0]}"
         android:textSize="16sp"
-        android:visibility="@{viewModel.detailsArray.length == 2 ? View.GONE : View.VISIBLE}"
+        android:visibility="@{viewModel.detailsArray == null ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/date_label" />
 
@@ -137,7 +142,7 @@
         android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
-        android:visibility="@{viewModel.detailsArray.length == 2 ? View.GONE : View.VISIBLE}"
+        android:visibility="@{viewModel.detailsArray == null ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_date" />
 
@@ -162,7 +167,7 @@
         android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
-        android:visibility="@{Boolean.parseBoolean(viewModel.detailsArray[6]) ? View.VISIBLE : View.GONE}"
+        android:visibility="@{Boolean.parseBoolean(viewModel.detailsArray[4]) ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/map_lite_fragment" />
 
@@ -173,9 +178,9 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{viewModel.detailsArray[3]}"
+        android:text="@{viewModel.detailsArray[1]}"
         android:textSize="16sp"
-        android:visibility="@{Boolean.parseBoolean(viewModel.detailsArray[6]) ? View.VISIBLE : View.GONE}"
+        android:visibility="@{Boolean.parseBoolean(viewModel.detailsArray[4]) ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/temperature_label" />
 
@@ -190,7 +195,7 @@
         android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
-        android:visibility="@{Boolean.parseBoolean(viewModel.detailsArray[6]) ? View.VISIBLE : View.GONE}"
+        android:visibility="@{Boolean.parseBoolean(viewModel.detailsArray[4]) ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_temperature" />
 
@@ -201,9 +206,9 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{viewModel.detailsArray[4] + ` hPa`}"
+        android:text="@{viewModel.detailsArray[2] + ` hPa`}"
         android:textSize="16sp"
-        android:visibility="@{Boolean.parseBoolean(viewModel.detailsArray[6]) ? View.VISIBLE : View.GONE}"
+        android:visibility="@{Boolean.parseBoolean(viewModel.detailsArray[4]) ? View.VISIBLE : View.GONE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pressure_label" />
 
@@ -218,7 +223,7 @@
         android:textColor="?detailTitle"
         android:textSize="@dimen/min_text_size"
         android:textStyle="bold"
-        android:visibility="@{viewModel.detailsArray.length == 2 ? View.GONE : View.VISIBLE}"
+        android:visibility="@{viewModel.detailsArray == null ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_pressure" />
 
@@ -229,9 +234,9 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@{viewModel.detailsArray[5]}"
+        android:text="@{viewModel.detailsArray[3]}"
         android:textSize="16sp"
-        android:visibility="@{viewModel.detailsArray.length == 2 ? View.GONE : View.VISIBLE}"
+        android:visibility="@{viewModel.detailsArray == null ? View.GONE : View.VISIBLE}"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/uri_label" />
 

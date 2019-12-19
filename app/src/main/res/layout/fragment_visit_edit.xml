@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <data>
+    <variable
+      name="fragment"
+      type="com.photour.ui.visit.EditVisitFragment" />
+
+    <variable
+      name="visit"
+      type="com.photour.model.Visit" />
+  </data>
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.textfield.TextInputLayout
+      android:id="@+id/inputlayout_edit_visit_title"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_marginStart="@dimen/activity_horizontal_margin"
+      android:layout_marginTop="20dp"
+      android:layout_marginEnd="@dimen/activity_horizontal_margin"
+      android:hint="@string/edit_visit_title"
+      app:endIconMode="clear_text"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent">
+
+      <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/edit_visit_title_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:importantForAutofill="no"
+        android:inputType="textMultiLine"
+        android:maxHeight="250dp"
+        android:minHeight="100dp"
+        android:text="@{visit.visitTitle()}"
+        android:textSize="30sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+      android:id="@+id/button_start_visit"
+      android:layout_width="wrap_content"
+      android:layout_height="0dp"
+      android:layout_marginTop="20dp"
+      android:background="@drawable/rounded_button"
+      android:onClick="@{() -> fragment.updateVisitTitle()}"
+      android:paddingStart="@dimen/activity_horizontal_margin"
+      android:paddingEnd="@dimen/activity_horizontal_margin"
+      android:text="@string/save"
+      android:textColor="@android:color/white"
+      android:textSize="@dimen/min_text_size"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/inputlayout_edit_visit_title" />
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
+
+

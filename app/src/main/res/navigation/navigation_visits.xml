@@ -10,6 +10,7 @@
     android:name="com.photour.ui.visits.VisitsFragment"
     android:label="@string/visits"
     tools:layout="@layout/fragment_visits">
+
     <action
       android:id="@+id/action_view_visit"
       app:destination="@id/view_visit" />
@@ -26,8 +27,23 @@
       app:argType="com.photour.model.Visit" />
 
     <action
+      android:id="@+id/action_edit_visit"
+      app:destination="@id/edit_visit" />
+
+    <action
       android:id="@+id/action_zoom_photo"
       app:destination="@id/photo_zoom" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/edit_visit"
+    android:name="com.photour.ui.visit.EditVisitFragment"
+    android:label="Edit visit"
+    tools:layout="@layout/fragment_visit_edit">
+
+    <argument
+      android:name="visit"
+      app:argType="com.photour.model.Visit" />
   </fragment>
 
   <fragment

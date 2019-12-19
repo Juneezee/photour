@@ -1,16 +1,12 @@
 package com.photour.ui.visit;
 
 import android.app.Application;
-import android.database.ContentObserver;
-import android.os.Handler;
-import android.provider.MediaStore;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.photour.database.PhotoRepository;
 import com.photour.database.VisitRepository;
-import com.photour.helper.DateHelper;
 import com.photour.helper.PreferenceHelper;
 import com.photour.model.Photo;
 import com.photour.model.Visit;
@@ -25,12 +21,13 @@ public class VisitViewModel extends AndroidViewModel {
 
   private MutableLiveData<String> placeholderText = new MutableLiveData<>();
   private MutableLiveData<String[]> detailsArray = new MutableLiveData<>();
+
   public Visit visit;
+  LiveData<Visit> liveVisit;
+
   public LiveData<List<Photo>> photos;
   private PhotoRepository photoRepository;
   private VisitRepository visitRepository;
-
-  private ContentObserver contentObserver = null;
 
   /**
    * Constructor for VisitViewModel
@@ -41,6 +38,27 @@ public class VisitViewModel extends AndroidViewModel {
     super(application);
     photoRepository = new PhotoRepository(application);
     visitRepository = new VisitRepository(application);
+  }
+
+  /**
+   * Set the value of non-LiveData visit and liveData visit
+   *
+   * @param visit The visit that is passed from {@link com.photour.ui.visits.VisitsFragment}
+   */
+  void initVisit(Visit visit) {
+    this.visit = visit;
+    liveVisit = visitRepository.getLiveVisit(visit.id());
+
+    loadImages();
+  }
+
+  /**
+   * Get the visit
+   *
+   * @return LiveData<Visit> The visit
+   */
+  public LiveData<Visit> getVisit() {
+    return liveVisit;
   }
 
   /**
@@ -59,28 +77,34 @@ public class VisitViewModel extends AndroidViewModel {
    * @return LatLng of Photo
    */
   int setDetails(int currentImagePos) {
-    if (currentImagePos < 0) {
-      String[] tempArray = {
-          visit.visitTitle(),
-          DateHelper.elapsedTimeFormat(visit.elapsedTime())};
-      detailsArray.setValue(tempArray);
-
+    if (currentImagePos < 0 || photos.getValue() == null) {
       return -1;
     }
+
     Photo photo = photos.getValue().get(currentImagePos);
     String unit = PreferenceHelper.tempUnit(getApplication());
     String[] tempArray = {
-        visit.visitTitle(),
-        DateHelper.elapsedTimeFormat(visit.elapsedTime()),
         photo.getDateInString(),
         String.valueOf(unit.equals("c") ? (photo.temperatureCelsius())
             : (photo.temperatureFahrenheit())).concat(unit),
         String.valueOf(photo.pressure()),
         photo.filePath(),
-        String.valueOf(photo.hasSensorsReading())};
+        String.valueOf(photo.hasSensorsReading())
+    };
+
     detailsArray.setValue(tempArray);
 
     return photo.id();
+  }
+
+  /**
+   * Update the title of the visit in {@link EditVisitFragment}
+   *
+   * @param visitTitle The new visit for the visit
+   * @return boolean {@code true} if the operation is successful, {@code false} otherwise
+   */
+  boolean updateVisitTitle(String visitTitle) {
+    return visitRepository.update(visit.id(), visitTitle.isEmpty() ? "Untitled visit" : visitTitle);
   }
 
   /**
@@ -115,19 +139,8 @@ public class VisitViewModel extends AndroidViewModel {
   /**
    * Helper function to setup photos LiveData with the Room
    */
-  void loadImages() {
+  private void loadImages() {
     photos = photoRepository.getAllPhotosInVisit(visit.id());
-    if (contentObserver == null) {
-      contentObserver = new ContentObserver(new Handler()) {
-        @Override
-        public void onChange(boolean selfChange) {
-          super.onChange(selfChange);
-          loadImages();
-        }
-      };
-      this.getApplication().getContentResolver().registerContentObserver(
-          MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, contentObserver);
-    }
   }
 
 }

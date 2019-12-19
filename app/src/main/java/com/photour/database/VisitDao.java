@@ -24,6 +24,9 @@ public interface VisitDao {
   @Insert
   long insert(Visit visit);
 
+  @Query("UPDATE visits SET visitTitle = :visitTitle WHERE id = :id")
+  int update(final long id, final String visitTitle);
+
   @Query("UPDATE visits SET elapsedTime = :elapsedTime, latLngList = :latLngList WHERE id = :id")
   void update(final long id, final long elapsedTime, final ArrayList<LatLng> latLngList);
 
@@ -32,8 +35,11 @@ public interface VisitDao {
           "GROUP BY visits.id ORDER BY visits.date DESC")
   LiveData<List<Visit>> getAllVisits();
 
-  @Query("SELECT visitTitle FROM visits WHERE id =:id")
+  @Query("SELECT visitTitle FROM visits WHERE id = :id")
   String getVisitTitle(final long id);
+
+  @Query("SELECT * FROM visits WHERE id = :id")
+  LiveData<Visit> getLiveVisit(final long id);
 
   @Delete
   int delete(Visit visit);

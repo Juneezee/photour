@@ -37,7 +37,7 @@ import com.photour.helper.AlertDialogHelper;
 import com.photour.helper.PermissionHelper;
 import com.photour.helper.ToastHelper;
 import com.photour.model.Photo;
-import com.photour.model.Visit;
+import com.photour.ui.visit.VisitFragmentDirections.ActionEditVisit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +54,6 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
   private Activity activity;
 
   private GoogleMap googleMap;
-  private Visit visit;
   private VisitViewModel visitViewModel;
   private ViewPager2 mViewPager;
   private VisitAdapter visitAdapter;
@@ -96,7 +95,6 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    * saved state as given here.
    * @return View Return the View for the fragment's UI, or null.
    */
-  @Nullable
   @Override
   public View onCreateView(
       @NonNull LayoutInflater inflater,
@@ -110,12 +108,13 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     binding.setViewModel(visitViewModel);
 
     if (getArguments() != null) {
-      visit = VisitFragmentArgs.fromBundle(getArguments()).getVisit();
-      visitViewModel.visit = visit;
-      visitViewModel.loadImages();
+      visitViewModel.initVisit(VisitFragmentArgs.fromBundle(getArguments()).getVisit());
     }
 
-    ((MainActivity) activity).setToolbarTitle(visitViewModel.visit.visitTitle());
+    visitViewModel.liveVisit.observe(getViewLifecycleOwner(), visit -> {
+      visitViewModel.visit = visit;
+      ((MainActivity) activity).setToolbarTitle(visit.visitTitle());
+    });
 
     return binding.getRoot();
   }
@@ -130,7 +129,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    if (visit != null) {
+    if (visitViewModel.visit != null) {
       initializeViewPager();
     }
   }
@@ -251,7 +250,7 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
    * draw it on the map
    */
   private void initialisePolyLine() {
-    List<LatLng> polyLine = visit.latLngList();
+    List<LatLng> polyLine = visitViewModel.visit.latLngList();
 
     // Edge case: latLngList is null or empty
     if (polyLine == null || polyLine.isEmpty()) {
@@ -340,7 +339,11 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     int itemId = item.getItemId();
 
     switch (itemId) {
-      case R.id.edit_visit:
+      /*
+       * Cannot be edit_visit, {@see MainActivity#onOptionsItemSelected }
+       */
+      case R.id.edit_visit_option:
+        editVisit();
         break;
       case R.id.delete_visit:
         deleteVisit();
@@ -348,6 +351,14 @@ public class VisitFragment extends Fragment implements OnMapReadyCallback {
     }
 
     return super.onOptionsItemSelected(item);
+  }
+
+  /**
+   * Navigate to {@link EditVisitFragment}
+   */
+  private void editVisit() {
+    ActionEditVisit actionEditVisit = VisitFragmentDirections.actionEditVisit(visitViewModel.visit);
+    Navigation.findNavController(binding.getRoot()).navigate(actionEditVisit);
   }
 
   /**

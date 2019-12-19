@@ -96,7 +96,7 @@ public class LocationHelper {
       return true;
     }
 
-    // Check if distance with last location updates is >= 5 metres
+    // Check if distance with last location updates is >= 10 metres
     LatLng lastLatLng = latLngList.get(latLngList.size() - 1);
     float[] results = new float[3];
     Location.distanceBetween(
@@ -107,7 +107,7 @@ public class LocationHelper {
         results
     );
 
-    return results[0] >= 5;
+    return results[0] >= 10;
   }
 
   /**
